@@ -1,0 +1,128 @@
+The following ABNF grammar defines the Wallet Access Protocol:
+
+    WAP = open ( traffic / heartbeat ) close
+
+    open = C:OPEN ( S:OPEN-OK / S:ERROR )
+
+    traffic = blocks / put / get / save / start / stop
+
+    blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
+    put = C:PUT ( S:PUT-OK / S:ERROR )
+    get = C:GET ( S:GET-OK / S:ERROR )
+    save = C:SAVE ( S:SAVE-OK / S:ERROR )
+    start = C:START ( S:START-OK / S:ERROR )
+    stop = C:STOP ( S:STOP-OK / S:ERROR )
+
+    heartbeat = C:PING ( S:PING-OK / S:ERROR )
+
+    close = C:CLOSE ( S:CLOSE-OK / S:ERROR )
+
+    ;  Wallet opens a connection to the daemon.                              
+
+    OPEN            = signature %d1 protocol version identity
+    signature       = %xAA %xA0             ; two octets
+    protocol        = string                ; 
+    version         = number-2              ; Protocol version 1
+    identity        = string                ; Wallet identity
+
+    ;  Daemon accepts wallet open request.                                   
+
+    OPEN-OK         = signature %d2
+
+    ;  Wallet requests a set of blocks from the daemon. Daemon replies with  
+    ;  GET-OK, or ERROR if the request is invalid.                           
+
+    BLOCKS          = signature %d3 block ids
+    block ids       = strings               ; 
+
+    ;  Daemon returns a set of blocks to the wallet.                         
+
+    BLOCKS-OK       = signature %d4 start height curr height block status block data
+    start height    = number-8              ; 
+    curr height     = number-8              ; 
+    block status    = string                ; 
+    block data      = msg                   ; Frames of block data
+
+    ;  Wallet sends a raw transaction to the daemon. Daemon replies with     
+    ;  PUT-OK, or ERROR.                                                     
+
+    PUT             = signature %d5 tx data
+    tx data         = chunk                 ; Transaction data
+
+    ;  Daemon confirms that it accepted the raw transaction.                 
+
+    PUT-OK          = signature %d6 tx id
+    tx id           = string                ; Transaction ID
+
+    ;  Wallet requests transaction data from the daemon. Daemon replies with 
+    ;  GET-OK, or ERROR.                                                     
+
+    GET             = signature %d7 tx id
+    tx id           = string                ; Transaction ID
+
+    ;  Daemon replies with transaction data.                                 
+
+    GET-OK          = signature %d8 tx data
+    tx data         = chunk                 ; Transaction data
+
+    ;  save_bc command. Details tbd.                                         
+
+    SAVE            = signature %d9
+
+    ;  Daemon replies to a save_bc command.                                  
+
+    SAVE-OK         = signature %d10
+
+    ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
+    ;  ERROR.                                                                
+
+    START           = signature %d11
+
+    ;  Daemon replies to a start mining request.                             
+
+    START-OK        = signature %d12
+
+    ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
+    ;  ERROR.                                                                
+
+    STOP            = signature %d13
+
+    ;  Daemon replies to a stop mining request.                              
+
+    STOP-OK         = signature %d14
+
+    ;  Wallet closes the connection. This is polite though not mandatory.    
+    ;  Daemon will reply with CLOSE-OK or ERROR.                             
+
+    CLOSE           = signature %d15
+
+    ;  Daemon replies to a wallet connection close request.                  
+
+    CLOSE-OK        = signature %d16
+
+    ;  Daemon replies with failure status. Status codes tbd.                 
+
+    ERROR           = signature %d17 status reason
+    status          = number-2              ; Error status
+    reason          = string                ; Printable explanation
+
+    ; A list of string values
+    strings         = strings-count *strings-value
+    strings-count   = number-4
+    strings-value   = longstr
+
+    ; A chunk has 4-octet length + binary contents
+    chunk           = number-4 *OCTET
+
+    ; A msg is zero or more distinct frames
+    msg             = *frame
+
+    ; Strings are always length + text contents
+    string          = number-1 *VCHAR
+    longstr         = number-4 *VCHAR
+
+    ; Numbers are unsigned integers in network byte order
+    number-1        = 1OCTET
+    number-2        = 2OCTET
+    number-4        = 4OCTET
+    number-8        = 8OCTET

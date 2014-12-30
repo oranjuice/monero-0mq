@@ -1,0 +1,14 @@
+<project 
+    name = "wallet"
+    description = "Monero Wallet API"
+    prefix = "wap"
+    email = "tdb"
+    script = "zproject.gsl"
+    >
+    <include filename = "license.xml" />
+    <version major = "0" minor = "0" patch = "1" />
+    <use project = "czmq" />
+
+    <class name = "wap_proto">Wallet Access Protocol</class>
+    <model name = "wap_proto" />
+</project>
