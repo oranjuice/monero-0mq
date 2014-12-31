@@ -1,0 +1,117 @@
+<class
+    name = "wap_proto"
+    title = "Wallet Access Protocol"
+    script = "zproto_codec_c"
+    package_dir = "../include"
+    >
+    This is a codec for a Bitcoin Wallet Access Protocol (RFC tbd)
+    <include filename = "../license.xml" />
+
+    <grammar>
+    WAP = open ( traffic / heartbeat ) close
+
+    open = C:OPEN ( S:OPEN-OK / S:ERROR )
+
+    traffic = blocks / put / get / save / start / stop
+
+    blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
+    put = C:PUT ( S:PUT-OK / S:ERROR )
+    get = C:GET ( S:GET-OK / S:ERROR )
+    save = C:SAVE ( S:SAVE-OK / S:ERROR )
+    start = C:START ( S:START-OK / S:ERROR )
+    stop = C:STOP ( S:STOP-OK / S:ERROR )
+
+    heartbeat = C:PING ( S:PING-OK / S:ERROR )
+
+    close = C:CLOSE ( S:CLOSE-OK / S:ERROR )
+    </grammar>
+
+    <!-- Opening and closing the connection -->
+    <message name = "OPEN">
+        Wallet opens a connection to the daemon.
+        <field name = "protocol" type = "string" value = "WAP" />
+        <field name = "version" type = "number" size = "2" value = "1">Protocol version 1</field>
+        <field name = "identity" type = "string">Wallet identity</field>
+    </message>
+
+    <message name = "OPEN-OK">
+        Daemon accepts wallet open request.
+    </message>
+
+    <message name = "BLOCKS">
+        Wallet requests a set of blocks from the daemon. Daemon replies with
+        GET-OK, or ERROR if the request is invalid.
+        <field name = "block ids" type = "strings" />
+    </message>
+
+    <message name = "BLOCKS-OK">
+        Daemon returns a set of blocks to the wallet.
+        <field name = "start height" type = "number" size = "8" />
+        <field name = "curr height" type = "number" size = "8" />
+        <field name = "block status" type = "string" />
+        <field name = "block data" type = "msg">Frames of block data</field>
+    </message>
+
+    <message name = "PUT">
+        Wallet sends a raw transaction to the daemon. Daemon replies with
+        PUT-OK, or ERROR.
+        <field name = "tx data" type = "chunk">Transaction data</field>
+    </message>
+
+    <message name = "PUT-OK">
+        Daemon confirms that it accepted the raw transaction.
+        <field name = "tx id" type = "string">Transaction ID</field>
+    </message>
+
+    <message name = "GET">
+        Wallet requests transaction data from the daemon. Daemon replies
+        with GET-OK, or ERROR.
+        <field name = "tx id" type = "string">Transaction ID</field>
+    </message>
+
+    <message name = "GET-OK">
+        Daemon replies with transaction data.
+        <field name = "tx data" type = "chunk">Transaction data</field>
+    </message>
+
+    <message name = "SAVE">
+        save_bc command. Details tbd.
+    </message>
+
+    <message name = "SAVE-OK">
+        Daemon replies to a save_bc command.
+    </message>
+
+    <message name = "START">
+        Wallet asks daemon to start mining. Daemon replies with START-OK, or
+        ERROR.
+    </message>
+
+    <message name = "START-OK">
+        Daemon replies to a start mining request.
+    </message>
+
+    <message name = "STOP">
+        Wallet asks daemon to start mining. Daemon replies with START-OK, or
+        ERROR.
+    </message>
+
+    <message name = "STOP-OK">
+        Daemon replies to a stop mining request.
+    </message>
+
+    <message name = "CLOSE">
+        Wallet closes the connection. This is polite though not mandatory.
+        Daemon will reply with CLOSE-OK or ERROR.
+    </message>
+
+    <message name = "CLOSE-OK">
+        Daemon replies to a wallet connection close request.
+    </message>
+
+    <message name = "ERROR">
+        Daemon replies with failure status. Status codes tbd.
+        <field name = "status" type = "number" size = "2">Error status</field>
+        <field name = "reason" type = "string">Printable explanation</field>
+    </message>
+</class>

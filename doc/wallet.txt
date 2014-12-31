@@ -1,0 +1,25 @@
+Name(7)
+=======
+
+
+NAME
+----
+wallet - Monero Wallet API
+
+
+SYNOPSIS
+--------
+----
+#include <wallet.h>
+
+cc ['flags'] 'files' -lwap ['libraries']
+----
+
+
+DESCRIPTION
+-----------
+
+Classes
+~~~~~~~
+
+Something.
