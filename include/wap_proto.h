@@ -31,7 +31,7 @@
     OPEN_OK - Daemon accepts wallet open request.
 
     BLOCKS - Wallet requests a set of blocks from the daemon. Daemon replies with
-GET-OK, or ERROR if the request is invalid.
+BLOCKS-OK, or ERROR if the request is invalid.
         block_ids           strings     
 
     BLOCKS_OK - Daemon returns a set of blocks to the wallet.
@@ -73,11 +73,26 @@ Daemon will reply with CLOSE-OK or ERROR.
 
     CLOSE_OK - Daemon replies to a wallet connection close request.
 
+    PING - Wallet heartbeats an idle connection.
+
+    PING_OK - Daemon replies to a wallet ping request.
+
     ERROR - Daemon replies with failure status. Status codes tbd.
         status              number 2    Error status
         reason              string      Printable explanation
 */
 
+#define WAP_PROTO_SUCCESS                   200
+#define WAP_PROTO_NOT_DELIVERED             300
+#define WAP_PROTO_CONTENT_TOO_LARGE         301
+#define WAP_PROTO_TIMEOUT_EXPIRED           302
+#define WAP_PROTO_CONNECTION_REFUSED        303
+#define WAP_PROTO_RESOURCE_LOCKED           400
+#define WAP_PROTO_ACCESS_REFUSED            401
+#define WAP_PROTO_NOT_FOUND                 404
+#define WAP_PROTO_COMMAND_INVALID           500
+#define WAP_PROTO_NOT_IMPLEMENTED           501
+#define WAP_PROTO_INTERNAL_ERROR            502
 
 #define WAP_PROTO_OPEN                      1
 #define WAP_PROTO_OPEN_OK                   2
@@ -95,7 +110,9 @@ Daemon will reply with CLOSE-OK or ERROR.
 #define WAP_PROTO_STOP_OK                   14
 #define WAP_PROTO_CLOSE                     15
 #define WAP_PROTO_CLOSE_OK                  16
-#define WAP_PROTO_ERROR                     17
+#define WAP_PROTO_PING                      17
+#define WAP_PROTO_PING_OK                   18
+#define WAP_PROTO_ERROR                     19
 
 #include <czmq.h>
 

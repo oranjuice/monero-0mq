@@ -3,7 +3,7 @@
 #  Please refer to the README for information about making permanent changes.  #
 ################################################################################
 MAN1 =
-MAN3 = wap_proto.3
+MAN3 = wap_proto.3 wap_server.3 wap_client.3
 MAN7 = wallet.7
 MAN_DOC = $(MAN1) $(MAN3) $(MAN7)
 
@@ -35,6 +35,10 @@ SUFFIXES=.txt .xml .1 .3 .7
 	xmlto man $<
 
 wap_proto.txt:
+	zproject_mkman $<
+wap_server.txt:
+	zproject_mkman $<
+wap_client.txt:
 	zproject_mkman $<
 endif
 ################################################################################

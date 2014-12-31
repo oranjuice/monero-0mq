@@ -8,7 +8,17 @@
     <include filename = "license.xml" />
     <version major = "0" minor = "0" patch = "1" />
     <use project = "czmq" />
-
+    
+    <main name = "wap_tutorial" private = "1" />
+    
     <class name = "wap_proto">Wallet Access Protocol</class>
+    <class name = "wap_server">Wallet server implementation</class>
+    <class name = "wap_client">Wallet client API</class>
+    
     <model name = "wap_proto" />
+    <model name = "wap_client" />
+    <model name = "wap_server" />
+    
+    <extra name = "wap_server_engine.inc" />
+    <extra name = "wap_client_engine.inc" />
 </project>

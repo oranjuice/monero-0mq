@@ -10,6 +10,12 @@
     <ClCompile Include="..\..\..\..\src\wap_proto.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\wap_server.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\wap_client.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\wap_library.h">
@@ -17,6 +23,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\wallet.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\wap_server_engine.inc">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\wap_client_engine.inc">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

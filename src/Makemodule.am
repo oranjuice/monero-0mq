@@ -13,10 +13,16 @@ pkgconfig_DATA = src/libwap.pc
 include_HEADERS = \
     include/wallet.h \
     include/wap_proto.h \
+    include/wap_server.h \
+    include/wap_client.h \
     include/wap_library.h
 
 src_libwap_la_SOURCES = \
     src/wap_proto.c \
+    src/wap_server.c \
+    src/wap_client.c \
+    src/wap_server_engine.inc \
+    src/wap_client_engine.inc \
     src/platform.h
 
 src_libwap_la_CPPFLAGS = ${AM_CPPFLAGS}
@@ -33,6 +39,11 @@ endif
 
 src_libwap_la_LIBADD = ${project_libs}
 
+bin_PROGRAMS += src/wap_tutorial
+src_wap_tutorial_CPPFLAGS = ${AM_CPPFLAGS}
+src_wap_tutorial_LDADD = ${program_libs}
+src_wap_tutorial_SOURCES = src/wap_tutorial.c
+
 check_PROGRAMS += src/wap_selftest
 src_wap_selftest_CPPFLAGS = ${src_libwap_la_CFLAGS}
 src_wap_selftest_LDADD = ${program_libs}
@@ -47,6 +58,8 @@ src: src/libwap.la src/wap_selftest
 # Produce generated code from models in the src directory
 code:
 	cd $(srcdir)/src; gsl -q wap_proto.xml
+	cd $(srcdir)/src; gsl -q wap_client.xml
+	cd $(srcdir)/src; gsl -q wap_server.xml
 
 # Run the selftest binary under valgrind to check for memory leaks
 memcheck: src/wap_selftest

@@ -44,10 +44,16 @@
 //  Opaque class structures to allow forward references
 typedef struct _wap_proto_t wap_proto_t;
 #define WAP_PROTO_T_DEFINED
+typedef struct _wap_server_t wap_server_t;
+#define WAP_SERVER_T_DEFINED
+typedef struct _wap_client_t wap_client_t;
+#define WAP_CLIENT_T_DEFINED
 
 
 //  Public API classes
 #include "wap_proto.h"
+#include "wap_server.h"
+#include "wap_client.h"
 
 #endif
 /*
