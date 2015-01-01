@@ -79,9 +79,17 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\wap_library.h" />
     <ClInclude Include="..\..\..\..\include\wallet.h" />
+    <ClInclude Include="..\..\..\..\src\wap_server_engine.inc" />
+    <ClInclude Include="..\..\..\..\src\wap_client_engine.inc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\wap_proto.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\wap_server.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\wap_client.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
   </ItemGroup>

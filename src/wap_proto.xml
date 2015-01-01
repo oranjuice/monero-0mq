@@ -40,7 +40,7 @@
 
     <message name = "BLOCKS">
         Wallet requests a set of blocks from the daemon. Daemon replies with
-        GET-OK, or ERROR if the request is invalid.
+        BLOCKS-OK, or ERROR if the request is invalid.
         <field name = "block ids" type = "strings" />
     </message>
 
@@ -109,9 +109,36 @@
         Daemon replies to a wallet connection close request.
     </message>
 
+    <message name = "PING">
+        Wallet heartbeats an idle connection.
+    </message>
+
+    <message name = "PING-OK">
+        Daemon replies to a wallet ping request.
+    </message>
+
     <message name = "ERROR">
         Daemon replies with failure status. Status codes tbd.
         <field name = "status" type = "number" size = "2">Error status</field>
         <field name = "reason" type = "string">Printable explanation</field>
     </message>
+    
+    <!-- Success codes -->
+    <define name = "SUCCESS" value = "200" />
+
+    <!-- Temporary errors -->
+    <define name = "NOT DELIVERED" value = "300" />
+    <define name = "CONTENT TOO LARGE" value = "301" />
+    <define name = "TIMEOUT EXPIRED" value = "302" />
+    <define name = "CONNECTION REFUSED" value = "303" />
+
+    <!-- Application errors -->
+    <define name = "RESOURCE LOCKED" value = "400" />
+    <define name = "ACCESS REFUSED" value = "401" />
+    <define name = "NOT FOUND" value = "404" />
+
+    <!-- System errors -->
+    <define name = "COMMAND INVALID" value = "500" />
+    <define name = "NOT IMPLEMENTED" value = "501" />
+    <define name = "INTERNAL ERROR" value = "502" />
 </class>

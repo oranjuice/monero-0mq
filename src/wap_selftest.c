@@ -29,6 +29,8 @@ main (int argc, char *argv [])
     printf ("Running wallet selftests...\n");
 
     wap_proto_test (verbose); 
+    wap_server_test (verbose); 
+    wap_client_test (verbose); 
 
     printf ("Tests passed OK\n");
     return 0;

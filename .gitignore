@@ -17,6 +17,7 @@
 
 # Executables
 wap_selftest
+wap_tutorial
 *.exe
 *.out
 *.app

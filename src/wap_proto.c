@@ -379,6 +379,12 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
         case WAP_PROTO_CLOSE_OK:
             break;
 
+        case WAP_PROTO_PING:
+            break;
+
+        case WAP_PROTO_PING_OK:
+            break;
+
         case WAP_PROTO_ERROR:
             GET_NUMBER2 (self->status);
             GET_STRING (self->reason);
@@ -657,6 +663,14 @@ wap_proto_print (wap_proto_t *self)
             zsys_debug ("WAP_PROTO_CLOSE_OK:");
             break;
             
+        case WAP_PROTO_PING:
+            zsys_debug ("WAP_PROTO_PING:");
+            break;
+            
+        case WAP_PROTO_PING_OK:
+            zsys_debug ("WAP_PROTO_PING_OK:");
+            break;
+            
         case WAP_PROTO_ERROR:
             zsys_debug ("WAP_PROTO_ERROR:");
             zsys_debug ("    status=%ld", (long) self->status);
@@ -760,6 +774,12 @@ wap_proto_command (wap_proto_t *self)
             break;
         case WAP_PROTO_CLOSE_OK:
             return ("CLOSE_OK");
+            break;
+        case WAP_PROTO_PING:
+            return ("PING");
+            break;
+        case WAP_PROTO_PING_OK:
+            return ("PING_OK");
             break;
         case WAP_PROTO_ERROR:
             return ("ERROR");
@@ -1220,6 +1240,26 @@ wap_proto_test (bool verbose)
         assert (wap_proto_routing_id (self));
     }
     wap_proto_set_id (self, WAP_PROTO_CLOSE_OK);
+
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+    }
+    wap_proto_set_id (self, WAP_PROTO_PING);
+
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+    }
+    wap_proto_set_id (self, WAP_PROTO_PING_OK);
 
     //  Send twice
     wap_proto_send (self, output);

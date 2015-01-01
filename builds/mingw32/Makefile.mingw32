@@ -10,7 +10,7 @@ INCDIR=-I$(PREFIX)/include -I.
 LIBDIR=-L$(PREFIX)/lib
 CFLAGS=-Wall -Os -g -DLIBWAP_EXPORTS $(INCDIR)
 
-OBJS = wap_proto.o
+OBJS = wap_proto.o wap_server.o wap_client.o
 %.o: ../../src/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 

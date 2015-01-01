@@ -1,0 +1,198 @@
+<class
+    name = "wap_client"
+    title = "Wallet Client API"
+    script = "zproto_client_c"
+    protocol_class = "wap_proto"
+    package_dir = "../include"
+    project_header = "wap_classes.h"
+    export_macro = "WAP_EXPORT"
+    >
+    This is a client implementation of the Wallet Access Protocol
+    <include filename = "../license.xml" />
+
+    <state name = "start">
+        <event name = "constructor" next = "expect open ok">
+            <action name = "connect to server endpoint" />
+            <action name = "set client identity" />
+            <action name = "use connect timeout" />
+            <action name = "send" message = "OPEN" />
+        </event>
+        <event name = "bad endpoint">
+            <action name = "signal bad endpoint" />
+            <action name = "terminate" />
+        </event>
+    </state>
+
+    <state name = "expect open ok" inherit = "defaults">
+        <event name = "OPEN OK" next = "connected">
+            <action name = "signal success" />
+            <action name = "use heartbeat timer" />
+        </event>
+        <event name = "expired">
+            <action name = "signal server not present" />
+            <action name = "terminate" />
+        </event>
+    </state>
+    
+    <state name = "connected" inherit = "defaults">
+        <!--
+        <event name = "blocks" next = "expect blocks ok">
+            <action name = "prepare blocks command" />
+            <action name = "send" message = "BLOCKS" />
+        </event>
+        <event name = "get" next = "expect get ok">
+            <action name = "prepare get command" />
+            <action name = "send" message = "GET" />
+        </event>
+        <event name = "put" next = "expect put ok">
+            <action name = "prepare put command" />
+            <action name = "send" message = "PUT" />
+        </event>
+        <event name = "save" next = "expect save ok">
+            <action name = "prepare save command" />
+            <action name = "send" message = "SAVE" />
+        </event>
+        -->
+        <event name = "start" next = "expect start ok">
+            <action name = "send" message = "START" />
+        </event>
+        <event name = "stop" next = "expect stop ok">
+            <action name = "send" message = "STOP" />
+        </event>
+        <event name = "destructor" next = "expect close ok">
+            <action name = "send" message = "CLOSE" />
+        </event>
+        <event name = "expired">
+            <action name = "send" message = "PING" />
+        </event>
+    </state>
+
+    <state name = "expect blocks ok" inherit = "defaults">
+        <event name = "BLOCKS OK" next = "connected">
+            <action name = "signal success" />
+        </event>
+    </state>
+
+    <state name = "expect get ok" inherit = "defaults">
+        <event name = "GET OK" next = "connected">
+            <action name = "signal success" />
+        </event>
+    </state>
+
+    <state name = "expect put ok" inherit = "defaults">
+        <event name = "PUT OK" next = "connected">
+            <action name = "signal success" />
+        </event>
+    </state>
+
+    <state name = "expect save ok" inherit = "defaults">
+        <event name = "SAVE OK" next = "connected">
+            <action name = "signal success" />
+        </event>
+    </state>
+
+    <state name = "expect start ok" inherit = "defaults">
+        <event name = "START OK" next = "connected">
+            <action name = "signal success" />
+        </event>
+    </state>
+
+    <state name = "expect stop ok" inherit = "defaults">
+        <event name = "STOP OK" next = "connected">
+            <action name = "signal success" />
+        </event>
+    </state>
+
+    <state name = "expect close ok" inherit = "defaults">
+        <event name = "CLOSE OK">
+            <action name = "signal success" />
+            <action name = "terminate" />
+        </event>
+        <event name = "expired">
+            <action name = "signal failure" />
+            <action name = "terminate" />
+        </event>
+    </state>
+
+    <state name = "defaults">
+        <event name = "CONNECTION PONG">
+        </event>
+        <event name = "ERROR" next = "have error">
+            <action name = "check status code" />
+        </event>
+        <event name = "*">
+            <!-- Discard any other incoming events -->
+        </event>
+    </state>
+
+    <state name = "have error">
+        <event name = "command invalid" next = "reexpect open ok">
+            <action name = "use connect timeout" />
+            <action name = "send" message = "OPEN" />
+        </event>
+        <event name = "other">
+            <action name = "signal unhandled error" />
+            <action name = "terminate" />
+        </event>
+    </state>
+   
+    <state name = "reexpect open ok" inherit = "defaults">
+        <event name = "OPEN OK" next = "connected">
+            <action name = "use heartbeat timer" />
+        </event>
+    </state>
+
+    <!-- API methods -->
+    <method name = "constructor" return = "status">
+    Connect to server endpoint, with specified timeout in msecs (zero means
+    wait forever). Constructor succeeds if connection is successful. The caller
+    may specify its address.
+        <field name = "endpoint" type = "string" />
+        <field name = "timeout" type = "number" size = "4" />
+        <field name = "identity" type = "string" />
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "SUCCESS">
+        <field name = "status" type = "number" size = "1" />
+    </reply>
+
+    <reply name = "FAILURE">
+        <field name = "status" type = "number" size = "1" />
+        <field name = "reason" type = "string" />
+    </reply>
+
+    <method name = "destructor" return = "status">
+    Disconnect from server. Waits for a short timeout for confirmation from
+    the server, then disconnects anyhow.
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <method name = "start" return = "status">
+    Send start command to server.
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <method name = "stop" return = "status">
+    Send stop command to server.
+        <accept reply = "SUCCESS" />
+        <accept reply = "FAILURE" />
+    </method>
+
+<!--    <method name = "blocks" return = "status">
+    Request a set of blocks from the server.
+        <field name = "block ids" type = "list" />
+        <accept reply = "BLOCKS OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "BLOCKS OK">
+        <field name = "start height" type = "number" />
+        <field name = "curr height" type = "number" />
+        <field name = "block status" type = "string" />
+        <field name = "block data" type = "msg" />
+    </reply>-->
+</class>

@@ -30,7 +30,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     OPEN-OK         = signature %d2
 
     ;  Wallet requests a set of blocks from the daemon. Daemon replies with  
-    ;  GET-OK, or ERROR if the request is invalid.                           
+    ;  BLOCKS-OK, or ERROR if the request is invalid.                        
 
     BLOCKS          = signature %d3 block ids
     block ids       = strings               ; 
@@ -100,9 +100,17 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     CLOSE-OK        = signature %d16
 
+    ;  Wallet heartbeats an idle connection.                                 
+
+    PING            = signature %d17
+
+    ;  Daemon replies to a wallet ping request.                              
+
+    PING-OK         = signature %d18
+
     ;  Daemon replies with failure status. Status codes tbd.                 
 
-    ERROR           = signature %d17 status reason
+    ERROR           = signature %d19 status reason
     status          = number-2              ; Error status
     reason          = string                ; Printable explanation
 

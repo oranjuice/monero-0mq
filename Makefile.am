@@ -23,6 +23,8 @@ bin_PROGRAMS =
 check_PROGRAMS =
 
 EXTRA_DIST = \
+    wap_server_engine.inc \
+    wap_client_engine.inc \
     version.sh
 
 include $(srcdir)/src/Makemodule.am

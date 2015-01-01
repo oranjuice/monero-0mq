@@ -93,6 +93,10 @@ set (wallet_headers
     include/wap_library.h
     include/wallet.h
     include/wap_proto.h
+    include/wap_server.h
+    include/wap_client.h
+    src/wap_server_engine.inc
+    src/wap_client_engine.inc
 )
 source_group ("Header Files" FILES ${wallet_headers})
 install(FILES ${wallet_headers} DESTINATION include)
@@ -104,6 +108,8 @@ include_directories(${BINARY_DIR})
 include_directories(${SOURCE_DIR}/include)
 set (wallet_sources
     src/wap_proto.c
+    src/wap_server.c
+    src/wap_client.c
 )
 source_group ("Source Files" FILES ${wallet_sources})
 add_library(wallet SHARED ${wallet_sources})
