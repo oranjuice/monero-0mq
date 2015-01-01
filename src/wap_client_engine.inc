@@ -42,20 +42,24 @@ typedef enum {
     bad_endpoint_event = 2,
     open_ok_event = 3,
     expired_event = 4,
-    start_event = 5,
-    stop_event = 6,
-    destructor_event = 7,
-    blocks_ok_event = 8,
-    get_ok_event = 9,
-    put_ok_event = 10,
-    save_ok_event = 11,
-    start_ok_event = 12,
-    stop_ok_event = 13,
-    close_ok_event = 14,
-    connection_pong_event = 15,
-    error_event = 16,
-    command_invalid_event = 17,
-    other_event = 18
+    blocks_event = 5,
+    get_event = 6,
+    put_event = 7,
+    save_event = 8,
+    start_event = 9,
+    stop_event = 10,
+    destructor_event = 11,
+    blocks_ok_event = 12,
+    get_ok_event = 13,
+    put_ok_event = 14,
+    save_ok_event = 15,
+    start_ok_event = 16,
+    stop_ok_event = 17,
+    close_ok_event = 18,
+    connection_pong_event = 19,
+    error_event = 20,
+    command_invalid_event = 21,
+    other_event = 22
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -84,6 +88,10 @@ s_event_name [] = {
     "bad_endpoint",
     "OPEN_OK",
     "expired",
+    "BLOCKS",
+    "GET",
+    "PUT",
+    "SAVE",
     "START",
     "STOP",
     "destructor",
@@ -109,8 +117,11 @@ s_event_name [] = {
 //  These are the different method arguments we manage automatically
 struct _client_args_t {
     char *endpoint;
-    int timeout;
+    uint32_t timeout;
     char *identity;
+    zlist_t *block_ids;
+    zchunk_t *tx_data;
+    char *tx_id;
 };
 
 typedef struct {
@@ -162,6 +173,26 @@ static void
 static void
     signal_server_not_present (client_t *self);
 static void
+    prepare_blocks_command (client_t *self);
+static void
+    prepare_get_command (client_t *self);
+static void
+    prepare_put_command (client_t *self);
+static void
+    prepare_save_command (client_t *self);
+static void
+    signal_have_blocks_ok (client_t *self);
+static void
+    signal_have_get_ok (client_t *self);
+static void
+    signal_have_put_ok (client_t *self);
+static void
+    signal_have_save_ok (client_t *self);
+static void
+    signal_have_start_ok (client_t *self);
+static void
+    signal_have_stop_ok (client_t *self);
+static void
     signal_failure (client_t *self);
 static void
     check_status_code (client_t *self);
@@ -212,6 +243,9 @@ s_client_destroy (s_client_t **self_p)
         s_client_t *self = *self_p;
         zstr_free (&self->args.endpoint);
         zstr_free (&self->args.identity);
+        zlist_destroy (&self->args.block_ids);
+        zchunk_destroy (&self->args.tx_data);
+        zstr_free (&self->args.tx_id);
         client_terminate (&self->client);
         wap_proto_destroy (&self->message);
         zsock_destroy (&self->msgpipe);
@@ -328,14 +362,26 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
         case WAP_PROTO_OPEN_OK:
             return open_ok_event;
             break;
+        case WAP_PROTO_BLOCKS:
+            return blocks_event;
+            break;
         case WAP_PROTO_BLOCKS_OK:
             return blocks_ok_event;
+            break;
+        case WAP_PROTO_PUT:
+            return put_event;
             break;
         case WAP_PROTO_PUT_OK:
             return put_ok_event;
             break;
+        case WAP_PROTO_GET:
+            return get_event;
+            break;
         case WAP_PROTO_GET_OK:
             return get_ok_event;
+            break;
+        case WAP_PROTO_SAVE:
+            return save_event;
             break;
         case WAP_PROTO_SAVE_OK:
             return save_ok_event;
@@ -492,6 +538,78 @@ s_client_execute (s_client_t *self, event_t event)
                 break;
 
             case connected_state:
+                if (self->event == blocks_event) {
+                    if (!self->exception) {
+                        //  prepare blocks command
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ prepare blocks command");
+                        prepare_blocks_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send BLOCKS
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ send BLOCKS");
+                        wap_proto_set_id (self->message, WAP_PROTO_BLOCKS);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_blocks_ok_state;
+                }
+                else
+                if (self->event == get_event) {
+                    if (!self->exception) {
+                        //  prepare get command
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ prepare get command");
+                        prepare_get_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send GET
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ send GET");
+                        wap_proto_set_id (self->message, WAP_PROTO_GET);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_ok_state;
+                }
+                else
+                if (self->event == put_event) {
+                    if (!self->exception) {
+                        //  prepare put command
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ prepare put command");
+                        prepare_put_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send PUT
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ send PUT");
+                        wap_proto_set_id (self->message, WAP_PROTO_PUT);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_put_ok_state;
+                }
+                else
+                if (self->event == save_event) {
+                    if (!self->exception) {
+                        //  prepare save command
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ prepare save command");
+                        prepare_save_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send SAVE
+                        if (self->verbose)
+                            zsys_debug ("wap_client:            $ send SAVE");
+                        wap_proto_set_id (self->message, WAP_PROTO_SAVE);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_save_ok_state;
+                }
+                else
                 if (self->event == start_event) {
                     if (!self->exception) {
                         //  send START
@@ -559,10 +677,10 @@ s_client_execute (s_client_t *self, event_t event)
             case expect_blocks_ok_state:
                 if (self->event == blocks_ok_event) {
                     if (!self->exception) {
-                        //  signal success
+                        //  signal have blocks ok
                         if (self->verbose)
-                            zsys_debug ("wap_client:            $ signal success");
-                        signal_success (&self->client);
+                            zsys_debug ("wap_client:            $ signal have blocks ok");
+                        signal_have_blocks_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -589,10 +707,10 @@ s_client_execute (s_client_t *self, event_t event)
             case expect_get_ok_state:
                 if (self->event == get_ok_event) {
                     if (!self->exception) {
-                        //  signal success
+                        //  signal have get ok
                         if (self->verbose)
-                            zsys_debug ("wap_client:            $ signal success");
-                        signal_success (&self->client);
+                            zsys_debug ("wap_client:            $ signal have get ok");
+                        signal_have_get_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -619,10 +737,10 @@ s_client_execute (s_client_t *self, event_t event)
             case expect_put_ok_state:
                 if (self->event == put_ok_event) {
                     if (!self->exception) {
-                        //  signal success
+                        //  signal have put ok
                         if (self->verbose)
-                            zsys_debug ("wap_client:            $ signal success");
-                        signal_success (&self->client);
+                            zsys_debug ("wap_client:            $ signal have put ok");
+                        signal_have_put_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -649,10 +767,10 @@ s_client_execute (s_client_t *self, event_t event)
             case expect_save_ok_state:
                 if (self->event == save_ok_event) {
                     if (!self->exception) {
-                        //  signal success
+                        //  signal have save ok
                         if (self->verbose)
-                            zsys_debug ("wap_client:            $ signal success");
-                        signal_success (&self->client);
+                            zsys_debug ("wap_client:            $ signal have save ok");
+                        signal_have_save_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -679,10 +797,10 @@ s_client_execute (s_client_t *self, event_t event)
             case expect_start_ok_state:
                 if (self->event == start_ok_event) {
                     if (!self->exception) {
-                        //  signal success
+                        //  signal have start ok
                         if (self->verbose)
-                            zsys_debug ("wap_client:            $ signal success");
-                        signal_success (&self->client);
+                            zsys_debug ("wap_client:            $ signal have start ok");
+                        signal_have_start_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -709,10 +827,10 @@ s_client_execute (s_client_t *self, event_t event)
             case expect_stop_ok_state:
                 if (self->event == stop_ok_event) {
                     if (!self->exception) {
-                        //  signal success
+                        //  signal have stop ok
                         if (self->verbose)
-                            zsys_debug ("wap_client:            $ signal success");
-                        signal_success (&self->client);
+                            zsys_debug ("wap_client:            $ signal have stop ok");
+                        signal_have_stop_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -937,6 +1055,28 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         s_client_execute (self, destructor_event);
     }
     else
+    if (streq (method, "BLOCKS")) {
+        zlist_destroy (&self->args.block_ids);
+        zsock_recv (self->cmdpipe, "p", &self->args.block_ids);
+        s_client_execute (self, blocks_event);
+    }
+    else
+    if (streq (method, "PUT")) {
+        zchunk_destroy (&self->args.tx_data);
+        zsock_recv (self->cmdpipe, "p", &self->args.tx_data);
+        s_client_execute (self, put_event);
+    }
+    else
+    if (streq (method, "GET")) {
+        zstr_free (&self->args.tx_id);
+        zsock_recv (self->cmdpipe, "s", &self->args.tx_id);
+        s_client_execute (self, get_event);
+    }
+    else
+    if (streq (method, "SAVE")) {
+        s_client_execute (self, save_event);
+    }
+    else
     if (streq (method, "START")) {
         s_client_execute (self, start_event);
     }
@@ -1054,6 +1194,12 @@ struct _wap_client_t {
     zsock_t *msgpipe;           //  Pipe for async message flow
     int status;                 //  Returned by actor reply
     char *reason;               //  Returned by actor reply
+    uint32_t start_height;      //  Returned by actor reply
+    uint32_t curr_height;       //  Returned by actor reply
+    char *block_status;         //  Returned by actor reply
+    zmsg_t *block_data;         //  Returned by actor reply
+    char *tx_id;                //  Returned by actor reply
+    zchunk_t *tx_data;          //  Returned by actor reply
 };
 
 
@@ -1063,11 +1209,11 @@ struct _wap_client_t {
 //  forever). Constructor succeeds if connection is successful. The caller may      
 //  specify its address.                                                            
 
-static int
-wap_client_constructor (wap_client_t *self, const char *endpoint, int timeout, const char *identity);
+static int 
+wap_client_constructor (wap_client_t *self, const char *endpoint, uint32_t timeout, const char *identity);
 
 WAP_EXPORT wap_client_t *
-wap_client_new (const char *endpoint, int timeout, const char *identity)
+wap_client_new (const char *endpoint, uint32_t timeout, const char *identity)
 {
     wap_client_t *self = (wap_client_t *) zmalloc (sizeof (wap_client_t));
     if (self) {
@@ -1090,7 +1236,7 @@ wap_client_new (const char *endpoint, int timeout, const char *identity)
 //  Disconnect from server. Waits for a short timeout for confirmation from the     
 //  server, then disconnects anyhow.                                                
 
-static int
+static int 
 wap_client_destructor (wap_client_t *self);
 
 void
@@ -1109,6 +1255,10 @@ wap_client_destroy (wap_client_t **self_p)
         zactor_destroy (&self->actor);
         zsock_destroy (&self->msgpipe);
         zstr_free (&self->reason);
+        zstr_free (&self->block_status);
+        zmsg_destroy (&self->block_data);
+        zstr_free (&self->tx_id);
+        zchunk_destroy (&self->tx_data);
         free (self);
         *self_p = NULL;
     }
@@ -1181,6 +1331,34 @@ s_accept_reply (wap_client_t *self, ...)
                     zstr_free (&self->reason);
                     zsock_recv (self->actor, "is", &self->status, &self->reason);
                 }
+                else
+                if (streq (reply, "BLOCKS OK")) {
+                    zstr_free (&self->block_status);
+                    zmsg_destroy (&self->block_data);
+                    zsock_recv (self->actor, "iiisp", &self->status, &self->start_height, &self->curr_height, &self->block_status, &self->block_data);
+                }
+                else
+                if (streq (reply, "PUT OK")) {
+                    zstr_free (&self->tx_id);
+                    zsock_recv (self->actor, "is", &self->status, &self->tx_id);
+                }
+                else
+                if (streq (reply, "GET OK")) {
+                    zchunk_destroy (&self->tx_data);
+                    zsock_recv (self->actor, "ip", &self->status, &self->tx_data);
+                }
+                else
+                if (streq (reply, "SAVE OK")) {
+                    zsock_recv (self->actor, "i", &self->status);
+                }
+                else
+                if (streq (reply, "START OK")) {
+                    zsock_recv (self->actor, "i", &self->status);
+                }
+                else
+                if (streq (reply, "STOP OK")) {
+                    zsock_recv (self->actor, "i", &self->status);
+                }
                 break;
             }
             filter = va_arg (args, char *);
@@ -1203,8 +1381,8 @@ s_accept_reply (wap_client_t *self, ...)
 //  specify its address.                                                            
 //  Returns >= 0 if successful, -1 if interrupted.
 
-static int
-wap_client_constructor (wap_client_t *self, const char *endpoint, int timeout, const char *identity)
+static int 
+wap_client_constructor (wap_client_t *self, const char *endpoint, uint32_t timeout, const char *identity)
 {
     assert (self);
     zsock_send (self->actor, "ssis", "CONSTRUCTOR", endpoint, timeout, identity);
@@ -1219,7 +1397,7 @@ wap_client_constructor (wap_client_t *self, const char *endpoint, int timeout, c
 //  server, then disconnects anyhow.                                                
 //  Returns >= 0 if successful, -1 if interrupted.
 
-int
+int 
 wap_client_destructor (wap_client_t *self)
 {
     assert (self);
@@ -1231,15 +1409,77 @@ wap_client_destructor (wap_client_t *self)
 
 
 //  ---------------------------------------------------------------------------
+//  Request a set of blocks from the server.                                        
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_blocks (wap_client_t *self, zlist_t **block_ids_p)
+{
+    assert (self);
+    zsock_send (self->actor, "sp", "BLOCKS", *block_ids_p);
+    *block_ids_p = NULL;        //  Take ownership of block_ids
+    if (s_accept_reply (self, "BLOCKS OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Send a raw transaction to the daemon.                                           
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_put (wap_client_t *self, zchunk_t **tx_data_p)
+{
+    assert (self);
+    zsock_send (self->actor, "sp", "PUT", *tx_data_p);
+    *tx_data_p = NULL;          //  Take ownership of tx_data
+    if (s_accept_reply (self, "PUT OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Request a set of blocks from the server.                                        
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get (wap_client_t *self, const char *tx_id)
+{
+    assert (self);
+    zsock_send (self->actor, "ss", "GET", tx_id);
+    if (s_accept_reply (self, "GET OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Request a set of blocks from the server.                                        
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_save (wap_client_t *self)
+{
+    assert (self);
+    zsock_send (self->actor, "s", "SAVE");
+    if (s_accept_reply (self, "SAVE OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
 
-int
+int 
 wap_client_start (wap_client_t *self)
 {
     assert (self);
     zsock_send (self->actor, "s", "START");
-    if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
+    if (s_accept_reply (self, "START OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
@@ -1249,12 +1489,12 @@ wap_client_start (wap_client_t *self)
 //  Send stop command to server.                                                    
 //  Returns >= 0 if successful, -1 if interrupted.
 
-int
+int 
 wap_client_stop (wap_client_t *self)
 {
     assert (self);
     zsock_send (self->actor, "s", "STOP");
-    if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
+    if (s_accept_reply (self, "STOP OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
@@ -1279,4 +1519,70 @@ wap_client_reason (wap_client_t *self)
 {
     assert (self);
     return self->reason;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received start_height
+
+uint32_t 
+wap_client_start_height (wap_client_t *self)
+{
+    assert (self);
+    return self->start_height;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received curr_height
+
+uint32_t 
+wap_client_curr_height (wap_client_t *self)
+{
+    assert (self);
+    return self->curr_height;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received block_status
+
+const char *
+wap_client_block_status (wap_client_t *self)
+{
+    assert (self);
+    return self->block_status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received block_data
+
+zmsg_t *
+wap_client_block_data (wap_client_t *self)
+{
+    assert (self);
+    return self->block_data;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received tx_id
+
+const char *
+wap_client_tx_id (wap_client_t *self)
+{
+    assert (self);
+    return self->tx_id;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received tx_data
+
+zchunk_t *
+wap_client_tx_data (wap_client_t *self)
+{
+    assert (self);
+    return self->tx_data;
 }

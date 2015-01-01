@@ -35,7 +35,7 @@ typedef struct _wap_client_t wap_client_t;
 //  forever). Constructor succeeds if connection is successful. The caller may      
 //  specify its address.                                                            
 WAP_EXPORT wap_client_t *
-    wap_client_new (const char *endpoint, int timeout, const char *identity);
+    wap_client_new (const char *endpoint, uint32_t timeout, const char *identity);
 
 //  Destroy the wap_client
 WAP_EXPORT void
@@ -58,14 +58,34 @@ WAP_EXPORT zactor_t *
 WAP_EXPORT zsock_t *
     wap_client_msgpipe (wap_client_t *self);
 
+//  Request a set of blocks from the server.                                        
+//  Returns >= 0 if successful, -1 if interrupted.
+WAP_EXPORT int 
+    wap_client_blocks (wap_client_t *self, zlist_t **block_ids_p);
+
+//  Send a raw transaction to the daemon.                                           
+//  Returns >= 0 if successful, -1 if interrupted.
+WAP_EXPORT int 
+    wap_client_put (wap_client_t *self, zchunk_t **tx_data_p);
+
+//  Request a set of blocks from the server.                                        
+//  Returns >= 0 if successful, -1 if interrupted.
+WAP_EXPORT int 
+    wap_client_get (wap_client_t *self, const char *tx_id);
+
+//  Request a set of blocks from the server.                                        
+//  Returns >= 0 if successful, -1 if interrupted.
+WAP_EXPORT int 
+    wap_client_save (wap_client_t *self);
+
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
-WAP_EXPORT int
+WAP_EXPORT int 
     wap_client_start (wap_client_t *self);
 
 //  Send stop command to server.                                                    
 //  Returns >= 0 if successful, -1 if interrupted.
-WAP_EXPORT int
+WAP_EXPORT int 
     wap_client_stop (wap_client_t *self);
 
 //  Return last received status
@@ -75,6 +95,30 @@ WAP_EXPORT int
 //  Return last received reason
 WAP_EXPORT const char *
     wap_client_reason (wap_client_t *self);
+
+//  Return last received start_height
+WAP_EXPORT uint32_t 
+    wap_client_start_height (wap_client_t *self);
+
+//  Return last received curr_height
+WAP_EXPORT uint32_t 
+    wap_client_curr_height (wap_client_t *self);
+
+//  Return last received block_status
+WAP_EXPORT const char *
+    wap_client_block_status (wap_client_t *self);
+
+//  Return last received block_data
+WAP_EXPORT zmsg_t *
+    wap_client_block_data (wap_client_t *self);
+
+//  Return last received tx_id
+WAP_EXPORT const char *
+    wap_client_tx_id (wap_client_t *self);
+
+//  Return last received tx_data
+WAP_EXPORT zchunk_t *
+    wap_client_tx_data (wap_client_t *self);
 
 //  Self test of this class
 WAP_EXPORT void
