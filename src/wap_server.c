@@ -231,17 +231,6 @@ register_new_client (client_t *self)
 
 
 //  ---------------------------------------------------------------------------
-//  signal_not_implemented
-//
-
-static void
-signal_not_implemented (client_t *self)
-{
-    wap_proto_set_status (self->message, WAP_PROTO_NOT_IMPLEMENTED);
-}
-
-
-//  ---------------------------------------------------------------------------
 //  signal_command_not_valid
 //
 

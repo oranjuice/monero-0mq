@@ -149,8 +149,6 @@ static void
 static void
     allow_time_to_settle (client_t *self);
 static void
-    signal_not_implemented (client_t *self);
-static void
     register_new_client (client_t *self);
 
 //  ---------------------------------------------------------------------------
@@ -522,12 +520,6 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == exception_event) {
                     if (!self->exception) {
-                        //  signal not implemented
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ signal not implemented", self->log_prefix);
-                        signal_not_implemented (&self->client);
-                    }
-                    if (!self->exception) {
                         //  send ERROR
                         if (self->server->verbose)
                             zsys_debug ("%s:         $ send ERROR",
@@ -731,12 +723,6 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == exception_event) {
                     if (!self->exception) {
-                        //  signal not implemented
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ signal not implemented", self->log_prefix);
-                        signal_not_implemented (&self->client);
-                    }
-                    if (!self->exception) {
                         //  send ERROR
                         if (self->server->verbose)
                             zsys_debug ("%s:         $ send ERROR",
@@ -851,12 +837,6 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                    if (!self->exception) {
-                        //  signal not implemented
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ signal not implemented", self->log_prefix);
-                        signal_not_implemented (&self->client);
-                    }
                     if (!self->exception) {
                         //  send ERROR
                         if (self->server->verbose)

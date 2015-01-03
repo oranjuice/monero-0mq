@@ -65,7 +65,6 @@
         </event>
         <!-- Client tried to do something we don't allow yet -->
         <event name = "exception" next = "settling">
-            <action name = "signal not implemented" />
             <action name = "send" message = "ERROR" />
             <action name = "deregister the wallet" />
             <action name = "allow time to settle" />
