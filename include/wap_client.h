@@ -41,10 +41,6 @@ WAP_EXPORT wap_client_t *
 WAP_EXPORT void
     wap_client_destroy (wap_client_t **self_p);
 
-//  Enable verbose logging of client activity
-WAP_EXPORT void
-    wap_client_verbose (wap_client_t *self);
-
 //  Return actor, when caller wants to work with multiple actors and/or
 //  input sockets asynchronously.
 WAP_EXPORT zactor_t *
@@ -123,6 +119,11 @@ WAP_EXPORT zchunk_t *
 //  Self test of this class
 WAP_EXPORT void
     wap_client_test (bool verbose);
+    
+//  To enable verbose tracing (animation) of wap_client instances, set
+//  this to true. This lets you trace from and including construction.
+WAP_EXPORT extern volatile int
+    wap_client_verbose;
 //  @end
 
 #ifdef __cplusplus

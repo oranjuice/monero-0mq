@@ -10,7 +10,7 @@
     This is a server implementation of the Wallet Access Protocol
     <include filename = "../license.xml" />
 
-    <state name = "start" inherit = "external">
+    <state name = "start" inherit = "defaults">
         <event name = "OPEN" next = "connected">
             <action name = "register the wallet" />
             <action name = "send" message = "OPEN OK" />
@@ -18,12 +18,12 @@
         <!-- If wallet sends us anything after we restart, we signal error
             and wallet will then close its connection, and reconnect -->
         <event name = "*">
-            <action name = "message not valid in this state" />
+            <action name = "signal command not valid" />
             <action name = "send" message = "ERROR" />
         </event>
     </state>
 
-    <state name = "connected" inherit = "external">
+    <state name = "connected" inherit = "defaults">
         <event name = "BLOCKS">
             <action name = "retrieve the blocks" />
             <action name = "send" message = "BLOCKS OK" />
@@ -49,21 +49,30 @@
         </event>
     </state>
 
-    <state name = "external" inherit = "defaults">
+    <state name = "defaults">
         <event name = "CLOSE" next = "settling">
             <action name = "send" message = "CLOSE OK" />
             <action name = "deregister the wallet" />
             <action name = "allow time to settle" />
         </event>
-        <!-- All other protocol messages are invalid -->
-        <event name = "*" next = "settling">
-            <action name = "message not valid in this state" />
-            <action name = "send" message = "ERROR" />
+        <event name = "PING">
+            <action name = "send" message = "PING OK" />
+        </event>
+        <!-- This built-in event hits on a client timeout -->
+        <event name = "expired" next = "settling">
             <action name = "deregister the wallet" />
             <action name = "allow time to settle" />
         </event>
         <!-- Client tried to do something we don't allow yet -->
         <event name = "exception" next = "settling">
+            <action name = "signal not implemented" />
+            <action name = "send" message = "ERROR" />
+            <action name = "deregister the wallet" />
+            <action name = "allow time to settle" />
+        </event>
+        <!-- All other protocol messages are invalid -->
+        <event name = "*" next = "settling">
+            <action name = "signal command not valid" />
             <action name = "send" message = "ERROR" />
             <action name = "deregister the wallet" />
             <action name = "allow time to settle" />
@@ -79,17 +88,7 @@
             <action name = "send" message = "OPEN OK" />
         </event>
         <event name = "*">
-        </event>
-    </state>
-
-    <state name = "defaults">
-        <event name = "PING">
-            <action name = "send" message = "PING OK" />
-        </event>
-        <!-- This built-in event hits on a client timeout -->
-        <event name = "expired" next = "settling">
-            <action name = "deregister the wallet" />
-            <action name = "allow time to settle" />
+            <!-- Ignore any other commands -->
         </event>
     </state>
 </class>

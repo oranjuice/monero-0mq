@@ -141,7 +141,6 @@ typedef struct {
     int expiry_timer;           //  zloop timer for timeouts
     int wakeup_timer;           //  zloop timer for alarms
     event_t wakeup_event;       //  Wake up with this event
-    bool verbose;               //  Verbose logging enabled?
 } s_client_t;
 
 static int
@@ -199,6 +198,10 @@ static void
 static void
     signal_unhandled_error (client_t *self);
 
+//  Global tracing/animation indicator; we can't use a client method as
+//  that only works after construction (which we often want to trace).
+volatile int wap_client_verbose = false;
+    
 //  Create a new client connection
 
 static s_client_t *
@@ -428,7 +431,7 @@ s_client_execute (s_client_t *self, event_t event)
         self->event = self->next_event;
         self->next_event = NULL_event;
         self->exception = NULL_event;
-        if (self->verbose) {
+        if (wap_client_verbose) {
             zsys_debug ("wap_client: %s:", s_state_name [self->state]);
             zsys_debug ("wap_client:        %s", s_event_name [self->event]);
         }
@@ -437,25 +440,25 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == constructor_event) {
                     if (!self->exception) {
                         //  connect to server endpoint
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ connect to server endpoint");
                         connect_to_server_endpoint (&self->client);
                     }
                     if (!self->exception) {
                         //  set client identity
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ set client identity");
                         set_client_identity (&self->client);
                     }
                     if (!self->exception) {
                         //  use connect timeout
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ use connect timeout");
                         use_connect_timeout (&self->client);
                     }
                     if (!self->exception) {
                         //  send OPEN
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send OPEN");
                         wap_proto_set_id (self->message, WAP_PROTO_OPEN);
                         wap_proto_send (self->message, self->dealer);
@@ -467,13 +470,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == bad_endpoint_event) {
                     if (!self->exception) {
                         //  signal bad endpoint
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal bad endpoint");
                         signal_bad_endpoint (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ terminate");
                         self->terminated = true;
                     }
@@ -490,13 +493,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == open_ok_event) {
                     if (!self->exception) {
                         //  signal success
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal success");
                         signal_success (&self->client);
                     }
                     if (!self->exception) {
                         //  use heartbeat timer
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ use heartbeat timer");
                         use_heartbeat_timer (&self->client);
                     }
@@ -507,13 +510,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == expired_event) {
                     if (!self->exception) {
                         //  signal server not present
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal server not present");
                         signal_server_not_present (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ terminate");
                         self->terminated = true;
                     }
@@ -525,7 +528,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -541,13 +544,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == blocks_event) {
                     if (!self->exception) {
                         //  prepare blocks command
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ prepare blocks command");
                         prepare_blocks_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send BLOCKS
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send BLOCKS");
                         wap_proto_set_id (self->message, WAP_PROTO_BLOCKS);
                         wap_proto_send (self->message, self->dealer);
@@ -559,13 +562,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == get_event) {
                     if (!self->exception) {
                         //  prepare get command
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ prepare get command");
                         prepare_get_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send GET
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send GET");
                         wap_proto_set_id (self->message, WAP_PROTO_GET);
                         wap_proto_send (self->message, self->dealer);
@@ -577,13 +580,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == put_event) {
                     if (!self->exception) {
                         //  prepare put command
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ prepare put command");
                         prepare_put_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send PUT
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send PUT");
                         wap_proto_set_id (self->message, WAP_PROTO_PUT);
                         wap_proto_send (self->message, self->dealer);
@@ -595,13 +598,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == save_event) {
                     if (!self->exception) {
                         //  prepare save command
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ prepare save command");
                         prepare_save_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send SAVE
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send SAVE");
                         wap_proto_set_id (self->message, WAP_PROTO_SAVE);
                         wap_proto_send (self->message, self->dealer);
@@ -613,7 +616,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == start_event) {
                     if (!self->exception) {
                         //  send START
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send START");
                         wap_proto_set_id (self->message, WAP_PROTO_START);
                         wap_proto_send (self->message, self->dealer);
@@ -625,7 +628,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == stop_event) {
                     if (!self->exception) {
                         //  send STOP
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send STOP");
                         wap_proto_set_id (self->message, WAP_PROTO_STOP);
                         wap_proto_send (self->message, self->dealer);
@@ -637,7 +640,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == destructor_event) {
                     if (!self->exception) {
                         //  send CLOSE
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send CLOSE");
                         wap_proto_set_id (self->message, WAP_PROTO_CLOSE);
                         wap_proto_send (self->message, self->dealer);
@@ -649,7 +652,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == expired_event) {
                     if (!self->exception) {
                         //  send PING
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send PING");
                         wap_proto_set_id (self->message, WAP_PROTO_PING);
                         wap_proto_send (self->message, self->dealer);
@@ -662,7 +665,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -678,7 +681,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == blocks_ok_event) {
                     if (!self->exception) {
                         //  signal have blocks ok
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal have blocks ok");
                         signal_have_blocks_ok (&self->client);
                     }
@@ -692,7 +695,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -708,7 +711,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == get_ok_event) {
                     if (!self->exception) {
                         //  signal have get ok
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal have get ok");
                         signal_have_get_ok (&self->client);
                     }
@@ -722,7 +725,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -738,7 +741,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == put_ok_event) {
                     if (!self->exception) {
                         //  signal have put ok
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal have put ok");
                         signal_have_put_ok (&self->client);
                     }
@@ -752,7 +755,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -768,7 +771,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == save_ok_event) {
                     if (!self->exception) {
                         //  signal have save ok
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal have save ok");
                         signal_have_save_ok (&self->client);
                     }
@@ -782,7 +785,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -798,7 +801,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == start_ok_event) {
                     if (!self->exception) {
                         //  signal have start ok
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal have start ok");
                         signal_have_start_ok (&self->client);
                     }
@@ -812,7 +815,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -828,7 +831,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == stop_ok_event) {
                     if (!self->exception) {
                         //  signal have stop ok
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal have stop ok");
                         signal_have_stop_ok (&self->client);
                     }
@@ -842,7 +845,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -858,13 +861,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == close_ok_event) {
                     if (!self->exception) {
                         //  signal success
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal success");
                         signal_success (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ terminate");
                         self->terminated = true;
                     }
@@ -873,13 +876,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == expired_event) {
                     if (!self->exception) {
                         //  signal failure
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal failure");
                         signal_failure (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ terminate");
                         self->terminated = true;
                     }
@@ -891,7 +894,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -910,7 +913,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -926,13 +929,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == command_invalid_event) {
                     if (!self->exception) {
                         //  use connect timeout
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ use connect timeout");
                         use_connect_timeout (&self->client);
                     }
                     if (!self->exception) {
                         //  send OPEN
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send OPEN");
                         wap_proto_set_id (self->message, WAP_PROTO_OPEN);
                         wap_proto_send (self->message, self->dealer);
@@ -944,13 +947,13 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == other_event) {
                     if (!self->exception) {
                         //  signal unhandled error
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ signal unhandled error");
                         signal_unhandled_error (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ terminate");
                         self->terminated = true;
                     }
@@ -967,7 +970,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == open_ok_event) {
                     if (!self->exception) {
                         //  use heartbeat timer
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ use heartbeat timer");
                         use_heartbeat_timer (&self->client);
                     }
@@ -981,7 +984,7 @@ s_client_execute (s_client_t *self, event_t event)
                 if (self->event == error_event) {
                     if (!self->exception) {
                         //  check status code
-                        if (self->verbose)
+                        if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ check status code");
                         check_status_code (&self->client);
                     }
@@ -995,12 +998,12 @@ s_client_execute (s_client_t *self, event_t event)
         }
         //  If we had an exception event, interrupt normal programming
         if (self->exception) {
-            if (self->verbose)
+            if (wap_client_verbose)
                 zsys_debug ("wap_client:            ! %s", s_event_name [self->exception]);
             self->next_event = self->exception;
         }
         else
-        if (self->verbose)
+        if (wap_client_verbose)
             zsys_debug ("wap_client:            > %s", s_state_name [self->state]);
     }
 }
@@ -1035,12 +1038,9 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     char *method = zstr_recv (self->cmdpipe);
     if (!method)
         return -1;                  //  Interrupted; exit zloop
-    if (self->verbose)
+    if (wap_client_verbose)
         zsys_debug ("wap_client:        API command=%s", method);
 
-    if (streq (method, "VERBOSE"))
-        self->verbose = true;       //  Start verbose logging
-    else
     if (streq (method, "$TERM"))
         self->terminated = true;    //  Shutdown the engine
     else
@@ -1109,7 +1109,7 @@ s_client_handle_msgpipe (zloop_t *loop, zsock_t *reader, void *argument)
         char *method = zstr_recv (self->msgpipe);
         if (!method)
             return -1;              //  Interrupted; exit zloop
-        if (self->verbose)
+        if (wap_client_verbose)
             zsys_debug ("wap_client:        API message=%s", method);
 
         //  Front-end shuts down msgpipe before cmdpipe
@@ -1262,17 +1262,6 @@ wap_client_destroy (wap_client_t **self_p)
         free (self);
         *self_p = NULL;
     }
-}
-
-
-//  ---------------------------------------------------------------------------
-//  Enable verbose logging of client activity
-
-void
-wap_client_verbose (wap_client_t *self)
-{
-    assert (self);
-    zsock_send (self->actor, "s", "VERBOSE");
 }
 
 

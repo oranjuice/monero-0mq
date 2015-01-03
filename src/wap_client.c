@@ -312,10 +312,9 @@ wap_client_test (bool verbose)
         zstr_send (server, "VERBOSE");
     zsock_send (server, "ss", "BIND", "ipc://@/monero");
 
+    wap_client_verbose = verbose;
     wap_client_t *client = wap_client_new ("ipc://@/monero", 1000, "test client");
     assert (client);
-    if (verbose)
-        wap_client_verbose (client);
 
     int rc = wap_client_start (client);
     assert (rc == 0);

@@ -42,19 +42,13 @@ int main (int argc, char *argv [])
     //  (Or, configure the server via an external config file)
     zsock_send (server, "sss", "SET", "server/timeout", "5000");
 
+    //  Switch on client tracing, we'll now see both the client and the
+    //  server state machines animated:
+    wap_client_verbose = true;
+
     //  The server is now running. Let's start a wallet client:
     wap_client_t *client = wap_client_new ("ipc://@/monero", 200, "wallet identity");
     assert (client);
-    
-    //  Switch on client tracing, we'll now see both the client and the
-    //  server state machines animated:
-    wap_client_verbose (client);
-
-    //  Note that the client provides an method API, which wraps the internal
-    //  actor API. This is just to make it easier for naive users. You could
-    //  talk directly to the client actor (as we do for the server), and this
-    //  has the same effect:
-    zsock_send (wap_client_actor (client), "s", "VERBOSE");
     
     //  The server only supports two commands for now, START and STOP, so
     //  let's try each of these:
