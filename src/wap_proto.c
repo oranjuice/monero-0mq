@@ -362,6 +362,7 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             break;
 
         case WAP_PROTO_START:
+            GET_NUMBER8 (self->start_height);
             break;
 
         case WAP_PROTO_START_OK:
@@ -457,6 +458,9 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             if (self->tx_data)
                 frame_size += zchunk_size (self->tx_data);
             break;
+        case WAP_PROTO_START:
+            frame_size += 8;            //  start_height
+            break;
         case WAP_PROTO_ERROR:
             frame_size += 2;            //  status
             frame_size += 1 + strlen (self->reason);
@@ -529,6 +533,10 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             }
             else
                 PUT_NUMBER4 (0);    //  Empty chunk
+            break;
+
+        case WAP_PROTO_START:
+            PUT_NUMBER8 (self->start_height);
             break;
 
         case WAP_PROTO_ERROR:
@@ -641,6 +649,7 @@ wap_proto_print (wap_proto_t *self)
             
         case WAP_PROTO_START:
             zsys_debug ("WAP_PROTO_START:");
+            zsys_debug ("    start_height=%ld", (long) self->start_height);
             break;
             
         case WAP_PROTO_START_OK:
@@ -1191,6 +1200,7 @@ wap_proto_test (bool verbose)
     }
     wap_proto_set_id (self, WAP_PROTO_START);
 
+    wap_proto_set_start_height (self, 123);
     //  Send twice
     wap_proto_send (self, output);
     wap_proto_send (self, output);
@@ -1198,6 +1208,7 @@ wap_proto_test (bool verbose)
     for (instance = 0; instance < 2; instance++) {
         wap_proto_recv (self, input);
         assert (wap_proto_routing_id (self));
+        assert (wap_proto_start_height (self) == 123);
     }
     wap_proto_set_id (self, WAP_PROTO_START_OK);
 

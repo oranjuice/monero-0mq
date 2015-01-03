@@ -60,6 +60,7 @@ with GET-OK, or ERROR.
 
     START - Wallet asks daemon to start mining. Daemon replies with START-OK, or
 ERROR.
+        start_height        number 8    
 
     START_OK - Daemon replies to a start mining request.
 

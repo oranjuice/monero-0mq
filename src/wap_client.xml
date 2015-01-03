@@ -219,6 +219,7 @@
 
     <method name = "start" return = "status">
     Send start command to server.
+        <field name = "start height" type = "number" size = "8" />
         <accept reply = "START OK" />
         <accept reply = "FAILURE" />
     </method>

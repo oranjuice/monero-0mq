@@ -316,7 +316,7 @@ wap_client_test (bool verbose)
     wap_client_t *client = wap_client_new ("ipc://@/monero", 1000, "test client");
     assert (client);
 
-    int rc = wap_client_start (client);
+    int rc = wap_client_start (client, 0);
     assert (rc == 0);
     rc = wap_client_stop (client);
     assert (rc == 0);

@@ -52,7 +52,7 @@ int main (int argc, char *argv [])
     
     //  The server only supports two commands for now, START and STOP, so
     //  let's try each of these:
-    int rc = wap_client_start (client);
+    int rc = wap_client_start (client, 0);
     assert (rc == 0);
 
     rc = wap_client_stop (client);

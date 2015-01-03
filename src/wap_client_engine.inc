@@ -122,6 +122,7 @@ struct _client_args_t {
     zlist_t *block_ids;
     zchunk_t *tx_data;
     char *tx_id;
+    uint64_t start_height;
 };
 
 typedef struct {
@@ -1078,6 +1079,7 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     }
     else
     if (streq (method, "START")) {
+        zsock_recv (self->cmdpipe, "i", &self->args.start_height);
         s_client_execute (self, start_event);
     }
     else
@@ -1464,10 +1466,10 @@ wap_client_save (wap_client_t *self)
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_start (wap_client_t *self)
+wap_client_start (wap_client_t *self, uint64_t start_height)
 {
     assert (self);
-    zsock_send (self->actor, "s", "START");
+    zsock_send (self->actor, "si", "START", start_height);
     if (s_accept_reply (self, "START OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
