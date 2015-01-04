@@ -46,8 +46,8 @@
 
     <message name = "BLOCKS-OK">
         Daemon returns a set of blocks to the wallet.
-        <field name = "start height" type = "number" size = "8" />
-        <field name = "curr height" type = "number" size = "8" />
+        <field name = "start height" type = "number" size = "4" />
+        <field name = "curr height" type = "number" size = "4" />
         <field name = "block status" type = "string" />
         <field name = "block data" type = "msg">Frames of block data</field>
     </message>
@@ -85,11 +85,12 @@
     <message name = "START">
         Wallet asks daemon to start mining. Daemon replies with START-OK, or
         ERROR.
-        <field name = "start height" type = "number" size = "8" />
+        <field name = "start height" type = "number" size = "4" />
     </message>
 
     <message name = "START-OK">
         Daemon replies to a start mining request.
+        <field name = "curr height" type = "number" size = "4" />
     </message>
 
     <message name = "STOP">

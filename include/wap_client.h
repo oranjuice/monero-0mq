@@ -77,7 +77,7 @@ WAP_EXPORT int
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
 WAP_EXPORT int 
-    wap_client_start (wap_client_t *self, uint64_t start_height);
+    wap_client_start (wap_client_t *self, uint32_t start_height);
 
 //  Send stop command to server.                                                    
 //  Returns >= 0 if successful, -1 if interrupted.

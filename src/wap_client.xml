@@ -52,6 +52,7 @@
             <action name = "send" message = "SAVE" />
         </event>
         <event name = "start" next = "expect start ok">
+            <action name = "prepare start command" />
             <action name = "send" message = "START" />
         </event>
         <event name = "stop" next = "expect stop ok">
@@ -219,13 +220,14 @@
 
     <method name = "start" return = "status">
     Send start command to server.
-        <field name = "start height" type = "number" size = "8" />
+        <field name = "start height" type = "number" size = "4" />
         <accept reply = "START OK" />
         <accept reply = "FAILURE" />
     </method>
 
     <reply name = "START OK">
         <field name = "status" type = "integer" />
+        <field name = "curr height" type = "number" size = "4" />
     </reply>
 
     <method name = "stop" return = "status">

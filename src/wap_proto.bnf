@@ -32,37 +32,37 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Wallet requests a set of blocks from the daemon. Daemon replies with  
     ;  BLOCKS-OK, or ERROR if the request is invalid.                        
 
-    BLOCKS          = signature %d3 block ids
+    BLOCKS          = signature %d3 block_ids
     block ids       = strings               ; 
 
     ;  Daemon returns a set of blocks to the wallet.                         
 
-    BLOCKS-OK       = signature %d4 start height curr height block status block data
-    start height    = number-8              ; 
-    curr height     = number-8              ; 
+    BLOCKS-OK       = signature %d4 start_height curr_height block_status block_data
+    start height    = number-4              ; 
+    curr height     = number-4              ; 
     block status    = string                ; 
     block data      = msg                   ; Frames of block data
 
     ;  Wallet sends a raw transaction to the daemon. Daemon replies with     
     ;  PUT-OK, or ERROR.                                                     
 
-    PUT             = signature %d5 tx data
+    PUT             = signature %d5 tx_data
     tx data         = chunk                 ; Transaction data
 
     ;  Daemon confirms that it accepted the raw transaction.                 
 
-    PUT-OK          = signature %d6 tx id
+    PUT-OK          = signature %d6 tx_id
     tx id           = string                ; Transaction ID
 
     ;  Wallet requests transaction data from the daemon. Daemon replies with 
     ;  GET-OK, or ERROR.                                                     
 
-    GET             = signature %d7 tx id
+    GET             = signature %d7 tx_id
     tx id           = string                ; Transaction ID
 
     ;  Daemon replies with transaction data.                                 
 
-    GET-OK          = signature %d8 tx data
+    GET-OK          = signature %d8 tx_data
     tx data         = chunk                 ; Transaction data
 
     ;  save_bc command. Details tbd.                                         
@@ -76,12 +76,13 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
     ;  ERROR.                                                                
 
-    START           = signature %d11 start height
-    start height    = number-8              ; 
+    START           = signature %d11 start_height
+    start height    = number-4              ; 
 
     ;  Daemon replies to a start mining request.                             
 
-    START-OK        = signature %d12
+    START-OK        = signature %d12 curr_height
+    curr height     = number-4              ; 
 
     ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
     ;  ERROR.                                                                
@@ -134,4 +135,3 @@ The following ABNF grammar defines the Wallet Access Protocol:
     number-1        = 1OCTET
     number-2        = 2OCTET
     number-4        = 4OCTET
-    number-8        = 8OCTET

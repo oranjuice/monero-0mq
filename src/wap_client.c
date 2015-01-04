@@ -177,7 +177,7 @@ prepare_get_command (client_t *self)
 static void
 signal_have_get_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "sip", "GET OK", 0, 
+    zsock_send (self->cmdpipe, "sip", "GET OK", 0,
                 wap_proto_get_tx_data (self->message));
 }
 
@@ -191,6 +191,16 @@ prepare_save_command (client_t *self)
 {
 }
 
+
+//  ---------------------------------------------------------------------------
+//  prepare_start_command
+//
+
+static void
+prepare_start_command (client_t *self)
+{
+    wap_proto_set_start_height (self->message, self->args->start_height);
+}
 
 
 //  ---------------------------------------------------------------------------
@@ -211,7 +221,8 @@ signal_have_save_ok (client_t *self)
 static void
 signal_have_start_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "si", "START OK", 0);
+    zsock_send (self->cmdpipe, "sii", "START OK", 0,
+                wap_proto_curr_height (self->message));
 }
 
 
@@ -316,8 +327,9 @@ wap_client_test (bool verbose)
     wap_client_t *client = wap_client_new ("ipc://@/monero", 1000, "test client");
     assert (client);
 
-    int rc = wap_client_start (client, 0);
+    int rc = wap_client_start (client, 123);
     assert (rc == 0);
+    assert (wap_client_curr_height (client) == 123);
     rc = wap_client_stop (client);
     assert (rc == 0);
     

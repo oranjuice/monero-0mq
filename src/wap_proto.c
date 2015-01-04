@@ -36,8 +36,8 @@ struct _wap_proto_t {
     byte *ceiling;                      //  Valid upper limit for read pointer
     char identity [256];                //  Wallet identity
     zlist_t *block_ids;                 //  
-    uint64_t start_height;              //  
-    uint64_t curr_height;               //  
+    uint32_t start_height;              //  
+    uint32_t curr_height;               //  
     char block_status [256];            //  
     zmsg_t *block_data;                 //  Frames of block data
     zchunk_t *tx_data;                  //  Transaction data
@@ -310,8 +310,8 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             break;
 
         case WAP_PROTO_BLOCKS_OK:
-            GET_NUMBER8 (self->start_height);
-            GET_NUMBER8 (self->curr_height);
+            GET_NUMBER4 (self->start_height);
+            GET_NUMBER4 (self->curr_height);
             GET_STRING (self->block_status);
             //  Get zero or more remaining frames
             zmsg_destroy (&self->block_data);
@@ -362,10 +362,11 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             break;
 
         case WAP_PROTO_START:
-            GET_NUMBER8 (self->start_height);
+            GET_NUMBER4 (self->start_height);
             break;
 
         case WAP_PROTO_START_OK:
+            GET_NUMBER4 (self->curr_height);
             break;
 
         case WAP_PROTO_STOP:
@@ -438,8 +439,8 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             }
             break;
         case WAP_PROTO_BLOCKS_OK:
-            frame_size += 8;            //  start_height
-            frame_size += 8;            //  curr_height
+            frame_size += 4;            //  start_height
+            frame_size += 4;            //  curr_height
             frame_size += 1 + strlen (self->block_status);
             break;
         case WAP_PROTO_PUT:
@@ -459,7 +460,10 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
                 frame_size += zchunk_size (self->tx_data);
             break;
         case WAP_PROTO_START:
-            frame_size += 8;            //  start_height
+            frame_size += 4;            //  start_height
+            break;
+        case WAP_PROTO_START_OK:
+            frame_size += 4;            //  curr_height
             break;
         case WAP_PROTO_ERROR:
             frame_size += 2;            //  status
@@ -496,8 +500,8 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             break;
 
         case WAP_PROTO_BLOCKS_OK:
-            PUT_NUMBER8 (self->start_height);
-            PUT_NUMBER8 (self->curr_height);
+            PUT_NUMBER4 (self->start_height);
+            PUT_NUMBER4 (self->curr_height);
             PUT_STRING (self->block_status);
             nbr_frames += self->block_data? zmsg_size (self->block_data): 1;
             send_block_data = true;
@@ -536,7 +540,11 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             break;
 
         case WAP_PROTO_START:
-            PUT_NUMBER8 (self->start_height);
+            PUT_NUMBER4 (self->start_height);
+            break;
+
+        case WAP_PROTO_START_OK:
+            PUT_NUMBER4 (self->curr_height);
             break;
 
         case WAP_PROTO_ERROR:
@@ -654,6 +662,7 @@ wap_proto_print (wap_proto_t *self)
             
         case WAP_PROTO_START_OK:
             zsys_debug ("WAP_PROTO_START_OK:");
+            zsys_debug ("    curr_height=%ld", (long) self->curr_height);
             break;
             
         case WAP_PROTO_STOP:
@@ -857,7 +866,7 @@ wap_proto_set_block_ids (wap_proto_t *self, zlist_t **block_ids_p)
 //  --------------------------------------------------------------------------
 //  Get/set the start_height field
 
-uint64_t
+uint32_t
 wap_proto_start_height (wap_proto_t *self)
 {
     assert (self);
@@ -865,7 +874,7 @@ wap_proto_start_height (wap_proto_t *self)
 }
 
 void
-wap_proto_set_start_height (wap_proto_t *self, uint64_t start_height)
+wap_proto_set_start_height (wap_proto_t *self, uint32_t start_height)
 {
     assert (self);
     self->start_height = start_height;
@@ -875,7 +884,7 @@ wap_proto_set_start_height (wap_proto_t *self, uint64_t start_height)
 //  --------------------------------------------------------------------------
 //  Get/set the curr_height field
 
-uint64_t
+uint32_t
 wap_proto_curr_height (wap_proto_t *self)
 {
     assert (self);
@@ -883,7 +892,7 @@ wap_proto_curr_height (wap_proto_t *self)
 }
 
 void
-wap_proto_set_curr_height (wap_proto_t *self, uint64_t curr_height)
+wap_proto_set_curr_height (wap_proto_t *self, uint32_t curr_height)
 {
     assert (self);
     self->curr_height = curr_height;
@@ -1212,6 +1221,7 @@ wap_proto_test (bool verbose)
     }
     wap_proto_set_id (self, WAP_PROTO_START_OK);
 
+    wap_proto_set_curr_height (self, 123);
     //  Send twice
     wap_proto_send (self, output);
     wap_proto_send (self, output);
@@ -1219,6 +1229,7 @@ wap_proto_test (bool verbose)
     for (instance = 0; instance < 2; instance++) {
         wap_proto_recv (self, input);
         assert (wap_proto_routing_id (self));
+        assert (wap_proto_curr_height (self) == 123);
     }
     wap_proto_set_id (self, WAP_PROTO_STOP);
 

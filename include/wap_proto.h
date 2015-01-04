@@ -35,8 +35,8 @@ BLOCKS-OK, or ERROR if the request is invalid.
         block_ids           strings     
 
     BLOCKS_OK - Daemon returns a set of blocks to the wallet.
-        start_height        number 8    
-        curr_height         number 8    
+        start_height        number 4    
+        curr_height         number 4    
         block_status        string      
         block_data          msg         Frames of block data
 
@@ -60,9 +60,10 @@ with GET-OK, or ERROR.
 
     START - Wallet asks daemon to start mining. Daemon replies with START-OK, or
 ERROR.
-        start_height        number 8    
+        start_height        number 4    
 
     START_OK - Daemon replies to a start mining request.
+        curr_height         number 4    
 
     STOP - Wallet asks daemon to start mining. Daemon replies with START-OK, or
 ERROR.
@@ -180,16 +181,16 @@ void
     wap_proto_set_block_ids (wap_proto_t *self, zlist_t **block_ids_p);
 
 //  Get/set the start_height field
-uint64_t
+uint32_t
     wap_proto_start_height (wap_proto_t *self);
 void
-    wap_proto_set_start_height (wap_proto_t *self, uint64_t start_height);
+    wap_proto_set_start_height (wap_proto_t *self, uint32_t start_height);
 
 //  Get/set the curr_height field
-uint64_t
+uint32_t
     wap_proto_curr_height (wap_proto_t *self);
 void
-    wap_proto_set_curr_height (wap_proto_t *self, uint64_t curr_height);
+    wap_proto_set_curr_height (wap_proto_t *self, uint32_t curr_height);
 
 //  Get/set the block_status field
 const char *

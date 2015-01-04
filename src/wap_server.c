@@ -182,7 +182,7 @@ retrieve_the_transaction (client_t *self)
 static void
 start_the_mining_process (client_t *self)
 {
-
+    wap_proto_set_curr_height (self->message, wap_proto_start_height (self->message));
 }
 
 

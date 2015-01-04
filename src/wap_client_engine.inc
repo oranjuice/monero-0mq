@@ -122,7 +122,7 @@ struct _client_args_t {
     zlist_t *block_ids;
     zchunk_t *tx_data;
     char *tx_id;
-    uint64_t start_height;
+    uint32_t start_height;
 };
 
 typedef struct {
@@ -180,6 +180,8 @@ static void
     prepare_put_command (client_t *self);
 static void
     prepare_save_command (client_t *self);
+static void
+    prepare_start_command (client_t *self);
 static void
     signal_have_blocks_ok (client_t *self);
 static void
@@ -615,6 +617,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == start_event) {
+                    if (!self->exception) {
+                        //  prepare start command
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ prepare start command");
+                        prepare_start_command (&self->client);
+                    }
                     if (!self->exception) {
                         //  send START
                         if (wap_client_verbose)
@@ -1344,7 +1352,7 @@ s_accept_reply (wap_client_t *self, ...)
                 }
                 else
                 if (streq (reply, "START OK")) {
-                    zsock_recv (self->actor, "i", &self->status);
+                    zsock_recv (self->actor, "ii", &self->status, &self->curr_height);
                 }
                 else
                 if (streq (reply, "STOP OK")) {
@@ -1466,7 +1474,7 @@ wap_client_save (wap_client_t *self)
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_start (wap_client_t *self, uint64_t start_height)
+wap_client_start (wap_client_t *self, uint32_t start_height)
 {
     assert (self);
     zsock_send (self->actor, "si", "START", start_height);
