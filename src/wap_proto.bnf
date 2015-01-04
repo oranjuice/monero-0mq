@@ -76,7 +76,8 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
     ;  ERROR.                                                                
 
-    START           = signature %d11
+    START           = signature %d11 start height
+    start height    = number-8              ; 
 
     ;  Daemon replies to a start mining request.                             
 

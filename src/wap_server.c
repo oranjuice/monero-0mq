@@ -143,17 +143,6 @@ register_the_wallet (client_t *self)
 
 
 //  ---------------------------------------------------------------------------
-//  message_not_valid_in_this_state
-//
-
-static void
-message_not_valid_in_this_state (client_t *self)
-{
-
-}
-
-
-//  ---------------------------------------------------------------------------
 //  retrieve_the_blocks
 //
 
@@ -238,4 +227,15 @@ static void
 register_new_client (client_t *self)
 {
 
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_command_not_valid
+//
+
+static void
+signal_command_not_valid (client_t *self)
+{
+    wap_proto_set_status (self->message, WAP_PROTO_COMMAND_INVALID);
 }

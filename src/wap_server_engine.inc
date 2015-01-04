@@ -23,9 +23,8 @@
 typedef enum {
     start_state = 1,
     connected_state = 2,
-    external_state = 3,
-    settling_state = 4,
-    defaults_state = 5
+    defaults_state = 3,
+    settling_state = 4
 } state_t;
 
 typedef enum {
@@ -39,10 +38,10 @@ typedef enum {
     start_event = 7,
     stop_event = 8,
     close_event = 9,
-    exception_event = 10,
-    settled_event = 11,
-    ping_event = 12,
-    expired_event = 13
+    ping_event = 10,
+    expired_event = 11,
+    exception_event = 12,
+    settled_event = 13
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -51,9 +50,8 @@ s_state_name [] = {
     "(NONE)",
     "start",
     "connected",
-    "external",
-    "settling",
-    "defaults"
+    "defaults",
+    "settling"
 };
 
 static char *
@@ -68,10 +66,10 @@ s_event_name [] = {
     "START",
     "STOP",
     "CLOSE",
-    "exception",
-    "settled",
     "PING",
-    "expired"
+    "expired",
+    "exception",
+    "settled"
 };
 
 //  ---------------------------------------------------------------------------
@@ -135,7 +133,7 @@ static int
 static void
     register_the_wallet (client_t *self);
 static void
-    message_not_valid_in_this_state (client_t *self);
+    signal_command_not_valid (client_t *self);
 static void
     retrieve_the_blocks (client_t *self);
 static void
@@ -491,32 +489,6 @@ s_client_execute (s_client_t *self, event_t event)
                         self->state = settling_state;
                 }
                 else
-                if (self->event == exception_event) {
-                    if (!self->exception) {
-                        //  send ERROR
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ send ERROR",
-                                self->log_prefix);
-                        wap_proto_set_id (self->server->message, WAP_PROTO_ERROR);
-                        wap_proto_set_routing_id (self->server->message, self->routing_id);
-                        wap_proto_send (self->server->message, self->server->router);
-                    }
-                    if (!self->exception) {
-                        //  deregister the wallet
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
-                    }
-                    if (!self->exception) {
-                        //  allow time to settle
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ allow time to settle", self->log_prefix);
-                        allow_time_to_settle (&self->client);
-                    }
-                    if (!self->exception)
-                        self->state = settling_state;
-                }
-                else
                 if (self->event == ping_event) {
                     if (!self->exception) {
                         //  send PING_OK
@@ -545,13 +517,39 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception)
                         self->state = settling_state;
                 }
+                else
+                if (self->event == exception_event) {
+                    if (!self->exception) {
+                        //  send ERROR
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send ERROR",
+                                self->log_prefix);
+                        wap_proto_set_id (self->server->message, WAP_PROTO_ERROR);
+                        wap_proto_set_routing_id (self->server->message, self->routing_id);
+                        wap_proto_send (self->server->message, self->server->router);
+                    }
+                    if (!self->exception) {
+                        //  deregister the wallet
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
+                        deregister_the_wallet (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  allow time to settle
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ allow time to settle", self->log_prefix);
+                        allow_time_to_settle (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = settling_state;
+                }
                 else {
                     //  Handle unexpected protocol events
                     if (!self->exception) {
-                        //  message not valid in this state
+                        //  signal command not valid
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ message not valid in this state", self->log_prefix);
-                        message_not_valid_in_this_state (&self->client);
+                            zsys_debug ("%s:         $ signal command not valid", self->log_prefix);
+                        signal_command_not_valid (&self->client);
                     }
                     if (!self->exception) {
                         //  send ERROR
@@ -694,32 +692,6 @@ s_client_execute (s_client_t *self, event_t event)
                         self->state = settling_state;
                 }
                 else
-                if (self->event == exception_event) {
-                    if (!self->exception) {
-                        //  send ERROR
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ send ERROR",
-                                self->log_prefix);
-                        wap_proto_set_id (self->server->message, WAP_PROTO_ERROR);
-                        wap_proto_set_routing_id (self->server->message, self->routing_id);
-                        wap_proto_send (self->server->message, self->server->router);
-                    }
-                    if (!self->exception) {
-                        //  deregister the wallet
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
-                    }
-                    if (!self->exception) {
-                        //  allow time to settle
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ allow time to settle", self->log_prefix);
-                        allow_time_to_settle (&self->client);
-                    }
-                    if (!self->exception)
-                        self->state = settling_state;
-                }
-                else
                 if (self->event == ping_event) {
                     if (!self->exception) {
                         //  send PING_OK
@@ -748,13 +720,39 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception)
                         self->state = settling_state;
                 }
+                else
+                if (self->event == exception_event) {
+                    if (!self->exception) {
+                        //  send ERROR
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send ERROR",
+                                self->log_prefix);
+                        wap_proto_set_id (self->server->message, WAP_PROTO_ERROR);
+                        wap_proto_set_routing_id (self->server->message, self->routing_id);
+                        wap_proto_send (self->server->message, self->server->router);
+                    }
+                    if (!self->exception) {
+                        //  deregister the wallet
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
+                        deregister_the_wallet (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  allow time to settle
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ allow time to settle", self->log_prefix);
+                        allow_time_to_settle (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = settling_state;
+                }
                 else {
                     //  Handle unexpected protocol events
                     if (!self->exception) {
-                        //  message not valid in this state
+                        //  signal command not valid
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ message not valid in this state", self->log_prefix);
-                        message_not_valid_in_this_state (&self->client);
+                            zsys_debug ("%s:         $ signal command not valid", self->log_prefix);
+                        signal_command_not_valid (&self->client);
                     }
                     if (!self->exception) {
                         //  send ERROR
@@ -782,7 +780,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 break;
 
-            case external_state:
+            case defaults_state:
                 if (self->event == close_event) {
                     if (!self->exception) {
                         //  send CLOSE_OK
@@ -790,32 +788,6 @@ s_client_execute (s_client_t *self, event_t event)
                             zsys_debug ("%s:         $ send CLOSE_OK",
                                 self->log_prefix);
                         wap_proto_set_id (self->server->message, WAP_PROTO_CLOSE_OK);
-                        wap_proto_set_routing_id (self->server->message, self->routing_id);
-                        wap_proto_send (self->server->message, self->server->router);
-                    }
-                    if (!self->exception) {
-                        //  deregister the wallet
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
-                    }
-                    if (!self->exception) {
-                        //  allow time to settle
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ allow time to settle", self->log_prefix);
-                        allow_time_to_settle (&self->client);
-                    }
-                    if (!self->exception)
-                        self->state = settling_state;
-                }
-                else
-                if (self->event == exception_event) {
-                    if (!self->exception) {
-                        //  send ERROR
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ send ERROR",
-                                self->log_prefix);
-                        wap_proto_set_id (self->server->message, WAP_PROTO_ERROR);
                         wap_proto_set_routing_id (self->server->message, self->routing_id);
                         wap_proto_send (self->server->message, self->server->router);
                     }
@@ -863,13 +835,39 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception)
                         self->state = settling_state;
                 }
+                else
+                if (self->event == exception_event) {
+                    if (!self->exception) {
+                        //  send ERROR
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send ERROR",
+                                self->log_prefix);
+                        wap_proto_set_id (self->server->message, WAP_PROTO_ERROR);
+                        wap_proto_set_routing_id (self->server->message, self->routing_id);
+                        wap_proto_send (self->server->message, self->server->router);
+                    }
+                    if (!self->exception) {
+                        //  deregister the wallet
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
+                        deregister_the_wallet (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  allow time to settle
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ allow time to settle", self->log_prefix);
+                        allow_time_to_settle (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = settling_state;
+                }
                 else {
                     //  Handle unexpected protocol events
                     if (!self->exception) {
-                        //  message not valid in this state
+                        //  signal command not valid
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ message not valid in this state", self->log_prefix);
-                        message_not_valid_in_this_state (&self->client);
+                            zsys_debug ("%s:         $ signal command not valid", self->log_prefix);
+                        signal_command_not_valid (&self->client);
                     }
                     if (!self->exception) {
                         //  send ERROR
@@ -928,45 +926,6 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-                }
-                break;
-
-            case defaults_state:
-                if (self->event == ping_event) {
-                    if (!self->exception) {
-                        //  send PING_OK
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ send PING_OK",
-                                self->log_prefix);
-                        wap_proto_set_id (self->server->message, WAP_PROTO_PING_OK);
-                        wap_proto_set_routing_id (self->server->message, self->routing_id);
-                        wap_proto_send (self->server->message, self->server->router);
-                    }
-                }
-                else
-                if (self->event == expired_event) {
-                    if (!self->exception) {
-                        //  deregister the wallet
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
-                    }
-                    if (!self->exception) {
-                        //  allow time to settle
-                        if (self->server->verbose)
-                            zsys_debug ("%s:         $ allow time to settle", self->log_prefix);
-                        allow_time_to_settle (&self->client);
-                    }
-                    if (!self->exception)
-                        self->state = settling_state;
-                }
-                else {
-                    //  Handle unexpected internal events
-                    zsys_warning ("%s: unhandled event %s in %s",
-                        self->log_prefix,
-                        s_event_name [self->event],
-                        s_state_name [self->state]);
-                    assert (false);
                 }
                 break;
         }

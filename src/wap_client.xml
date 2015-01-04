@@ -35,7 +35,6 @@
     </state>
     
     <state name = "connected" inherit = "defaults">
-        <!--
         <event name = "blocks" next = "expect blocks ok">
             <action name = "prepare blocks command" />
             <action name = "send" message = "BLOCKS" />
@@ -52,7 +51,6 @@
             <action name = "prepare save command" />
             <action name = "send" message = "SAVE" />
         </event>
-        -->
         <event name = "start" next = "expect start ok">
             <action name = "send" message = "START" />
         </event>
@@ -69,37 +67,37 @@
 
     <state name = "expect blocks ok" inherit = "defaults">
         <event name = "BLOCKS OK" next = "connected">
-            <action name = "signal success" />
+            <action name = "signal have blocks ok" />
         </event>
     </state>
 
     <state name = "expect get ok" inherit = "defaults">
         <event name = "GET OK" next = "connected">
-            <action name = "signal success" />
+            <action name = "signal have get ok" />
         </event>
     </state>
 
     <state name = "expect put ok" inherit = "defaults">
         <event name = "PUT OK" next = "connected">
-            <action name = "signal success" />
+            <action name = "signal have put ok" />
         </event>
     </state>
 
     <state name = "expect save ok" inherit = "defaults">
         <event name = "SAVE OK" next = "connected">
-            <action name = "signal success" />
+            <action name = "signal have save ok" />
         </event>
     </state>
 
     <state name = "expect start ok" inherit = "defaults">
         <event name = "START OK" next = "connected">
-            <action name = "signal success" />
+            <action name = "signal have start ok" />
         </event>
     </state>
 
     <state name = "expect stop ok" inherit = "defaults">
         <event name = "STOP OK" next = "connected">
-            <action name = "signal success" />
+            <action name = "signal have stop ok" />
         </event>
     </state>
 
@@ -155,11 +153,11 @@
     </method>
 
     <reply name = "SUCCESS">
-        <field name = "status" type = "number" size = "1" />
+        <field name = "status" type = "integer" />
     </reply>
 
     <reply name = "FAILURE">
-        <field name = "status" type = "number" size = "1" />
+        <field name = "status" type = "integer" />
         <field name = "reason" type = "string" />
     </reply>
 
@@ -170,29 +168,73 @@
         <accept reply = "FAILURE" />
     </method>
     
-    <method name = "start" return = "status">
-    Send start command to server.
-        <accept reply = "SUCCESS" />
-        <accept reply = "FAILURE" />
-    </method>
-
-    <method name = "stop" return = "status">
-    Send stop command to server.
-        <accept reply = "SUCCESS" />
-        <accept reply = "FAILURE" />
-    </method>
-
-<!--    <method name = "blocks" return = "status">
+    <method name = "blocks" return = "status">
     Request a set of blocks from the server.
-        <field name = "block ids" type = "list" />
+        <field name = "block ids" type = "strings" />
         <accept reply = "BLOCKS OK" />
         <accept reply = "FAILURE" />
     </method>
 
     <reply name = "BLOCKS OK">
-        <field name = "start height" type = "number" />
-        <field name = "curr height" type = "number" />
+        <field name = "status" type = "integer" />
+        <field name = "start height" type = "number" size = "4" />
+        <field name = "curr height" type = "number" size = "4" />
         <field name = "block status" type = "string" />
         <field name = "block data" type = "msg" />
-    </reply>-->
+    </reply>
+    
+    <method name = "put" return = "status">
+    Send a raw transaction to the daemon.
+        <field name = "tx data" type = "chunk" />
+        <accept reply = "PUT OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "PUT OK">
+        <field name = "status" type = "integer" />
+        <field name = "tx id" type = "string" />
+    </reply>
+
+    <method name = "get" return = "status">
+    Request a set of blocks from the server.
+        <field name = "tx id" type = "string" />
+        <accept reply = "GET OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET OK">
+        <field name = "status" type = "integer" />
+        <field name = "tx data" type = "chunk" />
+    </reply>
+
+    <method name = "save" return = "status">
+    Request a set of blocks from the server.
+        <accept reply = "SAVE OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "SAVE OK">
+        <field name = "status" type = "integer" />
+    </reply>
+
+    <method name = "start" return = "status">
+    Send start command to server.
+        <field name = "start height" type = "number" size = "8" />
+        <accept reply = "START OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "START OK">
+        <field name = "status" type = "integer" />
+    </reply>
+
+    <method name = "stop" return = "status">
+    Send stop command to server.
+        <accept reply = "STOP OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "STOP OK">
+        <field name = "status" type = "integer" />
+    </reply>
 </class>

@@ -85,6 +85,7 @@
     <message name = "START">
         Wallet asks daemon to start mining. Daemon replies with START-OK, or
         ERROR.
+        <field name = "start height" type = "number" size = "8" />
     </message>
 
     <message name = "START-OK">

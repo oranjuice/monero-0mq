@@ -111,6 +111,122 @@ use_heartbeat_timer (client_t *self)
 
 
 //  ---------------------------------------------------------------------------
+//  prepare_blocks_command
+//
+
+static void
+prepare_blocks_command (client_t *self)
+{
+    wap_proto_set_block_ids (self->message, &self->args->block_ids);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_blocks_ok
+//
+
+static void
+signal_have_blocks_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "siiisp", "BLOCKS OK", 0,
+                wap_proto_start_height (self->message),
+                wap_proto_curr_height (self->message),
+                wap_proto_block_status (self->message),
+                wap_proto_get_block_data (self->message));
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_put_command
+//
+
+static void
+prepare_put_command (client_t *self)
+{
+    wap_proto_set_tx_data (self->message, &self->args->tx_data);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_put_ok
+//
+
+static void
+signal_have_put_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "sis", "PUT OK", 0,
+                wap_proto_tx_id (self->message));
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_command
+//
+
+static void
+prepare_get_command (client_t *self)
+{
+    wap_proto_set_tx_id (self->message, self->args->tx_id);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_ok
+//
+
+static void
+signal_have_get_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "sip", "GET OK", 0, 
+                wap_proto_get_tx_data (self->message));
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_save_command
+//
+
+static void
+prepare_save_command (client_t *self)
+{
+}
+
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_save_ok
+//
+
+static void
+signal_have_save_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "si", "SAVE OK", 0);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_start_ok
+//
+
+static void
+signal_have_start_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "si", "START OK", 0);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_stop_ok
+//
+
+static void
+signal_have_stop_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "si", "STOP OK", 0);
+}
+
+
+//  ---------------------------------------------------------------------------
 //  signal_success
 //
 
@@ -196,12 +312,11 @@ wap_client_test (bool verbose)
         zstr_send (server, "VERBOSE");
     zsock_send (server, "ss", "BIND", "ipc://@/monero");
 
+    wap_client_verbose = verbose;
     wap_client_t *client = wap_client_new ("ipc://@/monero", 1000, "test client");
     assert (client);
-    if (verbose)
-        wap_client_verbose (client);
 
-    int rc = wap_client_start (client);
+    int rc = wap_client_start (client, 0);
     assert (rc == 0);
     rc = wap_client_stop (client);
     assert (rc == 0);
