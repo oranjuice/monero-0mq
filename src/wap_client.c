@@ -118,6 +118,7 @@ static void
 prepare_blocks_command (client_t *self)
 {
     wap_proto_set_block_ids (self->message, &self->args->block_ids);
+    wap_proto_set_start_height (self->message, self->args->start_height);
 }
 
 
@@ -128,13 +129,23 @@ prepare_blocks_command (client_t *self)
 static void
 signal_have_blocks_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "siiisp", "BLOCKS OK", 0,
+    zsock_send (self->cmdpipe, "siiip", "BLOCKS OK", wap_proto_status(self->message),
                 wap_proto_start_height (self->message),
                 wap_proto_curr_height (self->message),
-                wap_proto_block_status (self->message),
                 wap_proto_get_block_data (self->message));
 }
 
+
+// ---------------------------------------------------------------------------
+// prepare_start_command
+//
+
+static void
+prepare_start_command (client_t *self)
+{
+    wap_proto_set_address (self->message, self->args->address);
+    wap_proto_set_thread_count (self->message, self->args->thread_count);
+}
 
 //  ---------------------------------------------------------------------------
 //  prepare_put_command
@@ -154,8 +165,8 @@ prepare_put_command (client_t *self)
 static void
 signal_have_put_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "sis", "PUT OK", 0,
-                wap_proto_tx_id (self->message));
+    zsock_send (self->cmdpipe, "si", "PUT OK",
+                wap_proto_status (self->message));
 }
 
 
@@ -211,7 +222,7 @@ signal_have_save_ok (client_t *self)
 static void
 signal_have_start_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "si", "START OK", 0);
+    zsock_send(self->cmdpipe, "si", "START OK", wap_proto_status(self->message));
 }
 
 
@@ -295,35 +306,23 @@ signal_server_not_present (client_t *self)
 }
 
 
+
+
 //  ---------------------------------------------------------------------------
-//  Selftest
+//  prepare_get_output_indexes_command
+//
 
-void
-wap_client_test (bool verbose)
+static void
+prepare_get_output_indexes_command (client_t *self)
 {
-    printf (" * wap_client: ");
-    if (verbose)
-        printf ("\n");
+}
 
-    //  @selftest
-    //  Start a server to test against, and bind to endpoint
-    zactor_t *server = zactor_new (wap_server, "wap_client_test");
-    if (verbose)
-        zstr_send (server, "VERBOSE");
-    zsock_send (server, "ss", "BIND", "ipc://@/monero");
 
-    wap_client_verbose = verbose;
-    wap_client_t *client = wap_client_new ("ipc://@/monero", 1000, "test client");
-    assert (client);
+//  ---------------------------------------------------------------------------
+//  signal_have_output_indexes_ok
+//
 
-    int rc = wap_client_start (client, 0);
-    assert (rc == 0);
-    rc = wap_client_stop (client);
-    assert (rc == 0);
-    
-    wap_client_destroy (&client);
-    
-    zactor_destroy (&server);
-    //  @end
-    printf ("OK\n");
+static void
+signal_have_output_indexes_ok (client_t *self)
+{
 }

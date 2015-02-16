@@ -37,11 +37,12 @@ typedef enum {
     save_event = 6,
     start_event = 7,
     stop_event = 8,
-    close_event = 9,
-    ping_event = 10,
-    expired_event = 11,
-    exception_event = 12,
-    settled_event = 13
+    output_indexes_event = 9,
+    close_event = 10,
+    ping_event = 11,
+    expired_event = 12,
+    exception_event = 13,
+    settled_event = 14
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -65,6 +66,7 @@ s_event_name [] = {
     "SAVE",
     "START",
     "STOP",
+    "OUTPUT_INDEXES",
     "CLOSE",
     "PING",
     "expired",
@@ -131,21 +133,23 @@ static int
 static int
     s_client_handle_ticket (zloop_t *loop, int timer_id, void *argument);
 static void
-    register_the_wallet (client_t *self);
+    register_wallet (client_t *self);
 static void
     signal_command_not_valid (client_t *self);
 static void
-    retrieve_the_blocks (client_t *self);
+    retrieve_blocks (client_t *self);
 static void
-    store_the_transaction (client_t *self);
+    send_transaction (client_t *self);
 static void
-    retrieve_the_transaction (client_t *self);
+    retrieve_transaction (client_t *self);
 static void
-    start_the_mining_process (client_t *self);
+    start_mining_process (client_t *self);
 static void
-    stop_the_mining_process (client_t *self);
+    stop_mining_process (client_t *self);
 static void
-    deregister_the_wallet (client_t *self);
+    output_indexes (client_t *self);
+static void
+    deregister_wallet (client_t *self);
 static void
     allow_time_to_settle (client_t *self);
 static void
@@ -337,6 +341,9 @@ s_protocol_event (wap_proto_t *message)
         case WAP_PROTO_PUT:
             return put_event;
             break;
+        case WAP_PROTO_OUTPUT_INDEXES:
+            return output_indexes_event;
+            break;
         case WAP_PROTO_GET:
             return get_event;
             break;
@@ -445,10 +452,10 @@ s_client_execute (s_client_t *self, event_t event)
             case start_state:
                 if (self->event == open_event) {
                     if (!self->exception) {
-                        //  register the wallet
+                        //  register wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ register the wallet", self->log_prefix);
-                        register_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ register wallet", self->log_prefix);
+                        register_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  send OPEN_OK
@@ -474,10 +481,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -503,10 +510,10 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == expired_event) {
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -529,10 +536,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -566,10 +573,10 @@ s_client_execute (s_client_t *self, event_t event)
             case connected_state:
                 if (self->event == blocks_event) {
                     if (!self->exception) {
-                        //  retrieve the blocks
+                        //  retrieve blocks
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ retrieve the blocks", self->log_prefix);
-                        retrieve_the_blocks (&self->client);
+                            zsys_debug ("%s:         $ retrieve blocks", self->log_prefix);
+                        retrieve_blocks (&self->client);
                     }
                     if (!self->exception) {
                         //  send BLOCKS_OK
@@ -584,10 +591,10 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == put_event) {
                     if (!self->exception) {
-                        //  store the transaction
+                        //  send transaction
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ store the transaction", self->log_prefix);
-                        store_the_transaction (&self->client);
+                            zsys_debug ("%s:         $ send transaction", self->log_prefix);
+                        send_transaction (&self->client);
                     }
                     if (!self->exception) {
                         //  send PUT_OK
@@ -602,10 +609,10 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == get_event) {
                     if (!self->exception) {
-                        //  retrieve the transaction
+                        //  retrieve transaction
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ retrieve the transaction", self->log_prefix);
-                        retrieve_the_transaction (&self->client);
+                            zsys_debug ("%s:         $ retrieve transaction", self->log_prefix);
+                        retrieve_transaction (&self->client);
                     }
                     if (!self->exception) {
                         //  send GET_OK
@@ -632,10 +639,10 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == start_event) {
                     if (!self->exception) {
-                        //  start the mining process
+                        //  start mining process
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ start the mining process", self->log_prefix);
-                        start_the_mining_process (&self->client);
+                            zsys_debug ("%s:         $ start mining process", self->log_prefix);
+                        start_mining_process (&self->client);
                     }
                     if (!self->exception) {
                         //  send START_OK
@@ -650,10 +657,10 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == stop_event) {
                     if (!self->exception) {
-                        //  stop the mining process
+                        //  stop mining process
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ stop the mining process", self->log_prefix);
-                        stop_the_mining_process (&self->client);
+                            zsys_debug ("%s:         $ stop mining process", self->log_prefix);
+                        stop_mining_process (&self->client);
                     }
                     if (!self->exception) {
                         //  send STOP_OK
@@ -661,6 +668,24 @@ s_client_execute (s_client_t *self, event_t event)
                             zsys_debug ("%s:         $ send STOP_OK",
                                 self->log_prefix);
                         wap_proto_set_id (self->server->message, WAP_PROTO_STOP_OK);
+                        wap_proto_set_routing_id (self->server->message, self->routing_id);
+                        wap_proto_send (self->server->message, self->server->router);
+                    }
+                }
+                else
+                if (self->event == output_indexes_event) {
+                    if (!self->exception) {
+                        //  output indexes
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ output indexes", self->log_prefix);
+                        output_indexes (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send OUTPUT_INDEXES_OK
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send OUTPUT_INDEXES_OK",
+                                self->log_prefix);
+                        wap_proto_set_id (self->server->message, WAP_PROTO_OUTPUT_INDEXES_OK);
                         wap_proto_set_routing_id (self->server->message, self->routing_id);
                         wap_proto_send (self->server->message, self->server->router);
                     }
@@ -677,10 +702,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -706,10 +731,10 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == expired_event) {
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -732,10 +757,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -764,10 +789,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -792,10 +817,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -821,10 +846,10 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == expired_event) {
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -847,10 +872,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle
@@ -879,10 +904,10 @@ s_client_execute (s_client_t *self, event_t event)
                         wap_proto_send (self->server->message, self->server->router);
                     }
                     if (!self->exception) {
-                        //  deregister the wallet
+                        //  deregister wallet
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ deregister the wallet", self->log_prefix);
-                        deregister_the_wallet (&self->client);
+                            zsys_debug ("%s:         $ deregister wallet", self->log_prefix);
+                        deregister_wallet (&self->client);
                     }
                     if (!self->exception) {
                         //  allow time to settle

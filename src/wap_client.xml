@@ -52,10 +52,15 @@
             <action name = "send" message = "SAVE" />
         </event>
         <event name = "start" next = "expect start ok">
+            <action name = "prepare start command" />
             <action name = "send" message = "START" />
         </event>
         <event name = "stop" next = "expect stop ok">
             <action name = "send" message = "STOP" />
+        </event>
+        <event name = "output indexes" next = "expect output indexes ok">
+            <action name = "prepare get output indexes command" />
+            <action name = "send" message = "OUTPUT INDEXES" />
         </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
@@ -100,6 +105,12 @@
             <action name = "signal have stop ok" />
         </event>
     </state>
+    
+    <state name = "expect output indexes ok" inherit = "defaults">
+        <event name = "OUTPUT INDEXES OK" next = "connected">
+            <action name = "signal have output indexes ok" />
+        </event>
+    </state>
 
     <state name = "expect close ok" inherit = "defaults">
         <event name = "CLOSE OK">
@@ -113,7 +124,7 @@
     </state>
 
     <state name = "defaults">
-        <event name = "CONNECTION PONG">
+        <event name = "PING OK">
         </event>
         <event name = "ERROR" next = "have error">
             <action name = "check status code" />
@@ -171,15 +182,15 @@
     <method name = "blocks" return = "status">
     Request a set of blocks from the server.
         <field name = "block ids" type = "strings" />
+        <field name = "start height" type = "number" size = "8" />
         <accept reply = "BLOCKS OK" />
         <accept reply = "FAILURE" />
     </method>
 
     <reply name = "BLOCKS OK">
-        <field name = "status" type = "integer" />
-        <field name = "start height" type = "number" size = "4" />
-        <field name = "curr height" type = "number" size = "4" />
-        <field name = "block status" type = "string" />
+        <field name = "status" type = "number" size = "8" />
+        <field name = "start height" type = "number" size = "8" />
+        <field name = "curr height" type = "number" size = "8" />
         <field name = "block data" type = "msg" />
     </reply>
     
@@ -191,8 +202,7 @@
     </method>
 
     <reply name = "PUT OK">
-        <field name = "status" type = "integer" />
-        <field name = "tx id" type = "string" />
+        <field name = "status" type = "number" size = "8" />
     </reply>
 
     <method name = "get" return = "status">
@@ -217,15 +227,28 @@
         <field name = "status" type = "integer" />
     </reply>
 
+		<method name = "output indexes" return = "status">
+        Ask for tx output indexes.
+        <field name = "tx id" type = "string" >Transaction ID</field>
+        <accept reply = "OUTPUT INDEXES OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "OUTPUT INDEXES OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "o indexes" type = "frame" >Output Indexes</field>
+    </reply>
+
     <method name = "start" return = "status">
     Send start command to server.
-        <field name = "start height" type = "number" size = "8" />
+        <field name = "address" type = "string" />
+        <field name = "thread count" type = "number" size = "8" />
         <accept reply = "START OK" />
         <accept reply = "FAILURE" />
     </method>
 
     <reply name = "START OK">
-        <field name = "status" type = "integer" />
+        <field name = "status" type = "number" size = "8" />
     </reply>
 
     <method name = "stop" return = "status">
@@ -237,4 +260,5 @@
     <reply name = "STOP OK">
         <field name = "status" type = "integer" />
     </reply>
+    
 </class>

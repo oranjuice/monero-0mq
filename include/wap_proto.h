@@ -33,11 +33,12 @@
     BLOCKS - Wallet requests a set of blocks from the daemon. Daemon replies with
 BLOCKS-OK, or ERROR if the request is invalid.
         block_ids           strings     
+        start_height        number 8    
 
     BLOCKS_OK - Daemon returns a set of blocks to the wallet.
+        status              number 8    
         start_height        number 8    
         curr_height         number 8    
-        block_status        string      
         block_data          msg         Frames of block data
 
     PUT - Wallet sends a raw transaction to the daemon. Daemon replies with
@@ -45,7 +46,14 @@ PUT-OK, or ERROR.
         tx_data             chunk       Transaction data
 
     PUT_OK - Daemon confirms that it accepted the raw transaction.
+        status              number 8    Transaction ID
+
+    OUTPUT_INDEXES - Ask for tx output indexes.
         tx_id               string      Transaction ID
+
+    OUTPUT_INDEXES_OK - Daemon returns tx output indexes.
+        status              number 8    Status
+        o_indexes           frame       Output Indexes
 
     GET - Wallet requests transaction data from the daemon. Daemon replies
 with GET-OK, or ERROR.
@@ -60,9 +68,11 @@ with GET-OK, or ERROR.
 
     START - Wallet asks daemon to start mining. Daemon replies with START-OK, or
 ERROR.
-        start_height        number 8    
+        address             string      
+        thread_count        number 8    
 
     START_OK - Daemon replies to a start mining request.
+        status              number 8    
 
     STOP - Wallet asks daemon to start mining. Daemon replies with START-OK, or
 ERROR.
@@ -101,19 +111,21 @@ Daemon will reply with CLOSE-OK or ERROR.
 #define WAP_PROTO_BLOCKS_OK                 4
 #define WAP_PROTO_PUT                       5
 #define WAP_PROTO_PUT_OK                    6
-#define WAP_PROTO_GET                       7
-#define WAP_PROTO_GET_OK                    8
-#define WAP_PROTO_SAVE                      9
-#define WAP_PROTO_SAVE_OK                   10
-#define WAP_PROTO_START                     11
-#define WAP_PROTO_START_OK                  12
-#define WAP_PROTO_STOP                      13
-#define WAP_PROTO_STOP_OK                   14
-#define WAP_PROTO_CLOSE                     15
-#define WAP_PROTO_CLOSE_OK                  16
-#define WAP_PROTO_PING                      17
-#define WAP_PROTO_PING_OK                   18
-#define WAP_PROTO_ERROR                     19
+#define WAP_PROTO_OUTPUT_INDEXES            7
+#define WAP_PROTO_OUTPUT_INDEXES_OK         8
+#define WAP_PROTO_GET                       9
+#define WAP_PROTO_GET_OK                    10
+#define WAP_PROTO_SAVE                      11
+#define WAP_PROTO_SAVE_OK                   12
+#define WAP_PROTO_START                     13
+#define WAP_PROTO_START_OK                  14
+#define WAP_PROTO_STOP                      15
+#define WAP_PROTO_STOP_OK                   16
+#define WAP_PROTO_CLOSE                     17
+#define WAP_PROTO_CLOSE_OK                  18
+#define WAP_PROTO_PING                      19
+#define WAP_PROTO_PING_OK                   20
+#define WAP_PROTO_ERROR                     21
 
 #include <czmq.h>
 
@@ -185,17 +197,17 @@ uint64_t
 void
     wap_proto_set_start_height (wap_proto_t *self, uint64_t start_height);
 
+//  Get/set the status field
+uint64_t
+    wap_proto_status (wap_proto_t *self);
+void
+    wap_proto_set_status (wap_proto_t *self, uint64_t status);
+
 //  Get/set the curr_height field
 uint64_t
     wap_proto_curr_height (wap_proto_t *self);
 void
     wap_proto_set_curr_height (wap_proto_t *self, uint64_t curr_height);
-
-//  Get/set the block_status field
-const char *
-    wap_proto_block_status (wap_proto_t *self);
-void
-    wap_proto_set_block_status (wap_proto_t *self, const char *value);
 
 //  Get a copy of the block_data field
 zmsg_t *
@@ -223,11 +235,27 @@ const char *
 void
     wap_proto_set_tx_id (wap_proto_t *self, const char *value);
 
-//  Get/set the status field
-uint16_t
-    wap_proto_status (wap_proto_t *self);
+//  Get a copy of the o_indexes field
+zframe_t *
+    wap_proto_o_indexes (wap_proto_t *self);
+//  Get the o_indexes field and transfer ownership to caller
+zframe_t *
+    wap_proto_get_o_indexes (wap_proto_t *self);
+//  Set the o_indexes field, transferring ownership from caller
 void
-    wap_proto_set_status (wap_proto_t *self, uint16_t status);
+    wap_proto_set_o_indexes (wap_proto_t *self, zframe_t **frame_p);
+
+//  Get/set the address field
+const char *
+    wap_proto_address (wap_proto_t *self);
+void
+    wap_proto_set_address (wap_proto_t *self, const char *value);
+
+//  Get/set the thread_count field
+uint64_t
+    wap_proto_thread_count (wap_proto_t *self);
+void
+    wap_proto_set_thread_count (wap_proto_t *self, uint64_t thread_count);
 
 //  Get/set the reason field
 const char *

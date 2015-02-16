@@ -12,7 +12,7 @@
 
     <state name = "start" inherit = "defaults">
         <event name = "OPEN" next = "connected">
-            <action name = "register the wallet" />
+            <action name = "register wallet" />
             <action name = "send" message = "OPEN OK" />
         </event>
         <!-- If wallet sends us anything after we restart, we signal error
@@ -25,34 +25,38 @@
 
     <state name = "connected" inherit = "defaults">
         <event name = "BLOCKS">
-            <action name = "retrieve the blocks" />
+            <action name = "retrieve blocks" />
             <action name = "send" message = "BLOCKS OK" />
         </event>
         <event name = "PUT">
-            <action name = "store the transaction" />
+            <action name = "send transaction" />
             <action name = "send" message = "PUT OK" />
         </event>
         <event name = "GET">
-            <action name = "retrieve the transaction" />
+            <action name = "retrieve transaction" />
             <action name = "send" message = "GET OK" />
         </event>
         <event name = "SAVE">
             <action name = "send" message = "SAVE OK" />
         </event>
         <event name = "START">
-            <action name = "start the mining process" />
+            <action name = "start mining process" />
             <action name = "send" message = "START OK" />
         </event>
         <event name = "STOP">
-            <action name = "stop the mining process" />
+            <action name = "stop mining process" />
             <action name = "send" message = "STOP OK" />
+        </event>
+        <event name = "OUTPUT INDEXES">
+            <action name = "output indexes" />
+            <action name = "send" message = "OUTPUT INDEXES OK" />
         </event>
     </state>
 
     <state name = "defaults">
         <event name = "CLOSE" next = "settling">
             <action name = "send" message = "CLOSE OK" />
-            <action name = "deregister the wallet" />
+            <action name = "deregister wallet" />
             <action name = "allow time to settle" />
         </event>
         <event name = "PING">
@@ -60,20 +64,20 @@
         </event>
         <!-- This built-in event hits on a client timeout -->
         <event name = "expired" next = "settling">
-            <action name = "deregister the wallet" />
+            <action name = "deregister wallet" />
             <action name = "allow time to settle" />
         </event>
         <!-- Client tried to do something we don't allow yet -->
         <event name = "exception" next = "settling">
             <action name = "send" message = "ERROR" />
-            <action name = "deregister the wallet" />
+            <action name = "deregister wallet" />
             <action name = "allow time to settle" />
         </event>
         <!-- All other protocol messages are invalid -->
         <event name = "*" next = "settling">
             <action name = "signal command not valid" />
             <action name = "send" message = "ERROR" />
-            <action name = "deregister the wallet" />
+            <action name = "deregister wallet" />
             <action name = "allow time to settle" />
         </event>
     </state>

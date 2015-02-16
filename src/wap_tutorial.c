@@ -52,7 +52,8 @@ int main (int argc, char *argv [])
     
     //  The server only supports two commands for now, START and STOP, so
     //  let's try each of these:
-    int rc = wap_client_start (client, 0);
+    int rc = wap_client_start (client, 25);
+    printf("\n\n Response: %d\n", (int)wap_client_curr_height(client));
     assert (rc == 0);
 
     rc = wap_client_stop (client);

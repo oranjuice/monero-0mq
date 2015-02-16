@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save / start / stop
+    traffic = blocks / put / get / save / start / stop / o_indexes
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -20,6 +20,7 @@
     save = C:SAVE ( S:SAVE-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
     stop = C:STOP ( S:STOP-OK / S:ERROR )
+    o_indexes = C:OUTPUT-INDEXES ( S:OUTPUT-INDEXES-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -42,13 +43,14 @@
         Wallet requests a set of blocks from the daemon. Daemon replies with
         BLOCKS-OK, or ERROR if the request is invalid.
         <field name = "block ids" type = "strings" />
+        <field name = "start height" type = "number" size = "8" />
     </message>
 
     <message name = "BLOCKS-OK">
         Daemon returns a set of blocks to the wallet.
+        <field name = "status" type = "number" size = "8" />
         <field name = "start height" type = "number" size = "8" />
         <field name = "curr height" type = "number" size = "8" />
-        <field name = "block status" type = "string" />
         <field name = "block data" type = "msg">Frames of block data</field>
     </message>
 
@@ -60,7 +62,18 @@
 
     <message name = "PUT-OK">
         Daemon confirms that it accepted the raw transaction.
-        <field name = "tx id" type = "string">Transaction ID</field>
+        <field name = "status" type = "number" size = "8">Transaction ID</field>
+    </message>
+    
+    <message name = "OUTPUT-INDEXES">
+        Ask for tx output indexes.
+        <field name = "tx id" type = "string" >Transaction ID</field>
+    </message>
+    
+    <message name = "OUTPUT-INDEXES-OK">
+        Daemon returns tx output indexes.
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "o indexes" type = "frame" >Output Indexes</field>
     </message>
 
     <message name = "GET">
@@ -85,11 +98,13 @@
     <message name = "START">
         Wallet asks daemon to start mining. Daemon replies with START-OK, or
         ERROR.
-        <field name = "start height" type = "number" size = "8" />
+        <field name = "address" type = "string" />
+        <field name = "thread count" type = "number" size = "8" />
     </message>
 
     <message name = "START-OK">
         Daemon replies to a start mining request.
+        <field name = "status" type = "number" size = "8" />
     </message>
 
     <message name = "STOP">

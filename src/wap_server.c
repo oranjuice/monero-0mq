@@ -19,6 +19,7 @@
 //  TODO: Change these to match your project's needs
 #include "../include/wap_proto.h"
 #include "../include/wap_server.h"
+#include "daemon_ipc_handlers.h"
 
 //  ---------------------------------------------------------------------------
 //  Forward declarations for the two main classes we use here
@@ -132,77 +133,78 @@ wap_server_test (bool verbose)
 
 
 //  ---------------------------------------------------------------------------
-//  register_the_wallet
+//  register_wallet
 //
 
 static void
-register_the_wallet (client_t *self)
+register_wallet (client_t *self)
 {
 
 }
 
 
 //  ---------------------------------------------------------------------------
-//  retrieve_the_blocks
+//  retrieve_blocks
 //
 
 static void
-retrieve_the_blocks (client_t *self)
+retrieve_blocks (client_t *self)
+{
+    IPC::Daemon::retrieve_blocks(self->message);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  store_transaction
+//
+
+static void
+send_transaction (client_t *self)
+{
+    IPC::Daemon::send_raw_transaction(self->message);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  retrieve_transaction
+//
+
+static void
+retrieve_transaction (client_t *self)
 {
 
 }
 
 
 //  ---------------------------------------------------------------------------
-//  store_the_transaction
+//  start_mining_process
 //
 
 static void
-store_the_transaction (client_t *self)
+start_mining_process (client_t *self)
+{
+    IPC::Daemon::start_mining(self->message);
+    printf("\n\n Request: %d \n\n", (int)wap_proto_start_height(self->message));
+}
+
+
+//  ---------------------------------------------------------------------------
+//  stop_mining_process
+//
+
+static void
+stop_mining_process (client_t *self)
 {
 
 }
 
 
 //  ---------------------------------------------------------------------------
-//  retrieve_the_transaction
+//  deregister_wallet
 //
 
 static void
-retrieve_the_transaction (client_t *self)
-{
-
-}
-
-
-//  ---------------------------------------------------------------------------
-//  start_the_mining_process
-//
-
-static void
-start_the_mining_process (client_t *self)
-{
-
-}
-
-
-//  ---------------------------------------------------------------------------
-//  stop_the_mining_process
-//
-
-static void
-stop_the_mining_process (client_t *self)
-{
-
-}
-
-
-//  ---------------------------------------------------------------------------
-//  deregister_the_wallet
-//
-
-static void
-deregister_the_wallet (client_t *self)
+deregister_wallet (client_t *self)
 {
 
 }
@@ -238,4 +240,27 @@ static void
 signal_command_not_valid (client_t *self)
 {
     wap_proto_set_status (self->message, WAP_PROTO_COMMAND_INVALID);
+}
+
+
+
+//  ---------------------------------------------------------------------------
+//  store_transaction
+//
+
+static void
+store_transaction (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  output_indexes
+//
+
+static void
+output_indexes (client_t *self)
+{
+
 }
