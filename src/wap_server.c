@@ -184,7 +184,6 @@ static void
 start_mining_process (client_t *self)
 {
     IPC::Daemon::start_mining(self->message);
-    printf("\n\n Request: %d \n\n", (int)wap_proto_start_height(self->message));
 }
 
 
