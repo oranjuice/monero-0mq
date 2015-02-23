@@ -19,6 +19,8 @@
 #ifndef __WAP_CLIENT_H_INCLUDED__
 #define __WAP_CLIENT_H_INCLUDED__
 
+#include <czmq.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,11 +33,9 @@ typedef struct _wap_client_t wap_client_t;
 
 //  @interface
 //  Create a new wap_client
-//  Connect to server endpoint, with specified timeout in msecs (zero means wait    
-//  forever). Constructor succeeds if connection is successful. The caller may      
-//  specify its address.                                                            
+
 WAP_EXPORT wap_client_t *
-    wap_client_new (const char *endpoint, uint32_t timeout, const char *identity);
+    wap_client_new (void);
 
 //  Destroy the wap_client
 WAP_EXPORT void
@@ -53,6 +53,13 @@ WAP_EXPORT zactor_t *
 //  is never ambiguous.
 WAP_EXPORT zsock_t *
     wap_client_msgpipe (wap_client_t *self);
+
+//  Connect to server endpoint, with specified timeout in msecs (zero means wait    
+//  forever). Constructor succeeds if connection is successful. The caller may      
+//  specify its address.                                                            
+//  Returns >= 0 if successful, -1 if interrupted.
+WAP_EXPORT int 
+    wap_client_connect (wap_client_t *self, const char *endpoint, uint32_t timeout, const char *identity);
 
 //  Request a set of blocks from the server.                                        
 //  Returns >= 0 if successful, -1 if interrupted.

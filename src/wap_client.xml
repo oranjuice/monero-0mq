@@ -11,7 +11,7 @@
     <include filename = "../license.xml" />
 
     <state name = "start">
-        <event name = "constructor" next = "expect open ok">
+        <event name = "connect" next = "expect open ok">
             <action name = "connect to server endpoint" />
             <action name = "set client identity" />
             <action name = "use connect timeout" />
@@ -152,7 +152,7 @@
     </state>
 
     <!-- API methods -->
-    <method name = "constructor" return = "status">
+    <method name = "connect" return = "status">
     Connect to server endpoint, with specified timeout in msecs (zero means
     wait forever). Constructor succeeds if connection is successful. The caller
     may specify its address.

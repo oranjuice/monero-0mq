@@ -47,8 +47,10 @@ int main (int argc, char *argv [])
     wap_client_verbose = true;
 
     //  The server is now running. Let's start a wallet client:
-    wap_client_t *client = wap_client_new ("ipc://@/monero", 200, "wallet identity");
+    wap_client_t *client = wap_client_new ();
     assert (client);
+    int rc = wap_client_connect (client, "ipc://@/monero", 200, "wallet identity");
+    assert (rc == 0);
     
     //  The server only supports two commands for now, START and STOP, so
     //  let's try each of these:
