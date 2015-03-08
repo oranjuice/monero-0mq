@@ -19,7 +19,6 @@
 //  TODO: Change these to match your project's needs
 #include "../include/wap_proto.h"
 #include "../include/wap_server.h"
-#include "daemon_ipc_handlers.h"
 
 //  ---------------------------------------------------------------------------
 //  Forward declarations for the two main classes we use here
@@ -150,7 +149,6 @@ register_wallet (client_t *self)
 static void
 retrieve_blocks (client_t *self)
 {
-    IPC::Daemon::retrieve_blocks(self->message);
 }
 
 
@@ -161,7 +159,6 @@ retrieve_blocks (client_t *self)
 static void
 send_transaction (client_t *self)
 {
-    IPC::Daemon::send_raw_transaction(self->message);
 }
 
 
@@ -183,7 +180,6 @@ retrieve_transaction (client_t *self)
 static void
 start_mining_process (client_t *self)
 {
-    IPC::Daemon::start_mining(self->message);
 }
 
 
@@ -242,18 +238,6 @@ signal_command_not_valid (client_t *self)
 }
 
 
-
-//  ---------------------------------------------------------------------------
-//  store_transaction
-//
-
-static void
-store_transaction (client_t *self)
-{
-
-}
-
-
 //  ---------------------------------------------------------------------------
 //  output_indexes
 //
@@ -261,5 +245,10 @@ store_transaction (client_t *self)
 static void
 output_indexes (client_t *self)
 {
-
+    wap_proto_t *message = self->message;
+    uint64_t indexes[] = {1, 2, 3, 4};
+    zframe_t *frame = zframe_new(indexes, sizeof(uint64_t) * 4);
+    wap_proto_set_o_indexes(message, &frame);
+    wap_proto_set_status(message, 0);
 }
+

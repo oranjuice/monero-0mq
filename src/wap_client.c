@@ -315,8 +315,8 @@ signal_server_not_present (client_t *self)
 static void
 prepare_get_output_indexes_command (client_t *self)
 {
+    wap_proto_set_tx_id (self->message, self->args->tx_id);
 }
-
 
 //  ---------------------------------------------------------------------------
 //  signal_have_output_indexes_ok
@@ -325,4 +325,9 @@ prepare_get_output_indexes_command (client_t *self)
 static void
 signal_have_output_indexes_ok (client_t *self)
 {
+    zsock_send(self->cmdpipe, "sip", "OUTPUT INDEXES OK", wap_proto_status(self->message),
+        wap_proto_o_indexes(self->message));
+}
+
+void wap_client_test(bool verbose) {
 }

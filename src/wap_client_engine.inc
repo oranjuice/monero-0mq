@@ -551,7 +551,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -568,7 +568,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -718,7 +718,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -735,7 +735,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -754,7 +754,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -771,7 +771,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -790,7 +790,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -807,7 +807,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -826,7 +826,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -843,7 +843,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -862,7 +862,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -879,7 +879,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -898,7 +898,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -915,7 +915,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -934,7 +934,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -951,7 +951,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -970,7 +970,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -987,7 +987,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -1025,7 +1025,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -1042,7 +1042,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -1050,7 +1050,7 @@ s_client_execute (s_client_t *self, event_t event)
 
             case defaults_state:
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -1067,7 +1067,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }
@@ -1127,7 +1127,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ ping_ok");
                 }
@@ -1144,7 +1144,7 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else {
                     //  Handle unexpected protocol events
-			// no action - just logging
+                        //  No action - just logging
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ *");
                 }

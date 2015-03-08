@@ -52,15 +52,23 @@ int main (int argc, char *argv [])
     int rc = wap_client_connect (client, "ipc://@/monero", 200, "wallet identity");
     assert (rc == 0);
     
-    //  The server only supports two commands for now, START and STOP, so
-    //  let's try each of these:
-    int rc = wap_client_start (client, 25);
-    printf("\n\n Response: %d\n", (int)wap_client_curr_height(client));
-    assert (rc == 0);
-
-    rc = wap_client_stop (client);
-    assert (rc == 0);
+    char *size_prepended_tx_id = (char*)malloc(sizeof(char) * 3);
+    size_prepended_tx_id[0] = 2;
+    size_prepended_tx_id[1] = 'o';
+    size_prepended_tx_id[2] = 'k';
+    rc = wap_client_output_indexes(client, size_prepended_tx_id);
+    free(size_prepended_tx_id);
     
+    assert(wap_client_status(client) == 0);
+    zframe_t *frame = wap_client_o_indexes(client);
+    assert(frame != 0);
+    size_t size = zframe_size(frame) / sizeof(uint64_t);
+    uint64_t *o_indexes_array = (uint64_t*)(zframe_data(frame));
+    for (int i = 0; i < size; i++) {
+    	printf("Output index: %d\n", (int)o_indexes_array[i]);
+    }
+    zframe_destroy(&frame);
+
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

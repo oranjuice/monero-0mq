@@ -16,8 +16,8 @@
     =========================================================================
 */
 
-#ifndef __WAP_CLIENT_H_INCLUDED__
-#define __WAP_CLIENT_H_INCLUDED__
+#ifndef WAP_CLIENT_H_INCLUDED
+#define WAP_CLIENT_H_INCLUDED
 
 #include <czmq.h>
 
@@ -32,12 +32,12 @@ typedef struct _wap_client_t wap_client_t;
 #endif
 
 //  @interface
-//  Create a new wap_client
-
+//  Create a new wap_client, return the reference if successful, or NULL
+//  if construction failed due to lack of available memory.
 WAP_EXPORT wap_client_t *
     wap_client_new (void);
 
-//  Destroy the wap_client
+//  Destroy the wap_client and free all memory used by the object.
 WAP_EXPORT void
     wap_client_destroy (wap_client_t **self_p);
 
