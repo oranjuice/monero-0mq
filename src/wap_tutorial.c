@@ -67,8 +67,11 @@ int main (int argc, char *argv [])
     for (int i = 0; i < size; i++) {
     	printf("Output index: %d\n", (int)o_indexes_array[i]);
     }
-    zframe_destroy(&frame);
 
+    zlist_t *list = zlist_new();
+    rc = wap_client_blocks(client, &list, 3);
+    zmsg_t *msg = wap_client_block_data(client);
+    assert(msg != 0);
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

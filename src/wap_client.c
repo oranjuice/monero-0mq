@@ -129,10 +129,13 @@ prepare_blocks_command (client_t *self)
 static void
 signal_have_blocks_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "siiip", "BLOCKS OK", wap_proto_status(self->message),
+    zmsg_t *msg = wap_proto_get_block_data (self->message);
+    assert(msg != 0);
+    printf("%p <--\n", (void*)msg);
+    zsock_send (self->cmdpipe, "s888p", "BLOCKS OK", wap_proto_status(self->message),
                 wap_proto_start_height (self->message),
                 wap_proto_curr_height (self->message),
-                wap_proto_get_block_data (self->message));
+                msg);
 }
 
 

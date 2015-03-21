@@ -149,6 +149,16 @@ register_wallet (client_t *self)
 static void
 retrieve_blocks (client_t *self)
 {
+    wap_proto_t *message = self->message;
+    char hello[] = {'h', 'i'};
+    zframe_t *frame = zframe_new(hello, sizeof(char) * 2);
+    zmsg_t *msg = zmsg_new();
+    zmsg_prepend(msg, &frame);
+    wap_proto_set_block_data(message, &msg);
+    wap_proto_set_status(message, 0);
+    wap_proto_set_curr_height(message, 10);
+    wap_proto_set_start_height(message, 1);
+    printf("here\n");
 }
 
 
@@ -169,7 +179,6 @@ send_transaction (client_t *self)
 static void
 retrieve_transaction (client_t *self)
 {
-
 }
 
 
