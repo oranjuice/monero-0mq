@@ -31,11 +31,11 @@ extern "C" {
 //  Create new wap_server instance, passing logging prefix:
 //
 //      zactor_t *wap_server = zactor_new (wap_server, "myname");
-//  
+//
 //  Destroy wap_server instance
 //
 //      zactor_destroy (&wap_server);
-//  
+//
 //  Enable verbose logging of commands and activity:
 //
 //      zstr_send (wap_server, "VERBOSE");
@@ -61,7 +61,7 @@ extern "C" {
 //  Set configuration path value:
 //
 //      zstr_sendx (wap_server, "SET", path, value, NULL);
-//    
+//
 //  Save configuration data to config file on disk:
 //
 //      zstr_sendx (wap_server, "SAVE", filename, NULL);

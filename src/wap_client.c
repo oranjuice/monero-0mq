@@ -168,7 +168,7 @@ prepare_put_command (client_t *self)
 static void
 signal_have_put_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "si", "PUT OK",
+    zsock_send (self->cmdpipe, "s8", "PUT OK",
                 wap_proto_status (self->message));
 }
 
@@ -225,7 +225,7 @@ signal_have_save_ok (client_t *self)
 static void
 signal_have_start_ok (client_t *self)
 {
-    zsock_send(self->cmdpipe, "si", "START OK", wap_proto_status(self->message));
+    zsock_send(self->cmdpipe, "s8", "START OK", wap_proto_status(self->message));
 }
 
 

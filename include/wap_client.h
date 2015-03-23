@@ -127,7 +127,7 @@ WAP_EXPORT zframe_t *
 //  Self test of this class
 WAP_EXPORT void
     wap_client_test (bool verbose);
-    
+
 //  To enable verbose tracing (animation) of wap_client instances, set
 //  this to true. This lets you trace from and including construction.
 WAP_EXPORT extern volatile int

@@ -113,7 +113,7 @@ s_event_name [] = {
     "command_invalid",
     "other"
 };
- 
+
 
 //  ---------------------------------------------------------------------------
 //  Context for the client. This embeds the application-level client context
@@ -217,7 +217,7 @@ static void
 //  Global tracing/animation indicator; we can't use a client method as
 //  that only works after construction (which we often want to trace).
 volatile int wap_client_verbose = false;
-    
+
 //  Create a new client connection
 
 static s_client_t *
@@ -1334,7 +1334,7 @@ wap_client (zsock_t *cmdpipe, void *msgpipe)
     s_client_t *self = s_client_new (cmdpipe, (zsock_t *) msgpipe);
     if (self) {
         zsock_signal (cmdpipe, 0);
-        
+
         //  Set up handler for the sockets the client uses
         engine_handle_socket ((client_t *) self, self->cmdpipe, s_client_handle_cmdpipe);
         engine_handle_socket ((client_t *) self, self->msgpipe, s_client_handle_msgpipe);
@@ -1462,7 +1462,7 @@ s_accept_reply (wap_client_t *self, ...)
         char *reply = zstr_recv (self->actor);
         if (!reply)
             break;              //  Interrupted or timed-out
-        
+
         va_list args;
         va_start (args, self);
         char *filter = va_arg (args, char *);
@@ -1479,7 +1479,7 @@ s_accept_reply (wap_client_t *self, ...)
                 else
                 if (streq (reply, "BLOCKS OK")) {
                     zmsg_destroy (&self->block_data);
-                    zsock_recv (self->actor, "24p", &self->status, &self->start_height, &self->curr_height, &self->block_data);
+                    zsock_recv (self->actor, "888p", &self->status, &self->start_height, &self->curr_height, &self->block_data);
                 }
                 else
                 if (streq (reply, "PUT OK")) {
@@ -1533,6 +1533,7 @@ int
 wap_client_connect (wap_client_t *self, const char *endpoint, uint32_t timeout, const char *identity)
 {
     assert (self);
+
     zsock_send (self->actor, "ss4s", "CONNECT", endpoint, timeout, identity);
     if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
@@ -1549,6 +1550,7 @@ int
 wap_client_destructor (wap_client_t *self)
 {
     assert (self);
+
     zsock_send (self->actor, "s", "DESTRUCTOR");
     if (s_accept_reply (self, "SUCCESS", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
@@ -1564,6 +1566,7 @@ int
 wap_client_blocks (wap_client_t *self, zlist_t **block_ids_p, uint64_t start_height)
 {
     assert (self);
+
     zsock_send (self->actor, "sp8", "BLOCKS", *block_ids_p, start_height);
     *block_ids_p = NULL;        //  Take ownership of block_ids
     if (s_accept_reply (self, "BLOCKS OK", "FAILURE", NULL))
@@ -1580,6 +1583,7 @@ int
 wap_client_put (wap_client_t *self, zchunk_t **tx_data_p)
 {
     assert (self);
+
     zsock_send (self->actor, "sp", "PUT", *tx_data_p);
     *tx_data_p = NULL;          //  Take ownership of tx_data
     if (s_accept_reply (self, "PUT OK", "FAILURE", NULL))
@@ -1596,6 +1600,7 @@ int
 wap_client_get (wap_client_t *self, const char *tx_id)
 {
     assert (self);
+
     zsock_send (self->actor, "ss", "GET", tx_id);
     if (s_accept_reply (self, "GET OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
@@ -1611,6 +1616,7 @@ int
 wap_client_save (wap_client_t *self)
 {
     assert (self);
+
     zsock_send (self->actor, "s", "SAVE");
     if (s_accept_reply (self, "SAVE OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
@@ -1626,6 +1632,7 @@ int
 wap_client_output_indexes (wap_client_t *self, const char *tx_id)
 {
     assert (self);
+
     zsock_send (self->actor, "ss", "OUTPUT INDEXES", tx_id);
     if (s_accept_reply (self, "OUTPUT INDEXES OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
@@ -1641,6 +1648,7 @@ int
 wap_client_start (wap_client_t *self, const char *address, uint64_t thread_count)
 {
     assert (self);
+
     zsock_send (self->actor, "ss8", "START", address, thread_count);
     if (s_accept_reply (self, "START OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
@@ -1656,6 +1664,7 @@ int
 wap_client_stop (wap_client_t *self)
 {
     assert (self);
+
     zsock_send (self->actor, "s", "STOP");
     if (s_accept_reply (self, "STOP OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out

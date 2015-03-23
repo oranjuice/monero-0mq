@@ -378,7 +378,7 @@ s_client_new (s_server_t *server, zframe_t *routing_id)
     s_client_t *self = (s_client_t *) zmalloc (sizeof (s_client_t));
     assert (self);
     assert ((s_client_t *) &self->client == self);
-    
+
     self->server = server;
     self->hashkey = zframe_strhex (routing_id);
     self->routing_id = zframe_dup (routing_id);
@@ -1002,17 +1002,17 @@ static void
 s_server_config_global (s_server_t *self)
 {
     //  Built-in server configuration options
-    //  
+    //
     //  If we didn't already set verbose, check if the config tree wants it
     if (!self->verbose
     && atoi (zconfig_resolve (self->config, "server/verbose", "0")))
         self->verbose = true;
-        
+
     //  Default client timeout is 60 seconds
     self->timeout = atoi (
         zconfig_resolve (self->config, "server/timeout", "60000"));
     zloop_set_ticket_delay (self->loop, self->timeout);
-    
+
     //  Do we want to run server in the background?
     int background = atoi (
         zconfig_resolve (self->config, "server/background", "0"));
@@ -1221,7 +1221,7 @@ s_server_handle_protocol (zloop_t *loop, zsock_t *reader, void *argument)
         //  Any input from client counts as activity
         if (client->ticket)
             zloop_ticket_reset (self->loop, client->ticket);
-        
+
         //  Pass to client state machine
         s_client_execute (client, s_protocol_event (self->message));
     }
