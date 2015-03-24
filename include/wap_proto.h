@@ -55,6 +55,14 @@ PUT-OK, or ERROR.
         status              number 8    Status
         o_indexes           frame       Output Indexes
 
+    RANDOM_OUTS - Get random outputs for amounts.
+        outs_count          number 8    Outs count
+        amounts             frame       Amounts
+
+    RANDOM_OUTS_OK - Daemon returns random outputs for amounts.
+        status              number 8    Status
+        random_outputs      frame       Outputs
+
     GET - Wallet requests transaction data from the daemon. Daemon replies
 with GET-OK, or ERROR.
         tx_id               string      Transaction ID
@@ -113,19 +121,21 @@ Daemon will reply with CLOSE-OK or ERROR.
 #define WAP_PROTO_PUT_OK                    6
 #define WAP_PROTO_OUTPUT_INDEXES            7
 #define WAP_PROTO_OUTPUT_INDEXES_OK         8
-#define WAP_PROTO_GET                       9
-#define WAP_PROTO_GET_OK                    10
-#define WAP_PROTO_SAVE                      11
-#define WAP_PROTO_SAVE_OK                   12
-#define WAP_PROTO_START                     13
-#define WAP_PROTO_START_OK                  14
-#define WAP_PROTO_STOP                      15
-#define WAP_PROTO_STOP_OK                   16
-#define WAP_PROTO_CLOSE                     17
-#define WAP_PROTO_CLOSE_OK                  18
-#define WAP_PROTO_PING                      19
-#define WAP_PROTO_PING_OK                   20
-#define WAP_PROTO_ERROR                     21
+#define WAP_PROTO_RANDOM_OUTS               9
+#define WAP_PROTO_RANDOM_OUTS_OK            10
+#define WAP_PROTO_GET                       11
+#define WAP_PROTO_GET_OK                    12
+#define WAP_PROTO_SAVE                      13
+#define WAP_PROTO_SAVE_OK                   14
+#define WAP_PROTO_START                     15
+#define WAP_PROTO_START_OK                  16
+#define WAP_PROTO_STOP                      17
+#define WAP_PROTO_STOP_OK                   18
+#define WAP_PROTO_CLOSE                     19
+#define WAP_PROTO_CLOSE_OK                  20
+#define WAP_PROTO_PING                      21
+#define WAP_PROTO_PING_OK                   22
+#define WAP_PROTO_ERROR                     23
 
 #include <czmq.h>
 
@@ -240,6 +250,32 @@ zframe_t *
 //  Set the o_indexes field, transferring ownership from caller
 void
     wap_proto_set_o_indexes (wap_proto_t *self, zframe_t **frame_p);
+
+//  Get/set the outs_count field
+uint64_t
+    wap_proto_outs_count (wap_proto_t *self);
+void
+    wap_proto_set_outs_count (wap_proto_t *self, uint64_t outs_count);
+
+//  Get a copy of the amounts field
+zframe_t *
+    wap_proto_amounts (wap_proto_t *self);
+//  Get the amounts field and transfer ownership to caller
+zframe_t *
+    wap_proto_get_amounts (wap_proto_t *self);
+//  Set the amounts field, transferring ownership from caller
+void
+    wap_proto_set_amounts (wap_proto_t *self, zframe_t **frame_p);
+
+//  Get a copy of the random_outputs field
+zframe_t *
+    wap_proto_random_outputs (wap_proto_t *self);
+//  Get the random_outputs field and transfer ownership to caller
+zframe_t *
+    wap_proto_get_random_outputs (wap_proto_t *self);
+//  Set the random_outputs field, transferring ownership from caller
+void
+    wap_proto_set_random_outputs (wap_proto_t *self, zframe_t **frame_p);
 
 //  Get a copy of the tx_data field
 zchunk_t *

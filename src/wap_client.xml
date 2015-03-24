@@ -62,6 +62,10 @@
             <action name = "prepare get output indexes command" />
             <action name = "send" message = "OUTPUT INDEXES" />
         </event>
+        <event name = "random outs" next = "expect random outs ok">
+            <action name = "prepare get random outs command" />
+            <action name = "send" message = "RANDOM OUTS" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -109,6 +113,12 @@
     <state name = "expect output indexes ok" inherit = "defaults">
         <event name = "OUTPUT INDEXES OK" next = "connected">
             <action name = "signal have output indexes ok" />
+        </event>
+    </state>
+    
+    <state name = "expect random outs ok" inherit = "defaults">
+        <event name = "RANDOM OUTS OK" next = "connected">
+            <action name = "signal have random outs ok" />
         </event>
     </state>
 
@@ -237,6 +247,19 @@
     <reply name = "OUTPUT INDEXES OK">
         <field name = "status" type = "number" size = "8" >Status</field>
         <field name = "o indexes" type = "frame" >Output Indexes</field>
+    </reply>
+    
+    <method name = "random outs" return = "status">
+        Ask for tx output indexes.
+        <field name = "outs count" type = "number" size = "8" >Outs count</field>
+        <field name = "amounts" type = "frame" >Amounts</field>
+        <accept reply = "RANDOM OUTS OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "RANDOM OUTS OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "random outputs" type = "frame" >Outputs</field>
     </reply>
 
     <method name = "start" return = "status">

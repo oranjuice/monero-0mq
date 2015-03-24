@@ -31,10 +31,11 @@ typedef enum {
     expect_start_ok_state = 8,
     expect_stop_ok_state = 9,
     expect_output_indexes_ok_state = 10,
-    expect_close_ok_state = 11,
-    defaults_state = 12,
-    have_error_state = 13,
-    reexpect_open_ok_state = 14
+    expect_random_outs_ok_state = 11,
+    expect_close_ok_state = 12,
+    defaults_state = 13,
+    have_error_state = 14,
+    reexpect_open_ok_state = 15
 } state_t;
 
 typedef enum {
@@ -50,19 +51,21 @@ typedef enum {
     start_event = 9,
     stop_event = 10,
     output_indexes_event = 11,
-    destructor_event = 12,
-    blocks_ok_event = 13,
-    get_ok_event = 14,
-    put_ok_event = 15,
-    save_ok_event = 16,
-    start_ok_event = 17,
-    stop_ok_event = 18,
-    output_indexes_ok_event = 19,
-    close_ok_event = 20,
-    ping_ok_event = 21,
-    error_event = 22,
-    command_invalid_event = 23,
-    other_event = 24
+    random_outs_event = 12,
+    destructor_event = 13,
+    blocks_ok_event = 14,
+    get_ok_event = 15,
+    put_ok_event = 16,
+    save_ok_event = 17,
+    start_ok_event = 18,
+    stop_ok_event = 19,
+    output_indexes_ok_event = 20,
+    random_outs_ok_event = 21,
+    close_ok_event = 22,
+    ping_ok_event = 23,
+    error_event = 24,
+    command_invalid_event = 25,
+    other_event = 26
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -79,6 +82,7 @@ s_state_name [] = {
     "expect start ok",
     "expect stop ok",
     "expect output indexes ok",
+    "expect random outs ok",
     "expect close ok",
     "defaults",
     "have error",
@@ -99,6 +103,7 @@ s_event_name [] = {
     "START",
     "STOP",
     "OUTPUT_INDEXES",
+    "RANDOM_OUTS",
     "destructor",
     "BLOCKS_OK",
     "GET_OK",
@@ -107,6 +112,7 @@ s_event_name [] = {
     "START_OK",
     "STOP_OK",
     "OUTPUT_INDEXES_OK",
+    "RANDOM_OUTS_OK",
     "CLOSE_OK",
     "PING_OK",
     "ERROR",
@@ -129,6 +135,8 @@ struct _client_args_t {
     uint64_t start_height;
     char *tx_as_hex;
     char *tx_id;
+    uint64_t outs_count;
+    zframe_t *amounts;
     char *address;
     uint64_t thread_count;
 };
@@ -194,6 +202,8 @@ static void
 static void
     prepare_get_output_indexes_command (client_t *self);
 static void
+    prepare_get_random_outs_command (client_t *self);
+static void
     signal_have_blocks_ok (client_t *self);
 static void
     signal_have_get_ok (client_t *self);
@@ -207,6 +217,8 @@ static void
     signal_have_stop_ok (client_t *self);
 static void
     signal_have_output_indexes_ok (client_t *self);
+static void
+    signal_have_random_outs_ok (client_t *self);
 static void
     signal_failure (client_t *self);
 static void
@@ -265,6 +277,7 @@ s_client_destroy (s_client_t **self_p)
         zlist_destroy (&self->args.block_ids);
         zstr_free (&self->args.tx_as_hex);
         zstr_free (&self->args.tx_id);
+        zframe_destroy (&self->args.amounts);
         zstr_free (&self->args.address);
         client_terminate (&self->client);
         wap_proto_destroy (&self->message);
@@ -399,6 +412,12 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
             break;
         case WAP_PROTO_OUTPUT_INDEXES_OK:
             return output_indexes_ok_event;
+            break;
+        case WAP_PROTO_RANDOM_OUTS:
+            return random_outs_event;
+            break;
+        case WAP_PROTO_RANDOM_OUTS_OK:
+            return random_outs_ok_event;
             break;
         case WAP_PROTO_GET:
             return get_event;
@@ -693,6 +712,24 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = expect_output_indexes_ok_state;
+                }
+                else
+                if (self->event == random_outs_event) {
+                    if (!self->exception) {
+                        //  prepare get random outs command
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ prepare get random outs command");
+                        prepare_get_random_outs_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send RANDOM_OUTS
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ send RANDOM_OUTS");
+                        wap_proto_set_id (self->message, WAP_PROTO_RANDOM_OUTS);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_random_outs_ok_state;
                 }
                 else
                 if (self->event == destructor_event) {
@@ -993,6 +1030,42 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 break;
 
+            case expect_random_outs_ok_state:
+                if (self->event == random_outs_ok_event) {
+                    if (!self->exception) {
+                        //  signal have random outs ok
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ signal have random outs ok");
+                        signal_have_random_outs_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ ping_ok");
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ check status code");
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else {
+                    //  Handle unexpected protocol events
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ *");
+                }
+                break;
+
             case expect_close_ok_state:
                 if (self->event == close_ok_event) {
                     if (!self->exception) {
@@ -1237,6 +1310,12 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         s_client_execute (self, output_indexes_event);
     }
     else
+    if (streq (method, "RANDOM OUTS")) {
+        zframe_destroy (&self->args.amounts);
+        zsock_recv (self->cmdpipe, "8p", &self->args.outs_count, &self->args.amounts);
+        s_client_execute (self, random_outs_event);
+    }
+    else
     if (streq (method, "START")) {
         zstr_free (&self->args.address);
         zsock_recv (self->cmdpipe, "s8", &self->args.address, &self->args.thread_count);
@@ -1364,6 +1443,7 @@ struct _wap_client_t {
     zmsg_t *block_data;         //  Returned by actor reply
     zchunk_t *tx_data;          //  Returned by actor reply
     zframe_t *o_indexes;        //  Returned by actor reply
+    zframe_t *random_outputs;   //  Returned by actor reply
 };
 
 
@@ -1415,6 +1495,7 @@ wap_client_destroy (wap_client_t **self_p)
         zmsg_destroy (&self->block_data);
         zchunk_destroy (&self->tx_data);
         zframe_destroy (&self->o_indexes);
+        zframe_destroy (&self->random_outputs);
         free (self);
         *self_p = NULL;
     }
@@ -1498,6 +1579,11 @@ s_accept_reply (wap_client_t *self, ...)
                 if (streq (reply, "OUTPUT INDEXES OK")) {
                     zframe_destroy (&self->o_indexes);
                     zsock_recv (self->actor, "8p", &self->status, &self->o_indexes);
+                }
+                else
+                if (streq (reply, "RANDOM OUTS OK")) {
+                    zframe_destroy (&self->random_outputs);
+                    zsock_recv (self->actor, "8p", &self->status, &self->random_outputs);
                 }
                 else
                 if (streq (reply, "START OK")) {
@@ -1640,6 +1726,23 @@ wap_client_output_indexes (wap_client_t *self, const char *tx_id)
 
 
 //  ---------------------------------------------------------------------------
+//  Ask for tx output indexes.                                                      
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_random_outs (wap_client_t *self, uint64_t outs_count, zframe_t **amounts_p)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s8p", "RANDOM OUTS", outs_count, *amounts_p);
+    *amounts_p = NULL;          //  Take ownership of amounts
+    if (s_accept_reply (self, "RANDOM OUTS OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
 
@@ -1745,4 +1848,15 @@ wap_client_o_indexes (wap_client_t *self)
 {
     assert (self);
     return self->o_indexes;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received random_outputs
+
+zframe_t *
+wap_client_random_outputs (wap_client_t *self)
+{
+    assert (self);
+    return self->random_outputs;
 }

@@ -260,3 +260,18 @@ output_indexes (client_t *self)
     wap_proto_set_status(message, 0);
 }
 
+
+
+//  ---------------------------------------------------------------------------
+//  random_outs
+//
+
+static void
+random_outs (client_t *self)
+{
+    wap_proto_set_status (self->message, 0);
+    char hello[] = {'h', 'i'};
+    zframe_t *frame = zframe_new(hello, sizeof(char) * 2);
+    wap_proto_set_random_outputs(self->message, &frame);
+}
+

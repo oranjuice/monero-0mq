@@ -52,6 +52,12 @@ struct _wap_proto_t {
     char tx_id [256];
     /* Output Indexes  */
     zframe_t *o_indexes;
+    /* Outs count     */
+    uint64_t outs_count;
+    /* Amounts        */
+    zframe_t *amounts;
+    /* Outputs        */
+    zframe_t *random_outputs;
     /* Transaction data  */
     zchunk_t *tx_data;
     /*                */
@@ -239,6 +245,8 @@ wap_proto_destroy (wap_proto_t **self_p)
             zlist_destroy (&self->block_ids);
         zmsg_destroy (&self->block_data);
         zframe_destroy (&self->o_indexes);
+        zframe_destroy (&self->amounts);
+        zframe_destroy (&self->random_outputs);
         zchunk_destroy (&self->tx_data);
 
         //  Free object itself
@@ -362,6 +370,28 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             self->o_indexes = zframe_recv (input);
             break;
 
+        case WAP_PROTO_RANDOM_OUTS:
+            GET_NUMBER8 (self->outs_count);
+            //  Get next frame off socket
+            if (!zsock_rcvmore (input)) {
+                zsys_warning ("wap_proto: amounts is missing");
+                goto malformed;
+            }
+            zframe_destroy (&self->amounts);
+            self->amounts = zframe_recv (input);
+            break;
+
+        case WAP_PROTO_RANDOM_OUTS_OK:
+            GET_NUMBER8 (self->status);
+            //  Get next frame off socket
+            if (!zsock_rcvmore (input)) {
+                zsys_warning ("wap_proto: random_outputs is missing");
+                goto malformed;
+            }
+            zframe_destroy (&self->random_outputs);
+            self->random_outputs = zframe_recv (input);
+            break;
+
         case WAP_PROTO_GET:
             GET_STRING (self->tx_id);
             break;
@@ -482,6 +512,12 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
         case WAP_PROTO_OUTPUT_INDEXES_OK:
             frame_size += 8;            //  status
             break;
+        case WAP_PROTO_RANDOM_OUTS:
+            frame_size += 8;            //  outs_count
+            break;
+        case WAP_PROTO_RANDOM_OUTS_OK:
+            frame_size += 8;            //  status
+            break;
         case WAP_PROTO_GET:
             frame_size += 1 + strlen (self->tx_id);
             break;
@@ -557,6 +593,16 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             nbr_frames++;
             break;
 
+        case WAP_PROTO_RANDOM_OUTS:
+            PUT_NUMBER8 (self->outs_count);
+            nbr_frames++;
+            break;
+
+        case WAP_PROTO_RANDOM_OUTS_OK:
+            PUT_NUMBER8 (self->status);
+            nbr_frames++;
+            break;
+
         case WAP_PROTO_GET:
             PUT_STRING (self->tx_id);
             break;
@@ -596,6 +642,22 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
         //  If o_indexes isn't set, send an empty frame
         if (self->o_indexes)
             zframe_send (&self->o_indexes, output, ZFRAME_REUSE + (--nbr_frames? ZFRAME_MORE: 0));
+        else
+            zmq_send (zsock_resolve (output), NULL, 0, (--nbr_frames? ZMQ_SNDMORE: 0));
+    }
+    //  Now send any frame fields, in order
+    if (self->id == WAP_PROTO_RANDOM_OUTS) {
+        //  If amounts isn't set, send an empty frame
+        if (self->amounts)
+            zframe_send (&self->amounts, output, ZFRAME_REUSE + (--nbr_frames? ZFRAME_MORE: 0));
+        else
+            zmq_send (zsock_resolve (output), NULL, 0, (--nbr_frames? ZMQ_SNDMORE: 0));
+    }
+    //  Now send any frame fields, in order
+    if (self->id == WAP_PROTO_RANDOM_OUTS_OK) {
+        //  If random_outputs isn't set, send an empty frame
+        if (self->random_outputs)
+            zframe_send (&self->random_outputs, output, ZFRAME_REUSE + (--nbr_frames? ZFRAME_MORE: 0));
         else
             zmq_send (zsock_resolve (output), NULL, 0, (--nbr_frames? ZMQ_SNDMORE: 0));
     }
@@ -689,6 +751,26 @@ wap_proto_print (wap_proto_t *self)
             zsys_debug ("    o_indexes=");
             if (self->o_indexes)
                 zframe_print (self->o_indexes, NULL);
+            else
+                zsys_debug ("(NULL)");
+            break;
+            
+        case WAP_PROTO_RANDOM_OUTS:
+            zsys_debug ("WAP_PROTO_RANDOM_OUTS:");
+            zsys_debug ("    outs_count=%ld", (long) self->outs_count);
+            zsys_debug ("    amounts=");
+            if (self->amounts)
+                zframe_print (self->amounts, NULL);
+            else
+                zsys_debug ("(NULL)");
+            break;
+            
+        case WAP_PROTO_RANDOM_OUTS_OK:
+            zsys_debug ("WAP_PROTO_RANDOM_OUTS_OK:");
+            zsys_debug ("    status=%ld", (long) self->status);
+            zsys_debug ("    random_outputs=");
+            if (self->random_outputs)
+                zframe_print (self->random_outputs, NULL);
             else
                 zsys_debug ("(NULL)");
             break;
@@ -831,6 +913,12 @@ wap_proto_command (wap_proto_t *self)
             break;
         case WAP_PROTO_OUTPUT_INDEXES_OK:
             return ("OUTPUT_INDEXES_OK");
+            break;
+        case WAP_PROTO_RANDOM_OUTS:
+            return ("RANDOM_OUTS");
+            break;
+        case WAP_PROTO_RANDOM_OUTS_OK:
+            return ("RANDOM_OUTS_OK");
             break;
         case WAP_PROTO_GET:
             return ("GET");
@@ -1097,6 +1185,90 @@ wap_proto_set_o_indexes (wap_proto_t *self, zframe_t **frame_p)
 
 
 //  --------------------------------------------------------------------------
+//  Get/set the outs_count field
+
+uint64_t
+wap_proto_outs_count (wap_proto_t *self)
+{
+    assert (self);
+    return self->outs_count;
+}
+
+void
+wap_proto_set_outs_count (wap_proto_t *self, uint64_t outs_count)
+{
+    assert (self);
+    self->outs_count = outs_count;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get the amounts field without transferring ownership
+
+zframe_t *
+wap_proto_amounts (wap_proto_t *self)
+{
+    assert (self);
+    return self->amounts;
+}
+
+//  Get the amounts field and transfer ownership to caller
+
+zframe_t *
+wap_proto_get_amounts (wap_proto_t *self)
+{
+    zframe_t *amounts = self->amounts;
+    self->amounts = NULL;
+    return amounts;
+}
+
+//  Set the amounts field, transferring ownership from caller
+
+void
+wap_proto_set_amounts (wap_proto_t *self, zframe_t **frame_p)
+{
+    assert (self);
+    assert (frame_p);
+    zframe_destroy (&self->amounts);
+    self->amounts = *frame_p;
+    *frame_p = NULL;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get the random_outputs field without transferring ownership
+
+zframe_t *
+wap_proto_random_outputs (wap_proto_t *self)
+{
+    assert (self);
+    return self->random_outputs;
+}
+
+//  Get the random_outputs field and transfer ownership to caller
+
+zframe_t *
+wap_proto_get_random_outputs (wap_proto_t *self)
+{
+    zframe_t *random_outputs = self->random_outputs;
+    self->random_outputs = NULL;
+    return random_outputs;
+}
+
+//  Set the random_outputs field, transferring ownership from caller
+
+void
+wap_proto_set_random_outputs (wap_proto_t *self, zframe_t **frame_p)
+{
+    assert (self);
+    assert (frame_p);
+    zframe_destroy (&self->random_outputs);
+    self->random_outputs = *frame_p;
+    *frame_p = NULL;
+}
+
+
+//  --------------------------------------------------------------------------
 //  Get the tx_data field without transferring ownership
 
 zchunk_t *
@@ -1334,6 +1506,36 @@ wap_proto_test (bool verbose)
         assert (wap_proto_routing_id (self));
         assert (wap_proto_status (self) == 123);
         assert (zframe_streq (wap_proto_o_indexes (self), "Captcha Diem"));
+    }
+    wap_proto_set_id (self, WAP_PROTO_RANDOM_OUTS);
+
+    wap_proto_set_outs_count (self, 123);
+    zframe_t *random_outs_amounts = zframe_new ("Captcha Diem", 12);
+    wap_proto_set_amounts (self, &random_outs_amounts);
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+        assert (wap_proto_outs_count (self) == 123);
+        assert (zframe_streq (wap_proto_amounts (self), "Captcha Diem"));
+    }
+    wap_proto_set_id (self, WAP_PROTO_RANDOM_OUTS_OK);
+
+    wap_proto_set_status (self, 123);
+    zframe_t *random_outs_ok_random_outputs = zframe_new ("Captcha Diem", 12);
+    wap_proto_set_random_outputs (self, &random_outs_ok_random_outputs);
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+        assert (wap_proto_status (self) == 123);
+        assert (zframe_streq (wap_proto_random_outputs (self), "Captcha Diem"));
     }
     wap_proto_set_id (self, WAP_PROTO_GET);
 

@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save / start / stop / o_indexes
+    traffic = blocks / put / get / save / start / stop / o_indexes / random_outs
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -21,6 +21,7 @@
     start = C:START ( S:START-OK / S:ERROR )
     stop = C:STOP ( S:STOP-OK / S:ERROR )
     o_indexes = C:OUTPUT-INDEXES ( S:OUTPUT-INDEXES-OK / S:ERROR )
+    random_outs = C:RANDOM-OUTS ( S:RANDOM-OUTS-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -74,6 +75,18 @@
         Daemon returns tx output indexes.
         <field name = "status" type = "number" size = "8" >Status</field>
         <field name = "o indexes" type = "frame" >Output Indexes</field>
+    </message>
+    
+    <message name = "RANDOM-OUTS">
+    		Get random outputs for amounts.
+    		<field name = "outs count" type = "number" size = "8" >Outs count</field>
+        <field name = "amounts" type = "frame" >Amounts</field>
+    </message>
+    
+    <message name = "RANDOM-OUTS-OK">
+    		Daemon returns random outputs for amounts.
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "random outputs" type = "frame" >Outputs</field>
     </message>
 
     <message name = "GET">

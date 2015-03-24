@@ -51,6 +51,10 @@
             <action name = "output indexes" />
             <action name = "send" message = "OUTPUT INDEXES OK" />
         </event>
+        <event name = "RANDOM OUTS">
+            <action name = "random outs" />
+            <action name = "send" message = "RANDOM OUTS OK" />
+        </event>
     </state>
 
     <state name = "defaults">

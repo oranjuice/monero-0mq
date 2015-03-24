@@ -337,3 +337,27 @@ void wap_client_test(bool verbose) {
 }
 
 
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_random_outs_command
+//
+
+static void
+prepare_get_random_outs_command (client_t *self)
+{
+    wap_proto_set_amounts (self->message, &self->args->amounts);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_random_outs_ok
+//
+
+static void
+signal_have_random_outs_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s8p", "RANDOM OUTS OK",
+        wap_proto_status (self->message),
+        wap_proto_get_random_outputs (self->message));
+}

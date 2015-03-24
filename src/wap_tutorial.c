@@ -76,6 +76,13 @@ int main (int argc, char *argv [])
     char *data = (char*)zframe_data(frame);
     printf("%c %c\n", data[0], data[1]);
     
+    frame = zframe_new("hello", 5);
+    rc = wap_client_random_outs(client, 5, &frame);
+    frame = wap_client_random_outputs(client);
+    assert(frame != 0);
+    data = (char*)zframe_data(frame);
+    printf("%c %c\n", data[0], data[1]);
+    
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

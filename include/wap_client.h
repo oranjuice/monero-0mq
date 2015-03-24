@@ -86,6 +86,11 @@ WAP_EXPORT int
 WAP_EXPORT int 
     wap_client_output_indexes (wap_client_t *self, const char *tx_id);
 
+//  Ask for tx output indexes.                                                      
+//  Returns >= 0 if successful, -1 if interrupted.
+WAP_EXPORT int 
+    wap_client_random_outs (wap_client_t *self, uint64_t outs_count, zframe_t **amounts_p);
+
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
 WAP_EXPORT int 
@@ -123,6 +128,10 @@ WAP_EXPORT zchunk_t *
 //  Return last received o_indexes
 WAP_EXPORT zframe_t *
     wap_client_o_indexes (wap_client_t *self);
+
+//  Return last received random_outputs
+WAP_EXPORT zframe_t *
+    wap_client_random_outputs (wap_client_t *self);
 
 //  Self test of this class
 WAP_EXPORT void
