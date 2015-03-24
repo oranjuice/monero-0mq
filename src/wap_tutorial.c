@@ -72,6 +72,10 @@ int main (int argc, char *argv [])
     rc = wap_client_blocks(client, &list, 3);
     zmsg_t *msg = wap_client_block_data(client);
     assert(msg != 0);
+    frame = zmsg_first(msg);
+    char *data = (char*)zframe_data(frame);
+    printf("%c %c\n", data[0], data[1]);
+    
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

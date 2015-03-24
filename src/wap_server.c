@@ -158,7 +158,6 @@ retrieve_blocks (client_t *self)
     wap_proto_set_status(message, 0);
     wap_proto_set_curr_height(message, 10);
     wap_proto_set_start_height(message, 1);
-    printf("here\n");
 }
 
 

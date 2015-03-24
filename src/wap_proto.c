@@ -46,12 +46,14 @@ struct _wap_proto_t {
     uint64_t curr_height;
     /* Frames of block data  */
     zmsg_t *block_data;
-    /* Transaction data  */
-    zchunk_t *tx_data;
+    /* Transaction as hex  */
+    char tx_as_hex [256];
     /* Transaction ID  */
     char tx_id [256];
     /* Output Indexes  */
     zframe_t *o_indexes;
+    /* Transaction data  */
+    zchunk_t *tx_data;
     /*                */
     char address [256];
     /*                */
@@ -236,8 +238,8 @@ wap_proto_destroy (wap_proto_t **self_p)
         if (self->block_ids)
             zlist_destroy (&self->block_ids);
         zmsg_destroy (&self->block_data);
-        zchunk_destroy (&self->tx_data);
         zframe_destroy (&self->o_indexes);
+        zchunk_destroy (&self->tx_data);
 
         //  Free object itself
         free (self);
@@ -338,17 +340,7 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             break;
 
         case WAP_PROTO_PUT:
-            {
-                size_t chunk_size;
-                GET_NUMBER4 (chunk_size);
-                if (self->needle + chunk_size > (self->ceiling)) {
-                    zsys_warning ("wap_proto: tx_data is missing data");
-                    goto malformed;
-                }
-                zchunk_destroy (&self->tx_data);
-                self->tx_data = zchunk_new (self->needle, chunk_size);
-                self->needle += chunk_size;
-            }
+            GET_STRING (self->tx_as_hex);
             break;
 
         case WAP_PROTO_PUT_OK:
@@ -479,9 +471,7 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             frame_size += 8;            //  curr_height
             break;
         case WAP_PROTO_PUT:
-            frame_size += 4;            //  Size is 4 octets
-            if (self->tx_data)
-                frame_size += zchunk_size (self->tx_data);
+            frame_size += 1 + strlen (self->tx_as_hex);
             break;
         case WAP_PROTO_PUT_OK:
             frame_size += 8;            //  status
@@ -551,15 +541,7 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             break;
 
         case WAP_PROTO_PUT:
-            if (self->tx_data) {
-                PUT_NUMBER4 (zchunk_size (self->tx_data));
-                memcpy (self->needle,
-                        zchunk_data (self->tx_data),
-                        zchunk_size (self->tx_data));
-                self->needle += zchunk_size (self->tx_data);
-            }
-            else
-                PUT_NUMBER4 (0);    //  Empty chunk
+            PUT_STRING (self->tx_as_hex);
             break;
 
         case WAP_PROTO_PUT_OK:
@@ -682,7 +664,10 @@ wap_proto_print (wap_proto_t *self)
             
         case WAP_PROTO_PUT:
             zsys_debug ("WAP_PROTO_PUT:");
-            zsys_debug ("    tx_data=[ ... ]");
+            if (self->tx_as_hex)
+                zsys_debug ("    tx_as_hex='%s'", self->tx_as_hex);
+            else
+                zsys_debug ("    tx_as_hex=");
             break;
             
         case WAP_PROTO_PUT_OK:
@@ -1035,35 +1020,24 @@ wap_proto_set_block_data (wap_proto_t *self, zmsg_t **msg_p)
 
 
 //  --------------------------------------------------------------------------
-//  Get the tx_data field without transferring ownership
+//  Get/set the tx_as_hex field
 
-zchunk_t *
-wap_proto_tx_data (wap_proto_t *self)
+const char *
+wap_proto_tx_as_hex (wap_proto_t *self)
 {
     assert (self);
-    return self->tx_data;
+    return self->tx_as_hex;
 }
-
-//  Get the tx_data field and transfer ownership to caller
-
-zchunk_t *
-wap_proto_get_tx_data (wap_proto_t *self)
-{
-    zchunk_t *tx_data = self->tx_data;
-    self->tx_data = NULL;
-    return tx_data;
-}
-
-//  Set the tx_data field, transferring ownership from caller
 
 void
-wap_proto_set_tx_data (wap_proto_t *self, zchunk_t **chunk_p)
+wap_proto_set_tx_as_hex (wap_proto_t *self, const char *value)
 {
     assert (self);
-    assert (chunk_p);
-    zchunk_destroy (&self->tx_data);
-    self->tx_data = *chunk_p;
-    *chunk_p = NULL;
+    assert (value);
+    if (value == self->tx_as_hex)
+        return;
+    strncpy (self->tx_as_hex, value, 255);
+    self->tx_as_hex [255] = 0;
 }
 
 
@@ -1119,6 +1093,39 @@ wap_proto_set_o_indexes (wap_proto_t *self, zframe_t **frame_p)
     zframe_destroy (&self->o_indexes);
     self->o_indexes = *frame_p;
     *frame_p = NULL;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get the tx_data field without transferring ownership
+
+zchunk_t *
+wap_proto_tx_data (wap_proto_t *self)
+{
+    assert (self);
+    return self->tx_data;
+}
+
+//  Get the tx_data field and transfer ownership to caller
+
+zchunk_t *
+wap_proto_get_tx_data (wap_proto_t *self)
+{
+    zchunk_t *tx_data = self->tx_data;
+    self->tx_data = NULL;
+    return tx_data;
+}
+
+//  Set the tx_data field, transferring ownership from caller
+
+void
+wap_proto_set_tx_data (wap_proto_t *self, zchunk_t **chunk_p)
+{
+    assert (self);
+    assert (chunk_p);
+    zchunk_destroy (&self->tx_data);
+    self->tx_data = *chunk_p;
+    *chunk_p = NULL;
 }
 
 
@@ -1279,8 +1286,7 @@ wap_proto_test (bool verbose)
     }
     wap_proto_set_id (self, WAP_PROTO_PUT);
 
-    zchunk_t *put_tx_data = zchunk_new ("Captcha Diem", 12);
-    wap_proto_set_tx_data (self, &put_tx_data);
+    wap_proto_set_tx_as_hex (self, "Life is short but Now lasts for ever");
     //  Send twice
     wap_proto_send (self, output);
     wap_proto_send (self, output);
@@ -1288,7 +1294,7 @@ wap_proto_test (bool verbose)
     for (instance = 0; instance < 2; instance++) {
         wap_proto_recv (self, input);
         assert (wap_proto_routing_id (self));
-        assert (memcmp (zchunk_data (wap_proto_tx_data (self)), "Captcha Diem", 12) == 0);
+        assert (streq (wap_proto_tx_as_hex (self), "Life is short but Now lasts for ever"));
     }
     wap_proto_set_id (self, WAP_PROTO_PUT_OK);
 

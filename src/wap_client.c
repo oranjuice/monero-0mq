@@ -157,7 +157,7 @@ prepare_start_command (client_t *self)
 static void
 prepare_put_command (client_t *self)
 {
-    wap_proto_set_tx_data (self->message, &self->args->tx_data);
+    wap_proto_set_tx_as_hex (self->message, self->args->tx_as_hex);
 }
 
 
@@ -335,3 +335,5 @@ signal_have_output_indexes_ok (client_t *self)
 
 void wap_client_test(bool verbose) {
 }
+
+

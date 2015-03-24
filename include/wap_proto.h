@@ -43,7 +43,7 @@ BLOCKS-OK, or ERROR if the request is invalid.
 
     PUT - Wallet sends a raw transaction to the daemon. Daemon replies with
 PUT-OK, or ERROR.
-        tx_data             chunk       Transaction data
+        tx_as_hex           string      Transaction as hex
 
     PUT_OK - Daemon confirms that it accepted the raw transaction.
         status              number 8    Transaction ID
@@ -219,15 +219,11 @@ zmsg_t *
 void
     wap_proto_set_block_data (wap_proto_t *self, zmsg_t **msg_p);
 
-//  Get a copy of the tx_data field
-zchunk_t *
-    wap_proto_tx_data (wap_proto_t *self);
-//  Get the tx_data field and transfer ownership to caller
-zchunk_t *
-    wap_proto_get_tx_data (wap_proto_t *self);
-//  Set the tx_data field, transferring ownership from caller
+//  Get/set the tx_as_hex field
+const char *
+    wap_proto_tx_as_hex (wap_proto_t *self);
 void
-    wap_proto_set_tx_data (wap_proto_t *self, zchunk_t **chunk_p);
+    wap_proto_set_tx_as_hex (wap_proto_t *self, const char *value);
 
 //  Get/set the tx_id field
 const char *
@@ -244,6 +240,16 @@ zframe_t *
 //  Set the o_indexes field, transferring ownership from caller
 void
     wap_proto_set_o_indexes (wap_proto_t *self, zframe_t **frame_p);
+
+//  Get a copy of the tx_data field
+zchunk_t *
+    wap_proto_tx_data (wap_proto_t *self);
+//  Get the tx_data field and transfer ownership to caller
+zchunk_t *
+    wap_proto_get_tx_data (wap_proto_t *self);
+//  Set the tx_data field, transferring ownership from caller
+void
+    wap_proto_set_tx_data (wap_proto_t *self, zchunk_t **chunk_p);
 
 //  Get/set the address field
 const char *

@@ -69,7 +69,7 @@ WAP_EXPORT int
 //  Send a raw transaction to the daemon.                                           
 //  Returns >= 0 if successful, -1 if interrupted.
 WAP_EXPORT int 
-    wap_client_put (wap_client_t *self, zchunk_t **tx_data_p);
+    wap_client_put (wap_client_t *self, const char *tx_as_hex);
 
 //  Request a set of blocks from the server.                                        
 //  Returns >= 0 if successful, -1 if interrupted.

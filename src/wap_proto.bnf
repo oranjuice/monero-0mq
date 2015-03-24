@@ -48,8 +48,8 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Wallet sends a raw transaction to the daemon. Daemon replies with     
     ;  PUT-OK, or ERROR.                                                     
 
-    PUT             = signature %d5 tx_data
-    tx_data         = chunk                 ; Transaction data
+    PUT             = signature %d5 tx_as_hex
+    tx_as_hex       = string                ; Transaction as hex
 
     ;  Daemon confirms that it accepted the raw transaction.                 
 

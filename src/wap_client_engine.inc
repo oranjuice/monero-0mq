@@ -127,7 +127,7 @@ struct _client_args_t {
     char *identity;
     zlist_t *block_ids;
     uint64_t start_height;
-    zchunk_t *tx_data;
+    char *tx_as_hex;
     char *tx_id;
     char *address;
     uint64_t thread_count;
@@ -263,7 +263,7 @@ s_client_destroy (s_client_t **self_p)
         zstr_free (&self->args.endpoint);
         zstr_free (&self->args.identity);
         zlist_destroy (&self->args.block_ids);
-        zchunk_destroy (&self->args.tx_data);
+        zstr_free (&self->args.tx_as_hex);
         zstr_free (&self->args.tx_id);
         zstr_free (&self->args.address);
         client_terminate (&self->client);
@@ -1216,8 +1216,8 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     }
     else
     if (streq (method, "PUT")) {
-        zchunk_destroy (&self->args.tx_data);
-        zsock_recv (self->cmdpipe, "p", &self->args.tx_data);
+        zstr_free (&self->args.tx_as_hex);
+        zsock_recv (self->cmdpipe, "s", &self->args.tx_as_hex);
         s_client_execute (self, put_event);
     }
     else
@@ -1580,12 +1580,11 @@ wap_client_blocks (wap_client_t *self, zlist_t **block_ids_p, uint64_t start_hei
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_put (wap_client_t *self, zchunk_t **tx_data_p)
+wap_client_put (wap_client_t *self, const char *tx_as_hex)
 {
     assert (self);
 
-    zsock_send (self->actor, "sp", "PUT", *tx_data_p);
-    *tx_data_p = NULL;          //  Take ownership of tx_data
+    zsock_send (self->actor, "ss", "PUT", tx_as_hex);
     if (s_accept_reply (self, "PUT OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
