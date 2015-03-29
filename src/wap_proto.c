@@ -34,37 +34,37 @@ struct _wap_proto_t {
     int id;                             //  wap_proto message ID
     byte *needle;                       //  Read/write pointer for serialization
     byte *ceiling;                      //  Valid upper limit for read pointer
-    /* Wallet identity  */
+    // Wallet identity
     char identity [256];
-    /*                */
+    // block_ids
     zlist_t *block_ids;
-    /*                */
+    // start_height
     uint64_t start_height;
-    /*                */
+    // status
     uint64_t status;
-    /*                */
+    // curr_height
     uint64_t curr_height;
-    /* Frames of block data  */
+    // Frames of block data
     zmsg_t *block_data;
-    /* Transaction as hex  */
+    // Transaction as hex
     char *tx_as_hex;
-    /* Transaction ID  */
+    // Transaction ID
     char tx_id [256];
-    /* Output Indexes  */
+    // Output Indexes
     zframe_t *o_indexes;
-    /* Outs count     */
+    // Outs count
     uint64_t outs_count;
-    /* Amounts        */
+    // Amounts
     zframe_t *amounts;
-    /* Outputs        */
+    // Outputs
     zframe_t *random_outputs;
-    /* Transaction data  */
+    // Transaction data
     zchunk_t *tx_data;
-    /*                */
+    // address
     char address [256];
-    /*                */
+    // thread_count
     uint64_t thread_count;
-    /* Printable explanation  */
+    // Printable explanation
     char reason [256];
 };
 
@@ -265,7 +265,7 @@ int
 wap_proto_recv (wap_proto_t *self, zsock_t *input)
 {
     assert (input);
-    
+
     if (zsock_type (input) == ZMQ_ROUTER) {
         zframe_destroy (&self->routing_id);
         self->routing_id = zframe_recv (input);
@@ -284,7 +284,7 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
     //  Get and check protocol signature
     self->needle = (byte *) zmq_msg_data (&frame);
     self->ceiling = self->needle + zmq_msg_size (&frame);
-    
+
     uint16_t signature;
     GET_NUMBER2 (signature);
     if (signature != (0xAAA0 | 0)) {
@@ -549,7 +549,7 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
     PUT_NUMBER1 (self->id);
     bool send_block_data = false;
     size_t nbr_frames = 1;              //  Total number of frames to send
-    
+
     switch (self->id) {
         case WAP_PROTO_OPEN:
             PUT_STRING ("WAP");
@@ -643,7 +643,7 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
     }
     //  Now send the data frame
     zmq_msg_send (&frame, zsock_resolve (output), --nbr_frames? ZMQ_SNDMORE: 0);
-    
+
     //  Now send any frame fields, in order
     if (self->id == WAP_PROTO_OUTPUT_INDEXES_OK) {
         //  If o_indexes isn't set, send an empty frame
@@ -701,11 +701,11 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("    identity=");
             break;
-            
+
         case WAP_PROTO_OPEN_OK:
             zsys_debug ("WAP_PROTO_OPEN_OK:");
             break;
-            
+
         case WAP_PROTO_BLOCKS:
             zsys_debug ("WAP_PROTO_BLOCKS:");
             zsys_debug ("    block_ids=");
@@ -718,7 +718,7 @@ wap_proto_print (wap_proto_t *self)
             }
             zsys_debug ("    start_height=%ld", (long) self->start_height);
             break;
-            
+
         case WAP_PROTO_BLOCKS_OK:
             zsys_debug ("WAP_PROTO_BLOCKS_OK:");
             zsys_debug ("    status=%ld", (long) self->status);
@@ -730,7 +730,7 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("(NULL)");
             break;
-            
+
         case WAP_PROTO_PUT:
             zsys_debug ("WAP_PROTO_PUT:");
             if (self->tx_as_hex)
@@ -738,12 +738,12 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("    tx_as_hex=");
             break;
-            
+
         case WAP_PROTO_PUT_OK:
             zsys_debug ("WAP_PROTO_PUT_OK:");
             zsys_debug ("    status=%ld", (long) self->status);
             break;
-            
+
         case WAP_PROTO_OUTPUT_INDEXES:
             zsys_debug ("WAP_PROTO_OUTPUT_INDEXES:");
             if (self->tx_id)
@@ -751,7 +751,7 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("    tx_id=");
             break;
-            
+
         case WAP_PROTO_OUTPUT_INDEXES_OK:
             zsys_debug ("WAP_PROTO_OUTPUT_INDEXES_OK:");
             zsys_debug ("    status=%ld", (long) self->status);
@@ -761,7 +761,7 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("(NULL)");
             break;
-            
+
         case WAP_PROTO_RANDOM_OUTS:
             zsys_debug ("WAP_PROTO_RANDOM_OUTS:");
             zsys_debug ("    outs_count=%ld", (long) self->outs_count);
@@ -771,7 +771,7 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("(NULL)");
             break;
-            
+
         case WAP_PROTO_RANDOM_OUTS_OK:
             zsys_debug ("WAP_PROTO_RANDOM_OUTS_OK:");
             zsys_debug ("    status=%ld", (long) self->status);
@@ -781,7 +781,7 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("(NULL)");
             break;
-            
+
         case WAP_PROTO_GET:
             zsys_debug ("WAP_PROTO_GET:");
             if (self->tx_id)
@@ -789,20 +789,20 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("    tx_id=");
             break;
-            
+
         case WAP_PROTO_GET_OK:
             zsys_debug ("WAP_PROTO_GET_OK:");
             zsys_debug ("    tx_data=[ ... ]");
             break;
-            
+
         case WAP_PROTO_SAVE:
             zsys_debug ("WAP_PROTO_SAVE:");
             break;
-            
+
         case WAP_PROTO_SAVE_OK:
             zsys_debug ("WAP_PROTO_SAVE_OK:");
             break;
-            
+
         case WAP_PROTO_START:
             zsys_debug ("WAP_PROTO_START:");
             if (self->address)
@@ -811,36 +811,36 @@ wap_proto_print (wap_proto_t *self)
                 zsys_debug ("    address=");
             zsys_debug ("    thread_count=%ld", (long) self->thread_count);
             break;
-            
+
         case WAP_PROTO_START_OK:
             zsys_debug ("WAP_PROTO_START_OK:");
             zsys_debug ("    status=%ld", (long) self->status);
             break;
-            
+
         case WAP_PROTO_STOP:
             zsys_debug ("WAP_PROTO_STOP:");
             break;
-            
+
         case WAP_PROTO_STOP_OK:
             zsys_debug ("WAP_PROTO_STOP_OK:");
             break;
-            
+
         case WAP_PROTO_CLOSE:
             zsys_debug ("WAP_PROTO_CLOSE:");
             break;
-            
+
         case WAP_PROTO_CLOSE_OK:
             zsys_debug ("WAP_PROTO_CLOSE_OK:");
             break;
-            
+
         case WAP_PROTO_PING:
             zsys_debug ("WAP_PROTO_PING:");
             break;
-            
+
         case WAP_PROTO_PING_OK:
             zsys_debug ("WAP_PROTO_PING_OK:");
             break;
-            
+
         case WAP_PROTO_ERROR:
             zsys_debug ("WAP_PROTO_ERROR:");
             zsys_debug ("    status=%ld", (long) self->status);
@@ -849,7 +849,7 @@ wap_proto_print (wap_proto_t *self)
             else
                 zsys_debug ("    reason=");
             break;
-            
+
     }
 }
 
@@ -1375,7 +1375,7 @@ wap_proto_set_reason (wap_proto_t *self, const char *value)
 int
 wap_proto_test (bool verbose)
 {
-    printf (" * wap_proto: ");
+    printf (" * wap_proto:");
 
     //  Silence an "unused" warning by "using" the verbose variable
     if (verbose) {;}
@@ -1387,13 +1387,16 @@ wap_proto_test (bool verbose)
     wap_proto_destroy (&self);
 
     //  Create pair of sockets we can send through
-    zsock_t *input = zsock_new (ZMQ_ROUTER);
-    assert (input);
-    zsock_connect (input, "inproc://selftest-wap_proto");
-
+    //  We must bind before connect if we wish to remain compatible with ZeroMQ < v4
     zsock_t *output = zsock_new (ZMQ_DEALER);
     assert (output);
-    zsock_bind (output, "inproc://selftest-wap_proto");
+    int rc = zsock_bind (output, "inproc://selftest-wap_proto");
+    assert (rc == 0);
+
+    zsock_t *input = zsock_new (ZMQ_ROUTER);
+    assert (input);
+    rc = zsock_connect (input, "inproc://selftest-wap_proto");
+    assert (rc == 0);
 
     //  Encode/send/decode and verify each message type
     int instance;
@@ -1439,6 +1442,7 @@ wap_proto_test (bool verbose)
         assert (streq ((char *) zlist_first (block_ids), "Name: Brutus"));
         assert (streq ((char *) zlist_next (block_ids), "Age: 43"));
         zlist_destroy (&block_ids);
+        zlist_destroy (&blocks_block_ids);
         assert (wap_proto_start_height (self) == 123);
     }
     wap_proto_set_id (self, WAP_PROTO_BLOCKS_OK);
@@ -1448,7 +1452,7 @@ wap_proto_test (bool verbose)
     wap_proto_set_curr_height (self, 123);
     zmsg_t *blocks_ok_block_data = zmsg_new ();
     wap_proto_set_block_data (self, &blocks_ok_block_data);
-    zmsg_addstr (wap_proto_block_data (self), "Hello, World");
+    zmsg_addstr (wap_proto_block_data (self), "Captcha Diem");
     //  Send twice
     wap_proto_send (self, output);
     wap_proto_send (self, output);
@@ -1460,6 +1464,10 @@ wap_proto_test (bool verbose)
         assert (wap_proto_start_height (self) == 123);
         assert (wap_proto_curr_height (self) == 123);
         assert (zmsg_size (wap_proto_block_data (self)) == 1);
+        char *content = zmsg_popstr (wap_proto_block_data (self));
+        assert (streq (content, "Captcha Diem"));
+        zstr_free (&content);
+        zmsg_destroy (&blocks_ok_block_data);
     }
     wap_proto_set_id (self, WAP_PROTO_PUT);
 
@@ -1511,6 +1519,7 @@ wap_proto_test (bool verbose)
         assert (wap_proto_routing_id (self));
         assert (wap_proto_status (self) == 123);
         assert (zframe_streq (wap_proto_o_indexes (self), "Captcha Diem"));
+        zframe_destroy (&output_indexes_ok_o_indexes);
     }
     wap_proto_set_id (self, WAP_PROTO_RANDOM_OUTS);
 
@@ -1526,6 +1535,7 @@ wap_proto_test (bool verbose)
         assert (wap_proto_routing_id (self));
         assert (wap_proto_outs_count (self) == 123);
         assert (zframe_streq (wap_proto_amounts (self), "Captcha Diem"));
+        zframe_destroy (&random_outs_amounts);
     }
     wap_proto_set_id (self, WAP_PROTO_RANDOM_OUTS_OK);
 
@@ -1541,6 +1551,7 @@ wap_proto_test (bool verbose)
         assert (wap_proto_routing_id (self));
         assert (wap_proto_status (self) == 123);
         assert (zframe_streq (wap_proto_random_outputs (self), "Captcha Diem"));
+        zframe_destroy (&random_outs_ok_random_outputs);
     }
     wap_proto_set_id (self, WAP_PROTO_GET);
 
@@ -1566,6 +1577,7 @@ wap_proto_test (bool verbose)
         wap_proto_recv (self, input);
         assert (wap_proto_routing_id (self));
         assert (memcmp (zchunk_data (wap_proto_tx_data (self)), "Captcha Diem", 12) == 0);
+        zchunk_destroy (&get_ok_tx_data);
     }
     wap_proto_set_id (self, WAP_PROTO_SAVE);
 
