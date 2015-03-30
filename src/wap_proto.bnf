@@ -50,7 +50,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  PUT-OK, or ERROR.                                                     
 
     PUT             = signature %d5 tx_as_hex
-    tx_as_hex       = string                ; Transaction as hex
+    tx_as_hex       = longstr               ; Transaction as hex
 
     ;  Daemon confirms that it accepted the raw transaction.                 
 

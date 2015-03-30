@@ -206,7 +206,7 @@
     
     <method name = "put" return = "status">
     Send a raw transaction to the daemon.
-        <field name = "tx as hex" type = "string" />
+        <field name = "tx as hex" type = "longstr" />
         <accept reply = "PUT OK" />
         <accept reply = "FAILURE" />
     </method>

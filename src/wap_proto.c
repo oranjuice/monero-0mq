@@ -47,7 +47,7 @@ struct _wap_proto_t {
     /* Frames of block data  */
     zmsg_t *block_data;
     /* Transaction as hex  */
-    char tx_as_hex [256];
+    char *tx_as_hex;
     /* Transaction ID  */
     char tx_id [256];
     /* Output Indexes  */
@@ -244,6 +244,7 @@ wap_proto_destroy (wap_proto_t **self_p)
         if (self->block_ids)
             zlist_destroy (&self->block_ids);
         zmsg_destroy (&self->block_data);
+        free (self->tx_as_hex);
         zframe_destroy (&self->o_indexes);
         zframe_destroy (&self->amounts);
         zframe_destroy (&self->random_outputs);
@@ -348,7 +349,7 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             break;
 
         case WAP_PROTO_PUT:
-            GET_STRING (self->tx_as_hex);
+            GET_LONGSTR (self->tx_as_hex);
             break;
 
         case WAP_PROTO_PUT_OK:
@@ -501,7 +502,9 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             frame_size += 8;            //  curr_height
             break;
         case WAP_PROTO_PUT:
-            frame_size += 1 + strlen (self->tx_as_hex);
+            frame_size += 4;
+            if (self->tx_as_hex)
+                frame_size += strlen (self->tx_as_hex);
             break;
         case WAP_PROTO_PUT_OK:
             frame_size += 8;            //  status
@@ -577,7 +580,11 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             break;
 
         case WAP_PROTO_PUT:
-            PUT_STRING (self->tx_as_hex);
+            if (self->tx_as_hex) {
+                PUT_LONGSTR (self->tx_as_hex);
+            }
+            else
+                PUT_NUMBER4 (0);    //  Empty string
             break;
 
         case WAP_PROTO_PUT_OK:
@@ -1122,10 +1129,8 @@ wap_proto_set_tx_as_hex (wap_proto_t *self, const char *value)
 {
     assert (self);
     assert (value);
-    if (value == self->tx_as_hex)
-        return;
-    strncpy (self->tx_as_hex, value, 255);
-    self->tx_as_hex [255] = 0;
+    free (self->tx_as_hex);
+    self->tx_as_hex = strdup (value);
 }
 
 

@@ -58,7 +58,7 @@
     <message name = "PUT">
         Wallet sends a raw transaction to the daemon. Daemon replies with
         PUT-OK, or ERROR.
-        <field name = "tx as hex" type = "string">Transaction as hex</field>
+        <field name = "tx as hex" type = "longstr">Transaction as hex</field>
     </message>
 
     <message name = "PUT-OK">

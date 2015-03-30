@@ -43,7 +43,7 @@ BLOCKS-OK, or ERROR if the request is invalid.
 
     PUT - Wallet sends a raw transaction to the daemon. Daemon replies with
 PUT-OK, or ERROR.
-        tx_as_hex           string      Transaction as hex
+        tx_as_hex           longstr     Transaction as hex
 
     PUT_OK - Daemon confirms that it accepted the raw transaction.
         status              number 8    Transaction ID
