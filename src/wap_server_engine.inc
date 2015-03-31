@@ -1117,6 +1117,7 @@ s_server_config_service (s_server_t *self)
             if (zsock_bind (self->router, "%s", endpoint) == -1)
                 zsys_warning ("could not bind to %s (%s)", endpoint, zmq_strerror (zmq_errno ()));
         }
+#if (ZMQ_VERSION_MAJOR >= 4)
         else
         if (streq (zconfig_name (section), "security")) {
             char *mechanism = zconfig_resolve (section, "mechanism", "null");
@@ -1134,6 +1135,7 @@ s_server_config_service (s_server_t *self)
             else
                 zsys_warning ("mechanism=%s is not supported", mechanism);
         }
+#endif
         section = zconfig_next (section);
     }
     s_server_config_global (self);

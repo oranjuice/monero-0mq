@@ -64,8 +64,9 @@ typedef enum {
     close_ok_event = 22,
     ping_ok_event = 23,
     error_event = 24,
-    command_invalid_event = 25,
-    other_event = 26
+    exception_event = 25,
+    command_invalid_event = 26,
+    other_event = 27
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -116,6 +117,7 @@ s_event_name [] = {
     "CLOSE_OK",
     "PING_OK",
     "ERROR",
+    "exception",
     "command_invalid",
     "other"
 };
@@ -149,6 +151,7 @@ typedef struct {
     zloop_t *loop;              //  Listen to pipe and dealer
     wap_proto_t *message;       //  Message received or sent
     client_args_t args;         //  Method arguments structure
+    bool connected;             //  True if client is connected
     bool terminated;            //  True if client is shutdown
     bool fsm_stopped;           //  "terminate" action called
     size_t timeout;             //  inactivity timeout, msecs
@@ -186,7 +189,7 @@ static void
 static void
     signal_success (client_t *self);
 static void
-    use_heartbeat_timer (client_t *self);
+    client_is_connected (client_t *self);
 static void
     signal_server_not_present (client_t *self);
 static void
@@ -203,6 +206,8 @@ static void
     prepare_get_output_indexes_command (client_t *self);
 static void
     prepare_get_random_outs_command (client_t *self);
+static void
+    check_if_connection_is_dead (client_t *self);
 static void
     signal_have_blocks_ok (client_t *self);
 static void
@@ -335,9 +340,11 @@ engine_set_wakeup_event (client_t *client, size_t delay, event_t event)
     }
 }
 
-//  Set timeout for next protocol read. By default, will wait forever
-//  or until the process is interrupted. The timeout is in milliseconds.
-//  The state machine must handle the "expired" event.
+//  Set heartbeat timeout. By default, the timeout is zero, meaning
+//  infinite. Setting a non-zero timeout causes the state machine to
+//  receive an "expired" event if is no incoming traffic for that many
+//  milliseconds. This cycles over and over until/unless the code sets
+//  a zero timeout. The state machine must handle the "expired" event.
 
 static void
 engine_set_timeout (client_t *client, size_t timeout)
@@ -345,6 +352,10 @@ engine_set_timeout (client_t *client, size_t timeout)
     if (client) {
         s_client_t *self = (s_client_t *) client;
         self->timeout = timeout;
+        if (self->expiry_timer) {
+            zloop_timer_end (self->loop, self->expiry_timer);
+            self->expiry_timer = 0;
+        }
         if (self->timeout)
             self->expiry_timer = zloop_timer (
                 self->loop, self->timeout, 1, s_client_handle_timeout, self);
@@ -366,6 +377,18 @@ engine_handle_socket (client_t *client, zsock_t *sock, zloop_reader_fn handler)
         }
         else
             zloop_reader_end (self->loop, sock);
+    }
+}
+
+//  Set connected to true/false. The client must call this if it wants
+//  to provide the API with the connected status.
+
+static void
+engine_set_connected (client_t *client, bool connected)
+{
+    if (client) {
+        s_client_t *self = (s_client_t *) client;
+        self->connected = connected;
     }
 }
 
@@ -545,10 +568,10 @@ s_client_execute (s_client_t *self, event_t event)
                         signal_success (&self->client);
                     }
                     if (!self->exception) {
-                        //  use heartbeat timer
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ use heartbeat timer");
-                        use_heartbeat_timer (&self->client);
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -570,9 +593,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -584,6 +610,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -746,6 +778,12 @@ s_client_execute (s_client_t *self, event_t event)
                 else
                 if (self->event == expired_event) {
                     if (!self->exception) {
+                        //  check if connection is dead
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ check if connection is dead");
+                        check_if_connection_is_dead (&self->client);
+                    }
+                    if (!self->exception) {
                         //  send PING
                         if (wap_client_verbose)
                             zsys_debug ("wap_client:            $ send PING");
@@ -755,9 +793,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -769,6 +810,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -791,9 +838,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -805,6 +855,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -827,9 +883,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -841,6 +900,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -863,9 +928,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -877,6 +945,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -899,9 +973,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -913,6 +990,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -935,9 +1018,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -949,6 +1035,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -971,9 +1063,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -985,6 +1080,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -1007,9 +1108,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -1021,6 +1125,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -1043,9 +1153,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -1057,6 +1170,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -1098,9 +1217,12 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -1112,6 +1234,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -1123,9 +1251,12 @@ s_client_execute (s_client_t *self, event_t event)
 
             case defaults_state:
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -1137,6 +1268,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -1190,19 +1327,22 @@ s_client_execute (s_client_t *self, event_t event)
             case reexpect_open_ok_state:
                 if (self->event == open_ok_event) {
                     if (!self->exception) {
-                        //  use heartbeat timer
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ use heartbeat timer");
-                        use_heartbeat_timer (&self->client);
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
                 }
                 else
                 if (self->event == ping_ok_event) {
-                        //  No action - just logging
+                    if (!self->exception) {
+                        //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ ping_ok");
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
                 }
                 else
                 if (self->event == error_event) {
@@ -1214,6 +1354,12 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
@@ -1242,7 +1388,13 @@ s_client_handle_timeout (zloop_t *loop, int timer_id, void *argument)
 {
     s_client_t *self = (s_client_t *) argument;
     s_client_execute (self, expired_event);
-    return self->terminated? -1: 0;
+    if (self->terminated)
+        return -1;
+
+    if (self->timeout > 0)
+        self->expiry_timer = zloop_timer (
+            loop, self->timeout, 1, s_client_handle_timeout, self);
+    return 0;
 }
 
 //  zloop callback when client wakeup timer expires
@@ -1270,6 +1422,9 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
 
     if (streq (method, "$TERM"))
         self->terminated = true;    //  Shutdown the engine
+    else
+    if (streq (method, "$CONNECTED"))
+        zsock_send (self->cmdpipe, "i", self->connected);
     else
     if (streq (method, "CONNECT")) {
         zstr_free (&self->args.endpoint);
@@ -1436,6 +1591,7 @@ wap_client (zsock_t *cmdpipe, void *msgpipe)
 struct _wap_client_t {
     zactor_t *actor;            //  Client actor
     zsock_t *msgpipe;           //  Pipe for async message flow
+    bool connected;             //  Client currently connected or not
     int status;                 //  Returned by actor reply
     char *reason;               //  Returned by actor reply
     uint64_t start_height;      //  Returned by actor reply
@@ -1526,6 +1682,22 @@ wap_client_msgpipe (wap_client_t *self)
 {
     assert (self);
     return self->msgpipe;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return true if client is currently connected, else false. Note that the
+//  client will automatically re-connect if the server dies and restarts after
+//  a successful first connection.
+
+bool
+wap_client_connected (wap_client_t *self)
+{
+    assert (self);
+    bool connected;
+    zsock_send (self->actor, "s", "$CONNECTED");
+    zsock_recv (self->actor, "i", &connected);
+    return connected;
 }
 
 

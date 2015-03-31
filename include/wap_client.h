@@ -54,6 +54,12 @@ WAP_EXPORT zactor_t *
 WAP_EXPORT zsock_t *
     wap_client_msgpipe (wap_client_t *self);
 
+//  Return true if client is currently connected, else false. Note that the
+//  client will automatically re-connect if the server dies and restarts after
+//  a successful first connection.
+WAP_EXPORT bool
+    wap_client_connected (wap_client_t *self);
+
 //  Connect to server endpoint, with specified timeout in msecs (zero means wait    
 //  forever). Constructor succeeds if connection is successful. The caller may      
 //  specify its address.                                                            

@@ -1,6 +1,6 @@
 /*  =========================================================================
     wap_proto - Wallet Access Protocol
-    
+
     Codec header for wap_proto.
 
     ** WARNING *************************************************************
@@ -166,7 +166,7 @@ int
 //  Send the wap_proto to the output socket, does not destroy it
 int
     wap_proto_send (wap_proto_t *self, zsock_t *output);
-    
+
 //  Print contents of message to stdout
 void
     wap_proto_print (wap_proto_t *self);
