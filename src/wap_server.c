@@ -169,12 +169,9 @@ static void
 send_transaction (client_t *self)
 {
     const char *tx_as_hex = wap_proto_tx_as_hex(self->message);
-printf("%d %d %d %d %d\n", tx_as_hex[4], tx_as_hex[5], tx_as_hex[6], tx_as_hex[7], tx_as_hex[8]);
-    unsigned int length = 0;
-    memcpy(&length, &tx_as_hex[0], 4);
-    assert(length == 5);
-    char *x = "xa234";
-    assert(memcmp(tx_as_hex + 4, x, 5) == 0);
+printf("%d %d %d %d %d\n", tx_as_hex[0], tx_as_hex[1], tx_as_hex[2], tx_as_hex[3], tx_as_hex[4]);
+    char *x = "a234";
+    assert(memcmp(tx_as_hex, x, 4) == 0);
     wap_proto_set_status(self->message, 0);
 }
 

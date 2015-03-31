@@ -51,6 +51,7 @@ int main (int argc, char *argv [])
     assert (client);
     int rc = wap_client_connect (client, "ipc://@/monero", 200, "wallet identity");
     assert (rc == 0);
+    assert(wap_client_connected(client) == true);
     
     char *size_prepended_tx_id = (char*)malloc(sizeof(char) * 3);
     size_prepended_tx_id[0] = 2;
