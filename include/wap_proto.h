@@ -43,13 +43,13 @@ BLOCKS-OK, or ERROR if the request is invalid.
 
     PUT - Wallet sends a raw transaction to the daemon. Daemon replies with
 PUT-OK, or ERROR.
-        tx_as_hex           longstr     Transaction as hex
+        tx_as_hex           chunk       Transaction as hex
 
     PUT_OK - Daemon confirms that it accepted the raw transaction.
         status              number 8    Transaction ID
 
     OUTPUT_INDEXES - Ask for tx output indexes.
-        tx_id               string      Transaction ID
+        tx_id               chunk       Transaction ID
 
     OUTPUT_INDEXES_OK - Daemon returns tx output indexes.
         status              number 8    Status
@@ -65,7 +65,7 @@ PUT-OK, or ERROR.
 
     GET - Wallet requests transaction data from the daemon. Daemon replies
 with GET-OK, or ERROR.
-        tx_id               string      Transaction ID
+        tx_id               chunk       Transaction ID
 
     GET_OK - Daemon replies with transaction data.
         tx_data             chunk       Transaction data
@@ -229,17 +229,25 @@ zmsg_t *
 void
     wap_proto_set_block_data (wap_proto_t *self, zmsg_t **msg_p);
 
-//  Get/set the tx_as_hex field
-const char *
+//  Get a copy of the tx_as_hex field
+zchunk_t *
     wap_proto_tx_as_hex (wap_proto_t *self);
+//  Get the tx_as_hex field and transfer ownership to caller
+zchunk_t *
+    wap_proto_get_tx_as_hex (wap_proto_t *self);
+//  Set the tx_as_hex field, transferring ownership from caller
 void
-    wap_proto_set_tx_as_hex (wap_proto_t *self, const char *value);
+    wap_proto_set_tx_as_hex (wap_proto_t *self, zchunk_t **chunk_p);
 
-//  Get/set the tx_id field
-const char *
+//  Get a copy of the tx_id field
+zchunk_t *
     wap_proto_tx_id (wap_proto_t *self);
+//  Get the tx_id field and transfer ownership to caller
+zchunk_t *
+    wap_proto_get_tx_id (wap_proto_t *self);
+//  Set the tx_id field, transferring ownership from caller
 void
-    wap_proto_set_tx_id (wap_proto_t *self, const char *value);
+    wap_proto_set_tx_id (wap_proto_t *self, zchunk_t **chunk_p);
 
 //  Get a copy of the o_indexes field
 zframe_t *

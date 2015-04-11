@@ -168,10 +168,11 @@ retrieve_blocks (client_t *self)
 static void
 send_transaction (client_t *self)
 {
-    const char *tx_as_hex = wap_proto_tx_as_hex(self->message);
-printf("%d %d %d %d %d\n", tx_as_hex[0], tx_as_hex[1], tx_as_hex[2], tx_as_hex[3], tx_as_hex[4]);
-    char *x = "a234";
-    assert(memcmp(tx_as_hex, x, 4) == 0);
+    zchunk_t *tx_as_hex_chunk = wap_proto_tx_as_hex(self->message);
+    assert(zchunk_size(tx_as_hex_chunk) == 5);
+    char *tx_as_hex = (char*)zchunk_data(tx_as_hex_chunk);
+    char *x = "12045";
+    assert(memcmp(tx_as_hex, x, 5) == 0);
     wap_proto_set_status(self->message, 0);
 }
 
@@ -260,6 +261,10 @@ output_indexes (client_t *self)
 {
     wap_proto_t *message = self->message;
     uint64_t indexes[] = {1, 2, 3, 4};
+    zchunk_t *tx_id = wap_proto_tx_id(message);
+    size_t size = zchunk_size(tx_id);
+    assert(size == 5);
+    assert(memcmp(zchunk_data(tx_id), "12045", 5) == 0);
     zframe_t *frame = zframe_new(indexes, sizeof(uint64_t) * 4);
     wap_proto_set_o_indexes(message, &frame);
     wap_proto_set_status(message, 0);

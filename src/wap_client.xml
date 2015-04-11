@@ -211,7 +211,7 @@
     
     <method name = "put" return = "status">
     Send a raw transaction to the daemon.
-        <field name = "tx as hex" type = "longstr" />
+        <field name = "tx as hex" type = "chunk" />
         <accept reply = "PUT OK" />
         <accept reply = "FAILURE" />
     </method>
@@ -222,7 +222,7 @@
 
     <method name = "get" return = "status">
     Request a set of blocks from the server.
-        <field name = "tx id" type = "string" />
+        <field name = "tx id" type = "chunk" />
         <accept reply = "GET OK" />
         <accept reply = "FAILURE" />
     </method>
@@ -244,7 +244,7 @@
 
 		<method name = "output indexes" return = "status">
         Ask for tx output indexes.
-        <field name = "tx id" type = "string" >Transaction ID</field>
+        <field name = "tx id" type = "chunk" >Transaction ID</field>
         <accept reply = "OUTPUT INDEXES OK" />
         <accept reply = "FAILURE" />
     </method>

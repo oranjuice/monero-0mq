@@ -58,7 +58,7 @@
     <message name = "PUT">
         Wallet sends a raw transaction to the daemon. Daemon replies with
         PUT-OK, or ERROR.
-        <field name = "tx as hex" type = "longstr">Transaction as hex</field>
+        <field name = "tx as hex" type = "chunk">Transaction as hex</field>
     </message>
 
     <message name = "PUT-OK">
@@ -68,7 +68,7 @@
     
     <message name = "OUTPUT-INDEXES">
         Ask for tx output indexes.
-        <field name = "tx id" type = "string" >Transaction ID</field>
+        <field name = "tx id" type = "chunk" >Transaction ID</field>
     </message>
     
     <message name = "OUTPUT-INDEXES-OK">
@@ -92,7 +92,7 @@
     <message name = "GET">
         Wallet requests transaction data from the daemon. Daemon replies
         with GET-OK, or ERROR.
-        <field name = "tx id" type = "string">Transaction ID</field>
+        <field name = "tx id" type = "chunk">Transaction ID</field>
     </message>
 
     <message name = "GET-OK">

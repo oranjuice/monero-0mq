@@ -50,7 +50,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  PUT-OK, or ERROR.                                                     
 
     PUT             = signature %d5 tx_as_hex
-    tx_as_hex       = longstr               ; Transaction as hex
+    tx_as_hex       = chunk                 ; Transaction as hex
 
     ;  Daemon confirms that it accepted the raw transaction.                 
 
@@ -60,7 +60,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Ask for tx output indexes.                                            
 
     OUTPUT-INDEXES  = signature %d7 tx_id
-    tx_id           = string                ; Transaction ID
+    tx_id           = chunk                 ; Transaction ID
 
     ;  Daemon returns tx output indexes.                                     
 
@@ -84,7 +84,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  GET-OK, or ERROR.                                                     
 
     GET             = signature %d11 tx_id
-    tx_id           = string                ; Transaction ID
+    tx_id           = chunk                 ; Transaction ID
 
     ;  Daemon replies with transaction data.                                 
 

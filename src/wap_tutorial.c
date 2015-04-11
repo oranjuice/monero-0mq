@@ -51,14 +51,9 @@ int main (int argc, char *argv [])
     assert (client);
     int rc = wap_client_connect (client, "ipc://@/monero", 200, "wallet identity");
     assert (rc == 0);
-    assert(wap_client_connected(client) == true);
     
-    char *size_prepended_tx_id = (char*)malloc(sizeof(char) * 3);
-    size_prepended_tx_id[0] = 2;
-    size_prepended_tx_id[1] = 'o';
-    size_prepended_tx_id[2] = 'k';
-    rc = wap_client_output_indexes(client, size_prepended_tx_id);
-    free(size_prepended_tx_id);
+    zchunk_t *tx_id = zchunk_new("12045", 5);
+    rc = wap_client_output_indexes(client, &tx_id);
     
     assert(wap_client_status(client) == 0);
     zframe_t *frame = wap_client_o_indexes(client);
@@ -84,8 +79,8 @@ int main (int argc, char *argv [])
     data = (char*)zframe_data(frame);
     printf("%c %c\n", data[0], data[1]);
 
-    char tx_as_hex [] = { 'a', '2', '3', '4', 0 };
-    wap_client_put (client, tx_as_hex);
+    zchunk_t *tx_as_hex = zchunk_new("12045", 5);
+    wap_client_put (client, &tx_as_hex);
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

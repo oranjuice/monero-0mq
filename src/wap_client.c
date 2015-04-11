@@ -172,7 +172,7 @@ prepare_start_command (client_t *self)
 static void
 prepare_put_command (client_t *self)
 {
-    wap_proto_set_tx_as_hex (self->message, self->args->tx_as_hex);
+    wap_proto_set_tx_as_hex (self->message, &self->args->tx_as_hex);
 }
 
 
@@ -195,7 +195,7 @@ signal_have_put_ok (client_t *self)
 static void
 prepare_get_command (client_t *self)
 {
-    wap_proto_set_tx_id (self->message, self->args->tx_id);
+    wap_proto_set_tx_id (self->message, &self->args->tx_id);
 }
 
 
@@ -333,7 +333,7 @@ signal_server_not_present (client_t *self)
 static void
 prepare_get_output_indexes_command (client_t *self)
 {
-    wap_proto_set_tx_id (self->message, self->args->tx_id);
+    wap_proto_set_tx_id (self->message, &self->args->tx_id);
 }
 
 //  ---------------------------------------------------------------------------
