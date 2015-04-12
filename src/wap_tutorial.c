@@ -52,6 +52,8 @@ int main (int argc, char *argv [])
     int rc = wap_client_connect (client, "ipc://@/monero", 200, "wallet identity");
     assert (rc == 0);
     
+    assert(wap_client_connected(client) == true);
+    
     zchunk_t *tx_id = zchunk_new("12045", 5);
     rc = wap_client_output_indexes(client, &tx_id);
     
