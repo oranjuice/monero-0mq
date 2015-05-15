@@ -4,7 +4,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save / start / stop / o_indexes / random_outs
+    traffic = blocks / put / get / save / start / stop / o_indexes / random_outs / height
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -14,6 +14,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     stop = C:STOP ( S:STOP-OK / S:ERROR )
     o_indexes = C:OUTPUT-INDEXES ( S:OUTPUT-INDEXES-OK / S:ERROR )
     random_outs = C:RANDOM-OUTS ( S:RANDOM-OUTS-OK / S:ERROR )
+    height = C:GET-HEIGHT ( S:GET-HEIGHT-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -80,66 +81,76 @@ The following ABNF grammar defines the Wallet Access Protocol:
     status          = number-8              ; Status
     random_outputs  = frame                 ; Outputs
 
+    ;  Get height.                                                           
+
+    GET-HEIGHT      = signature %d11
+
+    ;  Daemon returns height.                                                
+
+    GET-HEIGHT-OK   = signature %d12 status height
+    status          = number-8              ; Status
+    height          = number-8              ; Height
+
     ;  Wallet requests transaction data from the daemon. Daemon replies with 
     ;  GET-OK, or ERROR.                                                     
 
-    GET             = signature %d11 tx_id
+    GET             = signature %d13 tx_id
     tx_id           = chunk                 ; Transaction ID
 
     ;  Daemon replies with transaction data.                                 
 
-    GET-OK          = signature %d12 tx_data
+    GET-OK          = signature %d14 tx_data
     tx_data         = chunk                 ; Transaction data
 
     ;  save_bc command. Details tbd.                                         
 
-    SAVE            = signature %d13
+    SAVE            = signature %d15
 
     ;  Daemon replies to a save_bc command.                                  
 
-    SAVE-OK         = signature %d14
+    SAVE-OK         = signature %d16
 
     ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
     ;  ERROR.                                                                
 
-    START           = signature %d15 address thread_count
-    address         = string                ; 
+    START           = signature %d17 address thread_count
+    address         = chunk                 ; 
     thread_count    = number-8              ; 
 
     ;  Daemon replies to a start mining request.                             
 
-    START-OK        = signature %d16 status
+    START-OK        = signature %d18 status
     status          = number-8              ; 
 
-    ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
+    ;  Wallet asks daemon to start mining. Daemon replies with STOP-OK, or   
     ;  ERROR.                                                                
 
-    STOP            = signature %d17
+    STOP            = signature %d19
 
     ;  Daemon replies to a stop mining request.                              
 
-    STOP-OK         = signature %d18
+    STOP-OK         = signature %d20
 
     ;  Wallet closes the connection. This is polite though not mandatory.    
     ;  Daemon will reply with CLOSE-OK or ERROR.                             
 
-    CLOSE           = signature %d19
+    CLOSE           = signature %d21
 
     ;  Daemon replies to a wallet connection close request.                  
 
-    CLOSE-OK        = signature %d20
+    CLOSE-OK        = signature %d22
 
     ;  Wallet heartbeats an idle connection.                                 
 
-    PING            = signature %d21
+    PING            = signature %d23
 
     ;  Daemon replies to a wallet ping request.                              
 
-    PING-OK         = signature %d22
+    PING-OK         = signature %d24
 
     ;  Daemon replies with failure status. Status codes tbd.                 
 
-    ERROR           = signature %d23 status reason
+    ERROR           = signature %d25 status reason
     status          = number-2              ; Error status
     reason          = string                ; Printable explanation
 

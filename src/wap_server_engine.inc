@@ -39,11 +39,12 @@ typedef enum {
     stop_event = 8,
     output_indexes_event = 9,
     random_outs_event = 10,
-    close_event = 11,
-    ping_event = 12,
-    expired_event = 13,
-    exception_event = 14,
-    settled_event = 15
+    get_height_event = 11,
+    close_event = 12,
+    ping_event = 13,
+    expired_event = 14,
+    exception_event = 15,
+    settled_event = 16
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -69,6 +70,7 @@ s_event_name [] = {
     "STOP",
     "OUTPUT_INDEXES",
     "RANDOM_OUTS",
+    "GET_HEIGHT",
     "CLOSE",
     "PING",
     "expired",
@@ -152,6 +154,8 @@ static void
     output_indexes (client_t *self);
 static void
     random_outs (client_t *self);
+static void
+    height (client_t *self);
 static void
     deregister_wallet (client_t *self);
 static void
@@ -350,6 +354,9 @@ s_protocol_event (wap_proto_t *message)
             break;
         case WAP_PROTO_RANDOM_OUTS:
             return random_outs_event;
+            break;
+        case WAP_PROTO_GET_HEIGHT:
+            return get_height_event;
             break;
         case WAP_PROTO_GET:
             return get_event;
@@ -711,6 +718,24 @@ s_client_execute (s_client_t *self, event_t event)
                             zsys_debug ("%s:         $ send RANDOM_OUTS_OK",
                                 self->log_prefix);
                         wap_proto_set_id (self->server->message, WAP_PROTO_RANDOM_OUTS_OK);
+                        wap_proto_set_routing_id (self->server->message, self->routing_id);
+                        wap_proto_send (self->server->message, self->server->router);
+                    }
+                }
+                else
+                if (self->event == get_height_event) {
+                    if (!self->exception) {
+                        //  height
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ height", self->log_prefix);
+                        height (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send GET_HEIGHT_OK
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send GET_HEIGHT_OK",
+                                self->log_prefix);
+                        wap_proto_set_id (self->server->message, WAP_PROTO_GET_HEIGHT_OK);
                         wap_proto_set_routing_id (self->server->message, self->routing_id);
                         wap_proto_send (self->server->message, self->server->router);
                     }

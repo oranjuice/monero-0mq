@@ -63,6 +63,12 @@ PUT-OK, or ERROR.
         status              number 8    Status
         random_outputs      frame       Outputs
 
+    GET_HEIGHT - Get height.
+
+    GET_HEIGHT_OK - Daemon returns height.
+        status              number 8    Status
+        height              number 8    Height
+
     GET - Wallet requests transaction data from the daemon. Daemon replies
 with GET-OK, or ERROR.
         tx_id               chunk       Transaction ID
@@ -76,13 +82,13 @@ with GET-OK, or ERROR.
 
     START - Wallet asks daemon to start mining. Daemon replies with START-OK, or
 ERROR.
-        address             string      
+        address             chunk       
         thread_count        number 8    
 
     START_OK - Daemon replies to a start mining request.
         status              number 8    
 
-    STOP - Wallet asks daemon to start mining. Daemon replies with START-OK, or
+    STOP - Wallet asks daemon to start mining. Daemon replies with STOP-OK, or
 ERROR.
 
     STOP_OK - Daemon replies to a stop mining request.
@@ -123,19 +129,21 @@ Daemon will reply with CLOSE-OK or ERROR.
 #define WAP_PROTO_OUTPUT_INDEXES_OK         8
 #define WAP_PROTO_RANDOM_OUTS               9
 #define WAP_PROTO_RANDOM_OUTS_OK            10
-#define WAP_PROTO_GET                       11
-#define WAP_PROTO_GET_OK                    12
-#define WAP_PROTO_SAVE                      13
-#define WAP_PROTO_SAVE_OK                   14
-#define WAP_PROTO_START                     15
-#define WAP_PROTO_START_OK                  16
-#define WAP_PROTO_STOP                      17
-#define WAP_PROTO_STOP_OK                   18
-#define WAP_PROTO_CLOSE                     19
-#define WAP_PROTO_CLOSE_OK                  20
-#define WAP_PROTO_PING                      21
-#define WAP_PROTO_PING_OK                   22
-#define WAP_PROTO_ERROR                     23
+#define WAP_PROTO_GET_HEIGHT                11
+#define WAP_PROTO_GET_HEIGHT_OK             12
+#define WAP_PROTO_GET                       13
+#define WAP_PROTO_GET_OK                    14
+#define WAP_PROTO_SAVE                      15
+#define WAP_PROTO_SAVE_OK                   16
+#define WAP_PROTO_START                     17
+#define WAP_PROTO_START_OK                  18
+#define WAP_PROTO_STOP                      19
+#define WAP_PROTO_STOP_OK                   20
+#define WAP_PROTO_CLOSE                     21
+#define WAP_PROTO_CLOSE_OK                  22
+#define WAP_PROTO_PING                      23
+#define WAP_PROTO_PING_OK                   24
+#define WAP_PROTO_ERROR                     25
 
 #include <czmq.h>
 
@@ -285,6 +293,12 @@ zframe_t *
 void
     wap_proto_set_random_outputs (wap_proto_t *self, zframe_t **frame_p);
 
+//  Get/set the height field
+uint64_t
+    wap_proto_height (wap_proto_t *self);
+void
+    wap_proto_set_height (wap_proto_t *self, uint64_t height);
+
 //  Get a copy of the tx_data field
 zchunk_t *
     wap_proto_tx_data (wap_proto_t *self);
@@ -295,11 +309,15 @@ zchunk_t *
 void
     wap_proto_set_tx_data (wap_proto_t *self, zchunk_t **chunk_p);
 
-//  Get/set the address field
-const char *
+//  Get a copy of the address field
+zchunk_t *
     wap_proto_address (wap_proto_t *self);
+//  Get the address field and transfer ownership to caller
+zchunk_t *
+    wap_proto_get_address (wap_proto_t *self);
+//  Set the address field, transferring ownership from caller
 void
-    wap_proto_set_address (wap_proto_t *self, const char *value);
+    wap_proto_set_address (wap_proto_t *self, zchunk_t **chunk_p);
 
 //  Get/set the thread_count field
 uint64_t

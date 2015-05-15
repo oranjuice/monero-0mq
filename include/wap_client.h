@@ -97,10 +97,15 @@ WAP_EXPORT int
 WAP_EXPORT int 
     wap_client_random_outs (wap_client_t *self, uint64_t outs_count, zframe_t **amounts_p);
 
+//  Ask for height.                                                                 
+//  Returns >= 0 if successful, -1 if interrupted.
+WAP_EXPORT int 
+    wap_client_get_height (wap_client_t *self);
+
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
 WAP_EXPORT int 
-    wap_client_start (wap_client_t *self, const char *address, uint64_t thread_count);
+    wap_client_start (wap_client_t *self, zchunk_t **address_p, uint64_t thread_count);
 
 //  Send stop command to server.                                                    
 //  Returns >= 0 if successful, -1 if interrupted.
@@ -138,6 +143,10 @@ WAP_EXPORT zframe_t *
 //  Return last received random_outputs
 WAP_EXPORT zframe_t *
     wap_client_random_outputs (wap_client_t *self);
+
+//  Return last received height
+WAP_EXPORT uint64_t 
+    wap_client_height (wap_client_t *self);
 
 //  Self test of this class
 WAP_EXPORT void

@@ -32,10 +32,11 @@ typedef enum {
     expect_stop_ok_state = 9,
     expect_output_indexes_ok_state = 10,
     expect_random_outs_ok_state = 11,
-    expect_close_ok_state = 12,
-    defaults_state = 13,
-    have_error_state = 14,
-    reexpect_open_ok_state = 15
+    expect_get_height_ok_state = 12,
+    expect_close_ok_state = 13,
+    defaults_state = 14,
+    have_error_state = 15,
+    reexpect_open_ok_state = 16
 } state_t;
 
 typedef enum {
@@ -52,21 +53,23 @@ typedef enum {
     stop_event = 10,
     output_indexes_event = 11,
     random_outs_event = 12,
-    destructor_event = 13,
-    blocks_ok_event = 14,
-    get_ok_event = 15,
-    put_ok_event = 16,
-    save_ok_event = 17,
-    start_ok_event = 18,
-    stop_ok_event = 19,
-    output_indexes_ok_event = 20,
-    random_outs_ok_event = 21,
-    close_ok_event = 22,
-    ping_ok_event = 23,
-    error_event = 24,
-    exception_event = 25,
-    command_invalid_event = 26,
-    other_event = 27
+    get_height_event = 13,
+    destructor_event = 14,
+    blocks_ok_event = 15,
+    get_ok_event = 16,
+    put_ok_event = 17,
+    save_ok_event = 18,
+    start_ok_event = 19,
+    stop_ok_event = 20,
+    output_indexes_ok_event = 21,
+    random_outs_ok_event = 22,
+    get_height_ok_event = 23,
+    close_ok_event = 24,
+    ping_ok_event = 25,
+    error_event = 26,
+    exception_event = 27,
+    command_invalid_event = 28,
+    other_event = 29
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -84,6 +87,7 @@ s_state_name [] = {
     "expect stop ok",
     "expect output indexes ok",
     "expect random outs ok",
+    "expect get height ok",
     "expect close ok",
     "defaults",
     "have error",
@@ -105,6 +109,7 @@ s_event_name [] = {
     "STOP",
     "OUTPUT_INDEXES",
     "RANDOM_OUTS",
+    "GET_HEIGHT",
     "destructor",
     "BLOCKS_OK",
     "GET_OK",
@@ -114,6 +119,7 @@ s_event_name [] = {
     "STOP_OK",
     "OUTPUT_INDEXES_OK",
     "RANDOM_OUTS_OK",
+    "GET_HEIGHT_OK",
     "CLOSE_OK",
     "PING_OK",
     "ERROR",
@@ -139,7 +145,7 @@ struct _client_args_t {
     zchunk_t *tx_id;
     uint64_t outs_count;
     zframe_t *amounts;
-    char *address;
+    zchunk_t *address;
     uint64_t thread_count;
 };
 
@@ -225,6 +231,8 @@ static void
 static void
     signal_have_random_outs_ok (client_t *self);
 static void
+    signal_have_get_height_ok (client_t *self);
+static void
     signal_failure (client_t *self);
 static void
     check_status_code (client_t *self);
@@ -283,7 +291,7 @@ s_client_destroy (s_client_t **self_p)
         zchunk_destroy (&self->args.tx_as_hex);
         zchunk_destroy (&self->args.tx_id);
         zframe_destroy (&self->args.amounts);
-        zstr_free (&self->args.address);
+        zchunk_destroy (&self->args.address);
         client_terminate (&self->client);
         wap_proto_destroy (&self->message);
         zsock_destroy (&self->msgpipe);
@@ -442,6 +450,12 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
             break;
         case WAP_PROTO_RANDOM_OUTS_OK:
             return random_outs_ok_event;
+            break;
+        case WAP_PROTO_GET_HEIGHT:
+            return get_height_event;
+            break;
+        case WAP_PROTO_GET_HEIGHT_OK:
+            return get_height_ok_event;
             break;
         case WAP_PROTO_GET:
             return get_event;
@@ -763,6 +777,18 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = expect_random_outs_ok_state;
+                }
+                else
+                if (self->event == get_height_event) {
+                    if (!self->exception) {
+                        //  send GET_HEIGHT
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ send GET_HEIGHT");
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_HEIGHT);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_height_ok_state;
                 }
                 else
                 if (self->event == destructor_event) {
@@ -1186,6 +1212,51 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 break;
 
+            case expect_get_height_ok_state:
+                if (self->event == get_height_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get height ok
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ signal have get height ok");
+                        signal_have_get_height_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ check status code");
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
+                }
+                else {
+                    //  Handle unexpected protocol events
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ *");
+                }
+                break;
+
             case expect_close_ok_state:
                 if (self->event == close_ok_event) {
                     if (!self->exception) {
@@ -1472,9 +1543,13 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         s_client_execute (self, random_outs_event);
     }
     else
+    if (streq (method, "GET HEIGHT")) {
+        s_client_execute (self, get_height_event);
+    }
+    else
     if (streq (method, "START")) {
-        zstr_free (&self->args.address);
-        zsock_recv (self->cmdpipe, "s8", &self->args.address, &self->args.thread_count);
+        zchunk_destroy (&self->args.address);
+        zsock_recv (self->cmdpipe, "p8", &self->args.address, &self->args.thread_count);
         s_client_execute (self, start_event);
     }
     else
@@ -1601,6 +1676,7 @@ struct _wap_client_t {
     zchunk_t *tx_data;          //  Returned by actor reply
     zframe_t *o_indexes;        //  Returned by actor reply
     zframe_t *random_outputs;   //  Returned by actor reply
+    uint64_t height;            //  Returned by actor reply
 };
 
 
@@ -1695,10 +1771,10 @@ bool
 wap_client_connected (wap_client_t *self)
 {
     assert (self);
-    bool connected;
+    int connected;
     zsock_send (self->actor, "s", "$CONNECTED");
     zsock_recv (self->actor, "i", &connected);
-    return connected;
+    return (bool) connected;
 }
 
 
@@ -1757,6 +1833,10 @@ s_accept_reply (wap_client_t *self, ...)
                 if (streq (reply, "RANDOM OUTS OK")) {
                     zframe_destroy (&self->random_outputs);
                     zsock_recv (self->actor, "8p", &self->status, &self->random_outputs);
+                }
+                else
+                if (streq (reply, "GET HEIGHT OK")) {
+                    zsock_recv (self->actor, "88", &self->status, &self->height);
                 }
                 else
                 if (streq (reply, "START OK")) {
@@ -1919,15 +1999,32 @@ wap_client_random_outs (wap_client_t *self, uint64_t outs_count, zframe_t **amou
 
 
 //  ---------------------------------------------------------------------------
+//  Ask for height.                                                                 
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_height (wap_client_t *self)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s", "GET HEIGHT");
+    if (s_accept_reply (self, "GET HEIGHT OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_start (wap_client_t *self, const char *address, uint64_t thread_count)
+wap_client_start (wap_client_t *self, zchunk_t **address_p, uint64_t thread_count)
 {
     assert (self);
 
-    zsock_send (self->actor, "ss8", "START", address, thread_count);
+    zsock_send (self->actor, "sp8", "START", *address_p, thread_count);
+    *address_p = NULL;          //  Take ownership of address
     if (s_accept_reply (self, "START OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
@@ -2035,4 +2132,15 @@ wap_client_random_outputs (wap_client_t *self)
 {
     assert (self);
     return self->random_outputs;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received height
+
+uint64_t 
+wap_client_height (wap_client_t *self)
+{
+    assert (self);
+    return self->height;
 }

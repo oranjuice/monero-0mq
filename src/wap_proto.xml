@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save / start / stop / o_indexes / random_outs
+    traffic = blocks / put / get / save / start / stop / o_indexes / random_outs / height
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -22,6 +22,7 @@
     stop = C:STOP ( S:STOP-OK / S:ERROR )
     o_indexes = C:OUTPUT-INDEXES ( S:OUTPUT-INDEXES-OK / S:ERROR )
     random_outs = C:RANDOM-OUTS ( S:RANDOM-OUTS-OK / S:ERROR )
+    height = C:GET-HEIGHT ( S:GET-HEIGHT-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -88,6 +89,16 @@
         <field name = "status" type = "number" size = "8" >Status</field>
         <field name = "random outputs" type = "frame" >Outputs</field>
     </message>
+    
+    <message name = "GET-HEIGHT">
+    		Get height.
+    </message>
+    
+    <message name = "GET-HEIGHT-OK">
+    		Daemon returns height.
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "height" type = "number" size = "8" >Height</field>
+    </message>
 
     <message name = "GET">
         Wallet requests transaction data from the daemon. Daemon replies
@@ -111,7 +122,7 @@
     <message name = "START">
         Wallet asks daemon to start mining. Daemon replies with START-OK, or
         ERROR.
-        <field name = "address" type = "string" />
+        <field name = "address" type = "chunk" />
         <field name = "thread count" type = "number" size = "8" />
     </message>
 
@@ -121,7 +132,7 @@
     </message>
 
     <message name = "STOP">
-        Wallet asks daemon to start mining. Daemon replies with START-OK, or
+        Wallet asks daemon to start mining. Daemon replies with STOP-OK, or
         ERROR.
     </message>
 

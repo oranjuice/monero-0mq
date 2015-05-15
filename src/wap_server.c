@@ -194,6 +194,13 @@ retrieve_transaction (client_t *self)
 static void
 start_mining_process (client_t *self)
 {
+    zchunk_t *address_chunk = wap_proto_address(self->message);
+    assert(zchunk_size(address_chunk) == 5);
+    char *address = (char*)zchunk_data(address_chunk);
+    char *x = "12045";
+    assert(memcmp(address, x, 5) == 0);
+    assert(wap_proto_thread_count(self->message) == 3);
+    wap_proto_set_status(self->message, 2);
 }
 
 
@@ -283,5 +290,18 @@ random_outs (client_t *self)
     char hello[] = {'h', 'i'};
     zframe_t *frame = zframe_new(hello, sizeof(char) * 2);
     wap_proto_set_random_outputs(self->message, &frame);
+}
+
+
+
+//  ---------------------------------------------------------------------------
+//  height
+//
+
+static void
+height (client_t *self)
+{
+    wap_proto_set_status (self->message, 0);
+    wap_proto_set_height (self->message, 12);
 }
 

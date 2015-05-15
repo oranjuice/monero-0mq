@@ -161,7 +161,7 @@ signal_have_blocks_ok (client_t *self)
 static void
 prepare_start_command (client_t *self)
 {
-    wap_proto_set_address (self->message, self->args->address);
+    wap_proto_set_address (self->message, &self->args->address);
     wap_proto_set_thread_count (self->message, self->args->thread_count);
 }
 
@@ -208,6 +208,17 @@ signal_have_get_ok (client_t *self)
 {
     zsock_send (self->cmdpipe, "sip", "GET OK", 0, 
                 wap_proto_get_tx_data (self->message));
+}
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_height_ok
+//
+
+static void
+signal_have_get_height_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "si8", "GET HEIGHT OK", 0, 
+                wap_proto_height (self->message));
 }
 
 

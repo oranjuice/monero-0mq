@@ -65,6 +65,11 @@ int main (int argc, char *argv [])
     for (int i = 0; i < size; i++) {
     	printf("Output index: %d\n", (int)o_indexes_array[i]);
     }
+    
+    zchunk_t *address = zchunk_new("12045", 5);
+    rc = wap_client_start(client, &address, 3);
+    
+    assert(wap_client_status(client) == 2);
 
     zlist_t *list = zlist_new();
     rc = wap_client_blocks(client, &list, 3);
@@ -83,6 +88,9 @@ int main (int argc, char *argv [])
 
     zchunk_t *tx_as_hex = zchunk_new("12045", 5);
     wap_client_put (client, &tx_as_hex);
+    
+    rc = wap_client_get_height(client);
+    assert(wap_client_height(client) == 12);
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

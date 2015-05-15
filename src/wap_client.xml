@@ -66,6 +66,9 @@
             <action name = "prepare get random outs command" />
             <action name = "send" message = "RANDOM OUTS" />
         </event>
+        <event name = "get height" next = "expect get height ok">
+            <action name = "send" message = "GET HEIGHT" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -120,6 +123,12 @@
     <state name = "expect random outs ok" inherit = "defaults">
         <event name = "RANDOM OUTS OK" next = "connected">
             <action name = "signal have random outs ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get height ok" inherit = "defaults">
+        <event name = "GET HEIGHT OK" next = "connected">
+            <action name = "signal have get height ok" />
         </event>
     </state>
 
@@ -266,10 +275,21 @@
         <field name = "status" type = "number" size = "8" >Status</field>
         <field name = "random outputs" type = "frame" >Outputs</field>
     </reply>
+    
+    <method name = "get height" return = "status">
+        Ask for height.
+        <accept reply = "GET HEIGHT OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET HEIGHT OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "height" type = "number" size = "8" >Height</field>
+    </reply>
 
     <method name = "start" return = "status">
     Send start command to server.
-        <field name = "address" type = "string" />
+        <field name = "address" type = "chunk" />
         <field name = "thread count" type = "number" size = "8" />
         <accept reply = "START OK" />
         <accept reply = "FAILURE" />
