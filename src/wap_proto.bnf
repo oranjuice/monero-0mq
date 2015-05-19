@@ -4,12 +4,12 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save / start / stop / o_indexes / random_outs / height
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
     get = C:GET ( S:GET-OK / S:ERROR )
-    save = C:SAVE ( S:SAVE-OK / S:ERROR )
+    save_bc = C:SAVE-BC ( S:SAVE-BC-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
     stop = C:STOP ( S:STOP-OK / S:ERROR )
     o_indexes = C:OUTPUT-INDEXES ( S:OUTPUT-INDEXES-OK / S:ERROR )
@@ -104,11 +104,12 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  save_bc command. Details tbd.                                         
 
-    SAVE            = signature %d15
+    SAVE-BC         = signature %d15
 
     ;  Daemon replies to a save_bc command.                                  
 
-    SAVE-OK         = signature %d16
+    SAVE-BC-OK      = signature %d16 status
+    status          = number-8              ; Status
 
     ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
     ;  ERROR.                                                                

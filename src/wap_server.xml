@@ -36,8 +36,9 @@
             <action name = "retrieve transaction" />
             <action name = "send" message = "GET OK" />
         </event>
-        <event name = "SAVE">
-            <action name = "send" message = "SAVE OK" />
+        <event name = "SAVE BC">
+        		<action name = "save bc" />
+            <action name = "send" message = "SAVE BC OK" />
         </event>
         <event name = "START">
             <action name = "start mining process" />
@@ -103,3 +104,4 @@
         </event>
     </state>
 </class>
+

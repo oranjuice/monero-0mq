@@ -436,10 +436,11 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             }
             break;
 
-        case WAP_PROTO_SAVE:
+        case WAP_PROTO_SAVE_BC:
             break;
 
-        case WAP_PROTO_SAVE_OK:
+        case WAP_PROTO_SAVE_BC_OK:
+            GET_NUMBER8 (self->status);
             break;
 
         case WAP_PROTO_START:
@@ -572,6 +573,9 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             if (self->tx_data)
                 frame_size += zchunk_size (self->tx_data);
             break;
+        case WAP_PROTO_SAVE_BC_OK:
+            frame_size += 8;            //  status
+            break;
         case WAP_PROTO_START:
             frame_size += 4;            //  Size is 4 octets
             if (self->address)
@@ -694,6 +698,10 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             }
             else
                 PUT_NUMBER4 (0);    //  Empty chunk
+            break;
+
+        case WAP_PROTO_SAVE_BC_OK:
+            PUT_NUMBER8 (self->status);
             break;
 
         case WAP_PROTO_START:
@@ -871,12 +879,13 @@ wap_proto_print (wap_proto_t *self)
             zsys_debug ("    tx_data=[ ... ]");
             break;
 
-        case WAP_PROTO_SAVE:
-            zsys_debug ("WAP_PROTO_SAVE:");
+        case WAP_PROTO_SAVE_BC:
+            zsys_debug ("WAP_PROTO_SAVE_BC:");
             break;
 
-        case WAP_PROTO_SAVE_OK:
-            zsys_debug ("WAP_PROTO_SAVE_OK:");
+        case WAP_PROTO_SAVE_BC_OK:
+            zsys_debug ("WAP_PROTO_SAVE_BC_OK:");
+            zsys_debug ("    status=%ld", (long) self->status);
             break;
 
         case WAP_PROTO_START:
@@ -1009,11 +1018,11 @@ wap_proto_command (wap_proto_t *self)
         case WAP_PROTO_GET_OK:
             return ("GET_OK");
             break;
-        case WAP_PROTO_SAVE:
-            return ("SAVE");
+        case WAP_PROTO_SAVE_BC:
+            return ("SAVE_BC");
             break;
-        case WAP_PROTO_SAVE_OK:
-            return ("SAVE_OK");
+        case WAP_PROTO_SAVE_BC_OK:
+            return ("SAVE_BC_OK");
             break;
         case WAP_PROTO_START:
             return ("START");
@@ -1738,7 +1747,7 @@ wap_proto_test (bool verbose)
         assert (memcmp (zchunk_data (wap_proto_tx_data (self)), "Captcha Diem", 12) == 0);
         zchunk_destroy (&get_ok_tx_data);
     }
-    wap_proto_set_id (self, WAP_PROTO_SAVE);
+    wap_proto_set_id (self, WAP_PROTO_SAVE_BC);
 
     //  Send twice
     wap_proto_send (self, output);
@@ -1748,8 +1757,9 @@ wap_proto_test (bool verbose)
         wap_proto_recv (self, input);
         assert (wap_proto_routing_id (self));
     }
-    wap_proto_set_id (self, WAP_PROTO_SAVE_OK);
+    wap_proto_set_id (self, WAP_PROTO_SAVE_BC_OK);
 
+    wap_proto_set_status (self, 123);
     //  Send twice
     wap_proto_send (self, output);
     wap_proto_send (self, output);
@@ -1757,6 +1767,7 @@ wap_proto_test (bool verbose)
     for (instance = 0; instance < 2; instance++) {
         wap_proto_recv (self, input);
         assert (wap_proto_routing_id (self));
+        assert (wap_proto_status (self) == 123);
     }
     wap_proto_set_id (self, WAP_PROTO_START);
 

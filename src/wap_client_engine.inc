@@ -27,7 +27,7 @@ typedef enum {
     expect_blocks_ok_state = 4,
     expect_get_ok_state = 5,
     expect_put_ok_state = 6,
-    expect_save_ok_state = 7,
+    expect_save_bc_ok_state = 7,
     expect_start_ok_state = 8,
     expect_stop_ok_state = 9,
     expect_output_indexes_ok_state = 10,
@@ -48,7 +48,7 @@ typedef enum {
     blocks_event = 5,
     get_event = 6,
     put_event = 7,
-    save_event = 8,
+    save_bc_event = 8,
     start_event = 9,
     stop_event = 10,
     output_indexes_event = 11,
@@ -58,7 +58,7 @@ typedef enum {
     blocks_ok_event = 15,
     get_ok_event = 16,
     put_ok_event = 17,
-    save_ok_event = 18,
+    save_bc_ok_event = 18,
     start_ok_event = 19,
     stop_ok_event = 20,
     output_indexes_ok_event = 21,
@@ -82,7 +82,7 @@ s_state_name [] = {
     "expect blocks ok",
     "expect get ok",
     "expect put ok",
-    "expect save ok",
+    "expect save bc ok",
     "expect start ok",
     "expect stop ok",
     "expect output indexes ok",
@@ -104,7 +104,7 @@ s_event_name [] = {
     "BLOCKS",
     "GET",
     "PUT",
-    "SAVE",
+    "SAVE_BC",
     "START",
     "STOP",
     "OUTPUT_INDEXES",
@@ -114,7 +114,7 @@ s_event_name [] = {
     "BLOCKS_OK",
     "GET_OK",
     "PUT_OK",
-    "SAVE_OK",
+    "SAVE_BC_OK",
     "START_OK",
     "STOP_OK",
     "OUTPUT_INDEXES_OK",
@@ -205,8 +205,6 @@ static void
 static void
     prepare_put_command (client_t *self);
 static void
-    prepare_save_command (client_t *self);
-static void
     prepare_start_command (client_t *self);
 static void
     prepare_get_output_indexes_command (client_t *self);
@@ -221,7 +219,7 @@ static void
 static void
     signal_have_put_ok (client_t *self);
 static void
-    signal_have_save_ok (client_t *self);
+    signal_have_save_bc_ok (client_t *self);
 static void
     signal_have_start_ok (client_t *self);
 static void
@@ -463,11 +461,11 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
         case WAP_PROTO_GET_OK:
             return get_ok_event;
             break;
-        case WAP_PROTO_SAVE:
-            return save_event;
+        case WAP_PROTO_SAVE_BC:
+            return save_bc_event;
             break;
-        case WAP_PROTO_SAVE_OK:
-            return save_ok_event;
+        case WAP_PROTO_SAVE_BC_OK:
+            return save_bc_ok_event;
             break;
         case WAP_PROTO_START:
             return start_event;
@@ -695,22 +693,16 @@ s_client_execute (s_client_t *self, event_t event)
                         self->state = expect_put_ok_state;
                 }
                 else
-                if (self->event == save_event) {
+                if (self->event == save_bc_event) {
                     if (!self->exception) {
-                        //  prepare save command
+                        //  send SAVE_BC
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare save command");
-                        prepare_save_command (&self->client);
-                    }
-                    if (!self->exception) {
-                        //  send SAVE
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send SAVE");
-                        wap_proto_set_id (self->message, WAP_PROTO_SAVE);
+                            zsys_debug ("wap_client:            $ send SAVE_BC");
+                        wap_proto_set_id (self->message, WAP_PROTO_SAVE_BC);
                         wap_proto_send (self->message, self->dealer);
                     }
                     if (!self->exception)
-                        self->state = expect_save_ok_state;
+                        self->state = expect_save_bc_ok_state;
                 }
                 else
                 if (self->event == start_event) {
@@ -987,13 +979,13 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 break;
 
-            case expect_save_ok_state:
-                if (self->event == save_ok_event) {
+            case expect_save_bc_ok_state:
+                if (self->event == save_bc_ok_event) {
                     if (!self->exception) {
-                        //  signal have save ok
+                        //  signal have save bc ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have save ok");
-                        signal_have_save_ok (&self->client);
+                            zsys_debug ("wap_client:            $ signal have save bc ok");
+                        signal_have_save_bc_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -1527,8 +1519,8 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         s_client_execute (self, get_event);
     }
     else
-    if (streq (method, "SAVE")) {
-        s_client_execute (self, save_event);
+    if (streq (method, "SAVE BC")) {
+        s_client_execute (self, save_bc_event);
     }
     else
     if (streq (method, "OUTPUT INDEXES")) {
@@ -1821,8 +1813,8 @@ s_accept_reply (wap_client_t *self, ...)
                     zsock_recv (self->actor, "ip", &self->status, &self->tx_data);
                 }
                 else
-                if (streq (reply, "SAVE OK")) {
-                    zsock_recv (self->actor, "i", &self->status);
+                if (streq (reply, "SAVE BC OK")) {
+                    zsock_recv (self->actor, "8", &self->status);
                 }
                 else
                 if (streq (reply, "OUTPUT INDEXES OK")) {
@@ -1953,12 +1945,12 @@ wap_client_get (wap_client_t *self, zchunk_t **tx_id_p)
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_save (wap_client_t *self)
+wap_client_save_bc (wap_client_t *self)
 {
     assert (self);
 
-    zsock_send (self->actor, "s", "SAVE");
-    if (s_accept_reply (self, "SAVE OK", "FAILURE", NULL))
+    zsock_send (self->actor, "s", "SAVE BC");
+    if (s_accept_reply (self, "SAVE BC OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }

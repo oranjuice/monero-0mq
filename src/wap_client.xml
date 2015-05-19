@@ -47,9 +47,8 @@
             <action name = "prepare put command" />
             <action name = "send" message = "PUT" />
         </event>
-        <event name = "save" next = "expect save ok">
-            <action name = "prepare save command" />
-            <action name = "send" message = "SAVE" />
+        <event name = "save bc" next = "expect save bc ok">
+            <action name = "send" message = "SAVE BC" />
         </event>
         <event name = "start" next = "expect start ok">
             <action name = "prepare start command" />
@@ -96,9 +95,9 @@
         </event>
     </state>
 
-    <state name = "expect save ok" inherit = "defaults">
-        <event name = "SAVE OK" next = "connected">
-            <action name = "signal have save ok" />
+    <state name = "expect save bc ok" inherit = "defaults">
+        <event name = "SAVE BC OK" next = "connected">
+            <action name = "signal have save bc ok" />
         </event>
     </state>
 
@@ -241,14 +240,14 @@
         <field name = "tx data" type = "chunk" />
     </reply>
 
-    <method name = "save" return = "status">
+    <method name = "save bc" return = "status">
     Request a set of blocks from the server.
-        <accept reply = "SAVE OK" />
+        <accept reply = "SAVE BC OK" />
         <accept reply = "FAILURE" />
     </method>
 
-    <reply name = "SAVE OK">
-        <field name = "status" type = "integer" />
+    <reply name = "SAVE BC OK">
+        <field name = "status" type = "number" size = "8" />
     </reply>
 
 		<method name = "output indexes" return = "status">
@@ -310,3 +309,4 @@
     </reply>
     
 </class>
+

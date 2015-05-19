@@ -85,7 +85,7 @@ WAP_EXPORT int
 //  Request a set of blocks from the server.                                        
 //  Returns >= 0 if successful, -1 if interrupted.
 WAP_EXPORT int 
-    wap_client_save (wap_client_t *self);
+    wap_client_save_bc (wap_client_t *self);
 
 //  Ask for tx output indexes.                                                      
 //  Returns >= 0 if successful, -1 if interrupted.

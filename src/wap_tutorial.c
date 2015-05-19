@@ -91,6 +91,10 @@ int main (int argc, char *argv [])
     
     rc = wap_client_get_height(client);
     assert(wap_client_height(client) == 12);
+    
+    rc = wap_client_save_bc(client);
+    assert(wap_client_status(client) == 34);
+    
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

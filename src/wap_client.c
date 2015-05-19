@@ -223,24 +223,13 @@ signal_have_get_height_ok (client_t *self)
 
 
 //  ---------------------------------------------------------------------------
-//  prepare_save_command
-//
-
-static void
-prepare_save_command (client_t *self)
-{
-}
-
-
-
-//  ---------------------------------------------------------------------------
 //  signal_have_save_ok
 //
 
 static void
-signal_have_save_ok (client_t *self)
+signal_have_save_bc_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "si", "SAVE OK", 0);
+    zsock_send (self->cmdpipe, "s8", "SAVE BC OK", wap_proto_status(self->message));
 }
 
 
@@ -387,3 +376,4 @@ signal_have_random_outs_ok (client_t *self)
         wap_proto_status (self->message),
         wap_proto_get_random_outputs (self->message));
 }
+

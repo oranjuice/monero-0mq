@@ -34,7 +34,7 @@ typedef enum {
     blocks_event = 3,
     put_event = 4,
     get_event = 5,
-    save_event = 6,
+    save_bc_event = 6,
     start_event = 7,
     stop_event = 8,
     output_indexes_event = 9,
@@ -65,7 +65,7 @@ s_event_name [] = {
     "BLOCKS",
     "PUT",
     "GET",
-    "SAVE",
+    "SAVE_BC",
     "START",
     "STOP",
     "OUTPUT_INDEXES",
@@ -146,6 +146,8 @@ static void
     send_transaction (client_t *self);
 static void
     retrieve_transaction (client_t *self);
+static void
+    save_bc (client_t *self);
 static void
     start_mining_process (client_t *self);
 static void
@@ -361,8 +363,8 @@ s_protocol_event (wap_proto_t *message)
         case WAP_PROTO_GET:
             return get_event;
             break;
-        case WAP_PROTO_SAVE:
-            return save_event;
+        case WAP_PROTO_SAVE_BC:
+            return save_bc_event;
             break;
         case WAP_PROTO_START:
             return start_event;
@@ -639,13 +641,19 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                 }
                 else
-                if (self->event == save_event) {
+                if (self->event == save_bc_event) {
                     if (!self->exception) {
-                        //  send SAVE_OK
+                        //  save bc
                         if (self->server->verbose)
-                            zsys_debug ("%s:         $ send SAVE_OK",
+                            zsys_debug ("%s:         $ save bc", self->log_prefix);
+                        save_bc (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send SAVE_BC_OK
+                        if (self->server->verbose)
+                            zsys_debug ("%s:         $ send SAVE_BC_OK",
                                 self->log_prefix);
-                        wap_proto_set_id (self->server->message, WAP_PROTO_SAVE_OK);
+                        wap_proto_set_id (self->server->message, WAP_PROTO_SAVE_BC_OK);
                         wap_proto_set_routing_id (self->server->message, self->routing_id);
                         wap_proto_send (self->server->message, self->server->router);
                     }

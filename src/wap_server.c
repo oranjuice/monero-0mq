@@ -305,3 +305,13 @@ height (client_t *self)
     wap_proto_set_height (self->message, 12);
 }
 
+//  ---------------------------------------------------------------------------
+//  save_bc
+//
+
+static void
+save_bc (client_t *self)
+{
+    wap_proto_set_status(self->message, 34);
+}
+

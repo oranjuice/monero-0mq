@@ -76,9 +76,10 @@ with GET-OK, or ERROR.
     GET_OK - Daemon replies with transaction data.
         tx_data             chunk       Transaction data
 
-    SAVE - save_bc command. Details tbd.
+    SAVE_BC - save_bc command. Details tbd.
 
-    SAVE_OK - Daemon replies to a save_bc command.
+    SAVE_BC_OK - Daemon replies to a save_bc command.
+        status              number 8    Status
 
     START - Wallet asks daemon to start mining. Daemon replies with START-OK, or
 ERROR.
@@ -133,8 +134,8 @@ Daemon will reply with CLOSE-OK or ERROR.
 #define WAP_PROTO_GET_HEIGHT_OK             12
 #define WAP_PROTO_GET                       13
 #define WAP_PROTO_GET_OK                    14
-#define WAP_PROTO_SAVE                      15
-#define WAP_PROTO_SAVE_OK                   16
+#define WAP_PROTO_SAVE_BC                   15
+#define WAP_PROTO_SAVE_BC_OK                16
 #define WAP_PROTO_START                     17
 #define WAP_PROTO_START_OK                  18
 #define WAP_PROTO_STOP                      19
