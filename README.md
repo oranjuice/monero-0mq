@@ -29,7 +29,7 @@ This repository isn't concerned with what goes into requests, responses and how 
 The most typical use case of this library would be to add a new method as part of a protocol between the client an d the server.
 Here are the steps to do this:
 
-1. The first step is to identify the format of the request and response objects. This goes into the protocol.
+* The first step is to identify the format of the request and response objects. This goes into the protocol.
 
 `src/wap_proto.xml` defines the protocol.
 There is an element in it called `<grammar>` that defines a grammar for the types of messages being passed around.
@@ -72,7 +72,7 @@ It's also necessary to write the formats for these messages. For example,
 
 the above elements define the formats of the `get_info` request and response messages.
 
-2. As explained, the client and server behaviour is expressed as a state machine. To incorporate our new method into the client, we need to define some extra states and actions.
+* As explained, the client and server behaviour is expressed as a state machine. To incorporate our new method into the client, we need to define some extra states and actions.
 
 `src/wap_client.xml` contains a state machine represented as XML. It's fairly self-explanatory.
 
@@ -124,7 +124,7 @@ In the same file, there is a helpful method API defined. For `get_info` it has
     
 While this seems a bit redundant, it is still necessary. Care must be taken to ensure that this matches exactly with the protocol in `src/wap_proto.xml`. (see https://github.com/oranjuice/monero-0mq/pull/4#discussion_r22440741)
 
-3. When the client sends a request, various fields have to be picked and packed into a 0MQ object as per the protocol.
+* When the client sends a request, various fields have to be picked and packed into a 0MQ object as per the protocol.
 
 In our example, the action `prepare get info command` is for this.
 What the system does is call a C function called `prepare_get_info_command` in `src/wap_client.c`. `prepare_get_info_command` doesn't really have to do anything (because the request has no fields). For the prupose of an example, a similar one would be
@@ -136,7 +136,7 @@ What the system does is call a C function called `prepare_get_info_command` in `
         wap_proto_set_tx_id (self->message, &self->args->tx_id);
     }
 
-4. Now when the response arrives, the response object must be again passed up the protocol layer as per the protocol. In other words, the required fields have to be picked and sent across to a higher layer.
+* Now when the response arrives, the response object must be again passed up the protocol layer as per the protocol. In other words, the required fields have to be picked and sent across to a higher layer.
 
 For example,
 
@@ -161,9 +161,69 @@ picks all the `get_info` response fields.
 
 Note the string "s88888888888". It is a string containing "picture"s each one describing the type of the field. See http://api.zeromq.org/czmq3-0:zsock.
 
-5. Coming...
+* Now let's look at the server side of all that we discussed. The server is again a state machine. When the server is in "connected" state, for our example, there should be an event for "get_info".
+Here it is:
+    <state name = "connected" inherit = "defaults">
+        ...
+        <event name = "GET INFO">
+            <action name = "getinfo" />
+            <action name = "send" message = "GET INFO OK" />
+        </event>
+        ...
+    </state>
 
-## Building the Library
+The first action is where the server is the populate the 0MQ object with respose fields. In this example, a C function called `getinfo` gets called in `src/wap_server.c`.
+
+`getinfo` can be for example written like so:
+
+    static void
+    getinfo (client_t *self)
+    {
+        // Set the fields as integers from 0 through 10
+        wap_proto_set_status(self->message, 0);
+        wap_proto_set_height(self->message, 1);
+        wap_proto_set_target_height(self->message, 2);
+        wap_proto_set_difficulty(self->message, 3);
+        wap_proto_set_tx_count(self->message, 4);
+        wap_proto_set_tx_pool_size(self->message, 5);
+        wap_proto_set_alt_blocks_count(self->message, 6);
+        wap_proto_set_outgoing_connections_count(self->message, 7);
+        wap_proto_set_incoming_connections_count(self->message, 8);
+        wap_proto_set_white_peerlist_size(self->message, 9);
+        wap_proto_set_grey_peerlist_size(self->message, 10);
+    }
+
+## Code generation artifacts
+
+After the xml files are edited,
+
+    make code
+
+uses `gsl` to generate C code for us.
+
+`src/wap_proto.xml` -> `src/wap_proto.c`
+`src/wap_server.xml` -> `src/wap_server_engine.inc` (NOT `src/wap_server.c`)
+`src/wap_client.xml` -> `src/wap_client_engine.inc` (NOT `src/wap_client.c`)
+
+These typcially have to be copied over to the other project as is after each iteration of protocol.
+
+## Testing in this repository
+
+Oftentimes, it is a good idea to put dummy tests in this very repository to check if things are tightly knit and connected. A very trivial way of checking this is to do a simple end-to-end test checking the correctness of every field with `assert`ions. When the code is moved to the actual project that uses the library, these trivial checks can be replaced with actual code that sends real requests and responses.
+
+    make check
+
+builds `src/wap_tutorial.c` which contains a bunch of these trivial tests. Putting all this in `wap_tutorial` is probably not a very idea for a long term purpose, but it contains a complete illustration of how the whole library is to be used and also as an end-to-end test.
+
+Note: `wap_tutorial` creates both server and client in the same process for illustration.
+
+## Integrating somewhere else
+
+Using this library somewhere else is simply a matter of compiling sources, including headers and linking.
+<a href="https://github.com/oranjuice/bitmonero/tree/77c6e85cbbced87c2c16073e4784934742231796/src/ipc">This</a> (and <a href="https://github.com/oranjuice/bitmonero/blob/77c6e85cbbced87c2c16073e4784934742231796/src/ipc/CMakeLists.txt">this</a>) should give a good idea of how it is done.
+The names of the files from this library have not been changed there.
+
+## Building and pre-requisites
 
 First build and install this stack:
 
@@ -182,12 +242,11 @@ Then build the monero-0MQ library:
 
     ./autogen.sh && ./configure && make check
 
-## Library Development
+after this, the above workflow can be adopted.
 
-The library does some meta programming, or "model oriented programming", using two ZeroMQ frameworks:
+Note: The library does some meta programming, or "model oriented programming", using two ZeroMQ frameworks:
 
     git://github.com/zeromq/zproject
     git://github.com/zeromq/zproto
     
 To do any development you'll need GSL (a code generator) which lives at git://github.com/imatix/gsl.
-
