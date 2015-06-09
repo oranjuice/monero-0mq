@@ -18,6 +18,34 @@ Writing and maintaining server and client code can be an unnecessarily complicat
 
 This library makes use of <a href="https://github.com/zeromq/zproto">zproto</a> for expressing client and server as state machine models. It generates code, so that we can declaratively aspects of the client, server and the protocol. It abstracts away a lot of internal messaging code that need not be touched during most times. This way, development of client and server communication code is much easier and efficient.
 
+## Building and pre-requisites
+
+First build and install this stack:
+
+    git clone git://github.com/zeromq/libzmq.git
+    cd libzmq
+    ./autogen.sh && ./configure && make -j 4 check
+    sudo make install && sudo ldconfig
+    cd ..
+    git clone git://github.com/zeromq/czmq.git
+    cd czmq
+    ./autogen.sh && ./configure && make -j 4 check
+    sudo make install && sudo ldconfig
+    cd ..
+
+Then build the monero-0MQ library:
+
+    ./autogen.sh && ./configure && make check
+
+after this, the below workflow can be adopted for any changes.
+
+Note: The library does some meta programming, or "model oriented programming", using two ZeroMQ frameworks:
+
+    git://github.com/zeromq/zproject
+    git://github.com/zeromq/zproto
+    
+To do any development you'll need GSL (a code generator) which lives at git://github.com/imatix/gsl.
+
 ## Broad workflow
 
 This repository serves to generate C code that can be used elsewhere (like bitmonero).
@@ -213,10 +241,12 @@ After the xml files are edited,
 uses `gsl` to generate C code for us.
 
 `src/wap_proto.xml` -> `src/wap_proto.c`
+
 `src/wap_server.xml` -> `src/wap_server_engine.inc` (NOT `src/wap_server.c`)
+
 `src/wap_client.xml` -> `src/wap_client_engine.inc` (NOT `src/wap_client.c`)
 
-These typcially have to be copied over to the other project as is after each iteration of protocol.
+These typcially have to be copied over to the other project as is after each iteration of protocol. There is no need to do this unless the XML files are edited and code generation is necessary.
 
 ## Testing in this repository
 
@@ -230,34 +260,6 @@ Note: `wap_tutorial` creates both server and client in the same process for illu
 
 ## Integrating somewhere else
 
-Using this library somewhere else is simply a matter of compiling sources, including headers and linking.
-<a href="https://github.com/oranjuice/bitmonero/tree/77c6e85cbbced87c2c16073e4784934742231796/src/ipc">This</a> (and <a href="https://github.com/oranjuice/bitmonero/blob/77c6e85cbbced87c2c16073e4784934742231796/src/ipc/CMakeLists.txt">this</a>) should give a good idea of how it is done.
+Using this library somewhere else is simply a matter of including headers, compiling sources and linking.
+<a href="https://github.com/oranjuice/bitmonero/tree/77c6e85cbbced87c2c16073e4784934742231796/src/ipc">This</a> (and <a href="https://github.com/oranjuice/bitmonero/blob/77c6e85cbbced87c2c16073e4784934742231796/src/ipc/CMakeLists.txt">this</a>) should give a good idea of how it is done. Note the separate compilation units for client and server and what goes into each one.
 The names of the files from this library have not been changed there.
-
-## Building and pre-requisites
-
-First build and install this stack:
-
-    git clone git://github.com/zeromq/libzmq.git
-    cd libzmq
-    ./autogen.sh && ./configure && make -j 4 check
-    sudo make install && sudo ldconfig
-    cd ..
-    git clone git://github.com/zeromq/czmq.git
-    cd czmq
-    ./autogen.sh && ./configure && make -j 4 check
-    sudo make install && sudo ldconfig
-    cd ..
-
-Then build the monero-0MQ library:
-
-    ./autogen.sh && ./configure && make check
-
-after this, the above workflow can be adopted.
-
-Note: The library does some meta programming, or "model oriented programming", using two ZeroMQ frameworks:
-
-    git://github.com/zeromq/zproject
-    git://github.com/zeromq/zproto
-    
-To do any development you'll need GSL (a code generator) which lives at git://github.com/imatix/gsl.
