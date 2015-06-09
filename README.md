@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a C library that is used by clients to the Monero daemon service. It consists of:
+This is a C library that is used by clients to connect to the Monero daemon service. It consists of:
 
 * a protocol layer, which encodes commands into binary frames that we can send using ZeroMQ.
 
@@ -16,13 +16,13 @@ The ZeroMQ pattern is ROUTER at the server side, and DEALER for each client.
 
 Writing and maintaining server and client code can be an unnecessarily complicated task without a proper system for it. This library hopes to alleviate that problem. Not to mention, 0MQ is a solid messaging framework that clearly has its place.
 
-This library makes use of <a href="https://github.com/zeromq/zproto">zproto</a> for expressing client and server as state machine models. It generates code, so that we can declaratively specify some of the aspects of the client, server and the protocol. It abstracts away a lot of internal messaging code that need not be touched during most times. This way, development of client and server communication code is much easier and efficient.
+This library makes use of <a href="https://github.com/zeromq/zproto">zproto</a> for expressing client and server as state machine models. It generates code, so that we can declaratively aspects of the client, server and the protocol. It abstracts away a lot of internal messaging code that need not be touched during most times. This way, development of client and server communication code is much easier and efficient.
 
 ## Broad workflow
 
 This repository serves to generate C code that can be used elsewhere (like bitmonero).
 The basic process of using it is to make changes here, generate code, copy the generated code over to the other project.
-This repository isn't concerned with what goes into requests, responses and how they are processed. It is just concerned with how they are "sent".
+This repository isn't concerned with what goes into requests, responses and how they are processed. It is just concerned with how they are "sent". The user of the library has to fill in and read requests and responses.
 
 ## Workflow
 
@@ -34,7 +34,7 @@ Here are the steps to do this:
 `src/wap_proto.xml` defines the protocol.
 There is an element in it called `<grammar>` that defines a grammar for the types of messages being passed around.
 
-The new type of message (for the new method) has to be added here.
+A new method imples new types of messages. The new type of message (for the new method) has to be added here.
 
 For example,
 
@@ -48,7 +48,8 @@ For example,
         close = C:CLOSE ( S:CLOSE-OK / S:ERROR )
     </grammar>
 
-for the above grammar, `blocks` and `info` are the two types of traffic allowed.
+for the above grammar, `blocks` and `info` are the two types of traffic allowed. Let's focus on `get_info` method for which `info` is the type of traffic.
+
 `info` is nothing but a `C:GET-INFO` (client request) followed by a `S:GET-INFO-OK` (server response) or a `S:ERROR` (error).
 
 It's also necessary to write the formats for these messages. For example,
@@ -88,7 +89,7 @@ For example,
         ...
     </state>
 
-makes the client go to the state `expect get info ok` when the request is made.
+makes the client go to the state `expect get info ok` when the request `get info` is made.
 
 Hence, there is also another state to handle the response:
 
@@ -122,7 +123,8 @@ In the same file, there is a helpful method API defined. For `get_info` it has
         <field name = "grey_peerlist_size" type = "number" size = "8" >Grey Peerlist Size</field>
     </reply>
     
-While this seems a bit redundant, it is still necessary. Care must be taken to ensure that this matches exactly with the protocol in `src/wap_proto.xml`. (see https://github.com/oranjuice/monero-0mq/pull/4#discussion_r22440741)
+While this seems a bit redundant, it is still necessary. (see https://github.com/oranjuice/monero-0mq/pull/4#discussion_r22440741)
+Care must be taken to ensure that this matches exactly with the protocol in `src/wap_proto.xml`. 
 
 * When the client sends a request, various fields have to be picked and packed into a 0MQ object as per the protocol.
 
@@ -161,7 +163,7 @@ picks all the `get_info` response fields.
 
 Note the string "s88888888888". It is a string containing "picture"s each one describing the type of the field. See http://api.zeromq.org/czmq3-0:zsock.
 
-* Now let's look at the server side of all that we discussed. The server is again a state machine. When the server is in "connected" state, for our example, there should be an event for "get_info".
+* Now let's look at the server side of all that we discussed. The server is again a state machine. When the server is in "connected" state, for our example, there should be an event for "get_info" request.
 Here it is:
     <state name = "connected" inherit = "defaults">
         ...
@@ -192,6 +194,15 @@ The first action is where the server is the populate the 0MQ object with respose
         wap_proto_set_white_peerlist_size(self->message, 9);
         wap_proto_set_grey_peerlist_size(self->message, 10);
     }
+
+* This completes adding a new method. The rest is simply using it in actual code and building the project.
+`src/wap_tutorial` shows the basics of how to use the library in code.
+
+After an instance of `wap_client_t` is created, to make a request, the functions in `include/wap_client.h` have to be used. That file is generated from XML. To access fields from a response, again, the declarations are in `include/wap_client.h`.
+
+`include/wap_server.h` contains function declarations that help the server code get and set fields from objects.
+
+Note: Certain types of fields have two types of accessors: one that transfers ownership to the caller, and one that doesn't. For example `wap_proto_block_ids` doesn't transfer ownership, while `wap_proto_get_block_ids` does. It's safer to use `wap_proto_block_ids` and let the system deal with ownership. Segmentation faults have occured because of using the other option.
 
 ## Code generation artifacts
 
