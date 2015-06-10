@@ -191,6 +191,8 @@ picks all the `get_info` response fields.
 
 Note the string "s88888888888". It is a string containing "picture"s each one describing the type of the field. See http://api.zeromq.org/czmq3-0:zsock.
 
+Note: Certain types of fields (like frames) have two types of accessors: one that transfers ownership to the caller, and one that doesn't. For example `wap_proto_block_ids` doesn't transfer ownership, while `wap_proto_get_block_ids` does. `wap_proto_get_block_ids` has to be used here because the code here is passing the frame (or any other type) to the client API which destroys it. Hence it is necessary to claim ownership so that it is not destroyed in two places.
+
 * Now let's look at the server side of all that we discussed. The server is again a state machine. When the server is in "connected" state, for our example, there should be an event for "get_info" request.
 Here it is:
     <state name = "connected" inherit = "defaults">
@@ -229,8 +231,6 @@ The first action is where the server is the populate the 0MQ object with respose
 After an instance of `wap_client_t` is created, to make a request, the functions in `include/wap_client.h` have to be used. That file is generated from XML. To access fields from a response, again, the declarations are in `include/wap_client.h`.
 
 `include/wap_server.h` contains function declarations that help the server code get and set fields from objects.
-
-Note: Certain types of fields have two types of accessors: one that transfers ownership to the caller, and one that doesn't. For example `wap_proto_block_ids` doesn't transfer ownership, while `wap_proto_get_block_ids` does. It's safer to use `wap_proto_block_ids` and let the system deal with ownership. Segmentation faults have occured because of using the other option.
 
 ## Code generation artifacts
 
