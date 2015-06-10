@@ -50,6 +50,17 @@ struct _wap_proto_t {
     zchunk_t *tx_data;                  //  Transaction data
     zchunk_t *address;                  //  address
     uint64_t thread_count;              //  thread_count
+    uint64_t target_height;             //  Target Height
+    uint64_t difficulty;                //  Difficulty
+    uint64_t tx_count;                  //  TX Count
+    uint64_t tx_pool_size;              //  TX Pool Size
+    uint64_t alt_blocks_count;          //  Alt Blocks Count
+    uint64_t outgoing_connections_count;  //  Outgoing Connections Count
+    uint64_t incoming_connections_count;  //  Incoming Connections Count
+    uint64_t white_peerlist_size;       //  White Peerlist Size
+    uint64_t grey_peerlist_size;        //  Grey Peerlist Size
+    zframe_t *white_list;               //  White list
+    zframe_t *gray_list;                //  Gray list
     char reason [256];                  //  Printable explanation
 };
 
@@ -236,6 +247,8 @@ wap_proto_destroy (wap_proto_t **self_p)
         zframe_destroy (&self->random_outputs);
         zchunk_destroy (&self->tx_data);
         zchunk_destroy (&self->address);
+        zframe_destroy (&self->white_list);
+        zframe_destroy (&self->gray_list);
 
         //  Free object itself
         free (self);
@@ -462,6 +475,44 @@ wap_proto_recv (wap_proto_t *self, zsock_t *input)
             GET_NUMBER8 (self->status);
             break;
 
+        case WAP_PROTO_GET_INFO:
+            break;
+
+        case WAP_PROTO_GET_INFO_OK:
+            GET_NUMBER8 (self->status);
+            GET_NUMBER8 (self->height);
+            GET_NUMBER8 (self->target_height);
+            GET_NUMBER8 (self->difficulty);
+            GET_NUMBER8 (self->tx_count);
+            GET_NUMBER8 (self->tx_pool_size);
+            GET_NUMBER8 (self->alt_blocks_count);
+            GET_NUMBER8 (self->outgoing_connections_count);
+            GET_NUMBER8 (self->incoming_connections_count);
+            GET_NUMBER8 (self->white_peerlist_size);
+            GET_NUMBER8 (self->grey_peerlist_size);
+            break;
+
+        case WAP_PROTO_GET_PEER_LIST:
+            break;
+
+        case WAP_PROTO_GET_PEER_LIST_OK:
+            GET_NUMBER8 (self->status);
+            //  Get next frame off socket
+            if (!zsock_rcvmore (input)) {
+                zsys_warning ("wap_proto: white_list is missing");
+                goto malformed;
+            }
+            zframe_destroy (&self->white_list);
+            self->white_list = zframe_recv (input);
+            //  Get next frame off socket
+            if (!zsock_rcvmore (input)) {
+                zsys_warning ("wap_proto: gray_list is missing");
+                goto malformed;
+            }
+            zframe_destroy (&self->gray_list);
+            self->gray_list = zframe_recv (input);
+            break;
+
         case WAP_PROTO_STOP:
             break;
 
@@ -583,6 +634,22 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             frame_size += 8;            //  thread_count
             break;
         case WAP_PROTO_START_OK:
+            frame_size += 8;            //  status
+            break;
+        case WAP_PROTO_GET_INFO_OK:
+            frame_size += 8;            //  status
+            frame_size += 8;            //  height
+            frame_size += 8;            //  target_height
+            frame_size += 8;            //  difficulty
+            frame_size += 8;            //  tx_count
+            frame_size += 8;            //  tx_pool_size
+            frame_size += 8;            //  alt_blocks_count
+            frame_size += 8;            //  outgoing_connections_count
+            frame_size += 8;            //  incoming_connections_count
+            frame_size += 8;            //  white_peerlist_size
+            frame_size += 8;            //  grey_peerlist_size
+            break;
+        case WAP_PROTO_GET_PEER_LIST_OK:
             frame_size += 8;            //  status
             break;
         case WAP_PROTO_ERROR:
@@ -721,6 +788,26 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
             PUT_NUMBER8 (self->status);
             break;
 
+        case WAP_PROTO_GET_INFO_OK:
+            PUT_NUMBER8 (self->status);
+            PUT_NUMBER8 (self->height);
+            PUT_NUMBER8 (self->target_height);
+            PUT_NUMBER8 (self->difficulty);
+            PUT_NUMBER8 (self->tx_count);
+            PUT_NUMBER8 (self->tx_pool_size);
+            PUT_NUMBER8 (self->alt_blocks_count);
+            PUT_NUMBER8 (self->outgoing_connections_count);
+            PUT_NUMBER8 (self->incoming_connections_count);
+            PUT_NUMBER8 (self->white_peerlist_size);
+            PUT_NUMBER8 (self->grey_peerlist_size);
+            break;
+
+        case WAP_PROTO_GET_PEER_LIST_OK:
+            PUT_NUMBER8 (self->status);
+            nbr_frames++;
+            nbr_frames++;
+            break;
+
         case WAP_PROTO_ERROR:
             PUT_NUMBER2 (self->status);
             PUT_STRING (self->reason);
@@ -751,6 +838,19 @@ wap_proto_send (wap_proto_t *self, zsock_t *output)
         //  If random_outputs isn't set, send an empty frame
         if (self->random_outputs)
             zframe_send (&self->random_outputs, output, ZFRAME_REUSE + (--nbr_frames? ZFRAME_MORE: 0));
+        else
+            zmq_send (zsock_resolve (output), NULL, 0, (--nbr_frames? ZMQ_SNDMORE: 0));
+    }
+    //  Now send any frame fields, in order
+    if (self->id == WAP_PROTO_GET_PEER_LIST_OK) {
+        //  If white_list isn't set, send an empty frame
+        if (self->white_list)
+            zframe_send (&self->white_list, output, ZFRAME_REUSE + (--nbr_frames? ZFRAME_MORE: 0));
+        else
+            zmq_send (zsock_resolve (output), NULL, 0, (--nbr_frames? ZMQ_SNDMORE: 0));
+        //  If gray_list isn't set, send an empty frame
+        if (self->gray_list)
+            zframe_send (&self->gray_list, output, ZFRAME_REUSE + (--nbr_frames? ZFRAME_MORE: 0));
         else
             zmq_send (zsock_resolve (output), NULL, 0, (--nbr_frames? ZMQ_SNDMORE: 0));
     }
@@ -899,6 +999,44 @@ wap_proto_print (wap_proto_t *self)
             zsys_debug ("    status=%ld", (long) self->status);
             break;
 
+        case WAP_PROTO_GET_INFO:
+            zsys_debug ("WAP_PROTO_GET_INFO:");
+            break;
+
+        case WAP_PROTO_GET_INFO_OK:
+            zsys_debug ("WAP_PROTO_GET_INFO_OK:");
+            zsys_debug ("    status=%ld", (long) self->status);
+            zsys_debug ("    height=%ld", (long) self->height);
+            zsys_debug ("    target_height=%ld", (long) self->target_height);
+            zsys_debug ("    difficulty=%ld", (long) self->difficulty);
+            zsys_debug ("    tx_count=%ld", (long) self->tx_count);
+            zsys_debug ("    tx_pool_size=%ld", (long) self->tx_pool_size);
+            zsys_debug ("    alt_blocks_count=%ld", (long) self->alt_blocks_count);
+            zsys_debug ("    outgoing_connections_count=%ld", (long) self->outgoing_connections_count);
+            zsys_debug ("    incoming_connections_count=%ld", (long) self->incoming_connections_count);
+            zsys_debug ("    white_peerlist_size=%ld", (long) self->white_peerlist_size);
+            zsys_debug ("    grey_peerlist_size=%ld", (long) self->grey_peerlist_size);
+            break;
+
+        case WAP_PROTO_GET_PEER_LIST:
+            zsys_debug ("WAP_PROTO_GET_PEER_LIST:");
+            break;
+
+        case WAP_PROTO_GET_PEER_LIST_OK:
+            zsys_debug ("WAP_PROTO_GET_PEER_LIST_OK:");
+            zsys_debug ("    status=%ld", (long) self->status);
+            zsys_debug ("    white_list=");
+            if (self->white_list)
+                zframe_print (self->white_list, NULL);
+            else
+                zsys_debug ("(NULL)");
+            zsys_debug ("    gray_list=");
+            if (self->gray_list)
+                zframe_print (self->gray_list, NULL);
+            else
+                zsys_debug ("(NULL)");
+            break;
+
         case WAP_PROTO_STOP:
             zsys_debug ("WAP_PROTO_STOP:");
             break;
@@ -1029,6 +1167,18 @@ wap_proto_command (wap_proto_t *self)
             break;
         case WAP_PROTO_START_OK:
             return ("START_OK");
+            break;
+        case WAP_PROTO_GET_INFO:
+            return ("GET_INFO");
+            break;
+        case WAP_PROTO_GET_INFO_OK:
+            return ("GET_INFO_OK");
+            break;
+        case WAP_PROTO_GET_PEER_LIST:
+            return ("GET_PEER_LIST");
+            break;
+        case WAP_PROTO_GET_PEER_LIST_OK:
+            return ("GET_PEER_LIST_OK");
             break;
         case WAP_PROTO_STOP:
             return ("STOP");
@@ -1485,6 +1635,234 @@ wap_proto_set_thread_count (wap_proto_t *self, uint64_t thread_count)
 
 
 //  --------------------------------------------------------------------------
+//  Get/set the target_height field
+
+uint64_t
+wap_proto_target_height (wap_proto_t *self)
+{
+    assert (self);
+    return self->target_height;
+}
+
+void
+wap_proto_set_target_height (wap_proto_t *self, uint64_t target_height)
+{
+    assert (self);
+    self->target_height = target_height;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the difficulty field
+
+uint64_t
+wap_proto_difficulty (wap_proto_t *self)
+{
+    assert (self);
+    return self->difficulty;
+}
+
+void
+wap_proto_set_difficulty (wap_proto_t *self, uint64_t difficulty)
+{
+    assert (self);
+    self->difficulty = difficulty;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the tx_count field
+
+uint64_t
+wap_proto_tx_count (wap_proto_t *self)
+{
+    assert (self);
+    return self->tx_count;
+}
+
+void
+wap_proto_set_tx_count (wap_proto_t *self, uint64_t tx_count)
+{
+    assert (self);
+    self->tx_count = tx_count;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the tx_pool_size field
+
+uint64_t
+wap_proto_tx_pool_size (wap_proto_t *self)
+{
+    assert (self);
+    return self->tx_pool_size;
+}
+
+void
+wap_proto_set_tx_pool_size (wap_proto_t *self, uint64_t tx_pool_size)
+{
+    assert (self);
+    self->tx_pool_size = tx_pool_size;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the alt_blocks_count field
+
+uint64_t
+wap_proto_alt_blocks_count (wap_proto_t *self)
+{
+    assert (self);
+    return self->alt_blocks_count;
+}
+
+void
+wap_proto_set_alt_blocks_count (wap_proto_t *self, uint64_t alt_blocks_count)
+{
+    assert (self);
+    self->alt_blocks_count = alt_blocks_count;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the outgoing_connections_count field
+
+uint64_t
+wap_proto_outgoing_connections_count (wap_proto_t *self)
+{
+    assert (self);
+    return self->outgoing_connections_count;
+}
+
+void
+wap_proto_set_outgoing_connections_count (wap_proto_t *self, uint64_t outgoing_connections_count)
+{
+    assert (self);
+    self->outgoing_connections_count = outgoing_connections_count;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the incoming_connections_count field
+
+uint64_t
+wap_proto_incoming_connections_count (wap_proto_t *self)
+{
+    assert (self);
+    return self->incoming_connections_count;
+}
+
+void
+wap_proto_set_incoming_connections_count (wap_proto_t *self, uint64_t incoming_connections_count)
+{
+    assert (self);
+    self->incoming_connections_count = incoming_connections_count;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the white_peerlist_size field
+
+uint64_t
+wap_proto_white_peerlist_size (wap_proto_t *self)
+{
+    assert (self);
+    return self->white_peerlist_size;
+}
+
+void
+wap_proto_set_white_peerlist_size (wap_proto_t *self, uint64_t white_peerlist_size)
+{
+    assert (self);
+    self->white_peerlist_size = white_peerlist_size;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get/set the grey_peerlist_size field
+
+uint64_t
+wap_proto_grey_peerlist_size (wap_proto_t *self)
+{
+    assert (self);
+    return self->grey_peerlist_size;
+}
+
+void
+wap_proto_set_grey_peerlist_size (wap_proto_t *self, uint64_t grey_peerlist_size)
+{
+    assert (self);
+    self->grey_peerlist_size = grey_peerlist_size;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get the white_list field without transferring ownership
+
+zframe_t *
+wap_proto_white_list (wap_proto_t *self)
+{
+    assert (self);
+    return self->white_list;
+}
+
+//  Get the white_list field and transfer ownership to caller
+
+zframe_t *
+wap_proto_get_white_list (wap_proto_t *self)
+{
+    zframe_t *white_list = self->white_list;
+    self->white_list = NULL;
+    return white_list;
+}
+
+//  Set the white_list field, transferring ownership from caller
+
+void
+wap_proto_set_white_list (wap_proto_t *self, zframe_t **frame_p)
+{
+    assert (self);
+    assert (frame_p);
+    zframe_destroy (&self->white_list);
+    self->white_list = *frame_p;
+    *frame_p = NULL;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Get the gray_list field without transferring ownership
+
+zframe_t *
+wap_proto_gray_list (wap_proto_t *self)
+{
+    assert (self);
+    return self->gray_list;
+}
+
+//  Get the gray_list field and transfer ownership to caller
+
+zframe_t *
+wap_proto_get_gray_list (wap_proto_t *self)
+{
+    zframe_t *gray_list = self->gray_list;
+    self->gray_list = NULL;
+    return gray_list;
+}
+
+//  Set the gray_list field, transferring ownership from caller
+
+void
+wap_proto_set_gray_list (wap_proto_t *self, zframe_t **frame_p)
+{
+    assert (self);
+    assert (frame_p);
+    zframe_destroy (&self->gray_list);
+    self->gray_list = *frame_p;
+    *frame_p = NULL;
+}
+
+
+//  --------------------------------------------------------------------------
 //  Get/set the reason field
 
 const char *
@@ -1796,6 +2174,78 @@ wap_proto_test (bool verbose)
         wap_proto_recv (self, input);
         assert (wap_proto_routing_id (self));
         assert (wap_proto_status (self) == 123);
+    }
+    wap_proto_set_id (self, WAP_PROTO_GET_INFO);
+
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+    }
+    wap_proto_set_id (self, WAP_PROTO_GET_INFO_OK);
+
+    wap_proto_set_status (self, 123);
+    wap_proto_set_height (self, 123);
+    wap_proto_set_target_height (self, 123);
+    wap_proto_set_difficulty (self, 123);
+    wap_proto_set_tx_count (self, 123);
+    wap_proto_set_tx_pool_size (self, 123);
+    wap_proto_set_alt_blocks_count (self, 123);
+    wap_proto_set_outgoing_connections_count (self, 123);
+    wap_proto_set_incoming_connections_count (self, 123);
+    wap_proto_set_white_peerlist_size (self, 123);
+    wap_proto_set_grey_peerlist_size (self, 123);
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+        assert (wap_proto_status (self) == 123);
+        assert (wap_proto_height (self) == 123);
+        assert (wap_proto_target_height (self) == 123);
+        assert (wap_proto_difficulty (self) == 123);
+        assert (wap_proto_tx_count (self) == 123);
+        assert (wap_proto_tx_pool_size (self) == 123);
+        assert (wap_proto_alt_blocks_count (self) == 123);
+        assert (wap_proto_outgoing_connections_count (self) == 123);
+        assert (wap_proto_incoming_connections_count (self) == 123);
+        assert (wap_proto_white_peerlist_size (self) == 123);
+        assert (wap_proto_grey_peerlist_size (self) == 123);
+    }
+    wap_proto_set_id (self, WAP_PROTO_GET_PEER_LIST);
+
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+    }
+    wap_proto_set_id (self, WAP_PROTO_GET_PEER_LIST_OK);
+
+    wap_proto_set_status (self, 123);
+    zframe_t *get_peer_list_ok_white_list = zframe_new ("Captcha Diem", 12);
+    wap_proto_set_white_list (self, &get_peer_list_ok_white_list);
+    zframe_t *get_peer_list_ok_gray_list = zframe_new ("Captcha Diem", 12);
+    wap_proto_set_gray_list (self, &get_peer_list_ok_gray_list);
+    //  Send twice
+    wap_proto_send (self, output);
+    wap_proto_send (self, output);
+
+    for (instance = 0; instance < 2; instance++) {
+        wap_proto_recv (self, input);
+        assert (wap_proto_routing_id (self));
+        assert (wap_proto_status (self) == 123);
+        assert (zframe_streq (wap_proto_white_list (self), "Captcha Diem"));
+        zframe_destroy (&get_peer_list_ok_white_list);
+        assert (zframe_streq (wap_proto_gray_list (self), "Captcha Diem"));
+        zframe_destroy (&get_peer_list_ok_gray_list);
     }
     wap_proto_set_id (self, WAP_PROTO_STOP);
 

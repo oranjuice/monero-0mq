@@ -4,7 +4,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -15,6 +15,8 @@ The following ABNF grammar defines the Wallet Access Protocol:
     o_indexes = C:OUTPUT-INDEXES ( S:OUTPUT-INDEXES-OK / S:ERROR )
     random_outs = C:RANDOM-OUTS ( S:RANDOM-OUTS-OK / S:ERROR )
     height = C:GET-HEIGHT ( S:GET-HEIGHT-OK / S:ERROR )
+    info = C:GET-INFO ( S:GET-INFO-OK / S:ERROR )
+    peer_list = C:GET-PEER-LIST ( S:GET-PEER-LIST-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -123,35 +125,65 @@ The following ABNF grammar defines the Wallet Access Protocol:
     START-OK        = signature %d18 status
     status          = number-8              ; 
 
+    ;  getinfo IPC                                                           
+
+    GET-INFO        = signature %d19
+
+    ;  No description                                                        
+
+    GET-INFO-OK     = signature %d20 status height target_height difficulty tx_count tx_pool_size alt_blocks_count outgoing_connections_count incoming_connections_count white_peerlist_size grey_peerlist_size
+    status          = number-8              ; Status
+    height          = number-8              ; Height
+    target_height   = number-8              ; Target Height
+    difficulty      = number-8              ; Difficulty
+    tx_count        = number-8              ; TX Count
+    tx_pool_size    = number-8              ; TX Pool Size
+    alt_blocks_count = number-8             ; Alt Blocks Count
+    outgoing_connections_count = number-8   ; Outgoing Connections Count
+    incoming_connections_count = number-8   ; Incoming Connections Count
+    white_peerlist_size = number-8          ; White Peerlist Size
+    grey_peerlist_size = number-8           ; Grey Peerlist Size
+
+    ;  get_peer_list IPC                                                     
+
+    GET-PEER-LIST   = signature %d21
+
+    ;  No description                                                        
+
+    GET-PEER-LIST-OK = signature %d22 status white_list gray_list
+    status          = number-8              ; Status
+    white_list      = frame                 ; White list
+    gray_list       = frame                 ; Gray list
+
     ;  Wallet asks daemon to start mining. Daemon replies with STOP-OK, or   
     ;  ERROR.                                                                
 
-    STOP            = signature %d19
+    STOP            = signature %d23
 
     ;  Daemon replies to a stop mining request.                              
 
-    STOP-OK         = signature %d20
+    STOP-OK         = signature %d24
 
     ;  Wallet closes the connection. This is polite though not mandatory.    
     ;  Daemon will reply with CLOSE-OK or ERROR.                             
 
-    CLOSE           = signature %d21
+    CLOSE           = signature %d25
 
     ;  Daemon replies to a wallet connection close request.                  
 
-    CLOSE-OK        = signature %d22
+    CLOSE-OK        = signature %d26
 
     ;  Wallet heartbeats an idle connection.                                 
 
-    PING            = signature %d23
+    PING            = signature %d27
 
     ;  Daemon replies to a wallet ping request.                              
 
-    PING-OK         = signature %d24
+    PING-OK         = signature %d28
 
     ;  Daemon replies with failure status. Status codes tbd.                 
 
-    ERROR           = signature %d25 status reason
+    ERROR           = signature %d29 status reason
     status          = number-2              ; Error status
     reason          = string                ; Printable explanation
 

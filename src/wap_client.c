@@ -377,3 +377,40 @@ signal_have_random_outs_ok (client_t *self)
         wap_proto_get_random_outputs (self->message));
 }
 
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_info_ok
+//
+
+static void
+signal_have_get_info_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s88888888888", "GET INFO OK",
+        wap_proto_status (self->message),
+        wap_proto_height (self->message),
+        wap_proto_target_height (self->message),
+        wap_proto_difficulty (self->message),
+        wap_proto_tx_count (self->message),
+        wap_proto_tx_pool_size (self->message),
+        wap_proto_alt_blocks_count (self->message),
+        wap_proto_outgoing_connections_count (self->message),
+        wap_proto_incoming_connections_count (self->message),
+        wap_proto_white_peerlist_size (self->message),
+        wap_proto_grey_peerlist_size (self->message));
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_get_peer_list_ok
+//
+
+static void
+signal_have_get_peer_list_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s8pp", "GET PEER LIST OK",
+        wap_proto_status (self->message),
+        wap_proto_get_white_list (self->message),
+        wap_proto_get_gray_list (self->message));
+}
+

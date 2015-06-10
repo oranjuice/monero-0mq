@@ -68,6 +68,12 @@
         <event name = "get height" next = "expect get height ok">
             <action name = "send" message = "GET HEIGHT" />
         </event>
+        <event name = "get info" next = "expect get info ok">
+            <action name = "send" message = "GET INFO" />
+        </event>
+        <event name = "get peer list" next = "expect get peer list ok">
+            <action name = "send" message = "GET PEER LIST" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -128,6 +134,18 @@
     <state name = "expect get height ok" inherit = "defaults">
         <event name = "GET HEIGHT OK" next = "connected">
             <action name = "signal have get height ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get info ok" inherit = "defaults">
+        <event name = "GET INFO OK" next = "connected">
+            <action name = "signal have get info ok" />
+        </event>
+    </state>
+
+		<state name = "expect get peer list ok" inherit = "defaults">
+        <event name = "GET PEER LIST OK" next = "connected">
+            <action name = "signal have get peer list ok" />
         </event>
     </state>
 
@@ -285,6 +303,26 @@
         <field name = "status" type = "number" size = "8" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
     </reply>
+    
+    <method name = "get info" return = "status">
+        Ask for height.
+        <accept reply = "GET INFO OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET INFO OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "height" type = "number" size = "8" >Height</field>
+        <field name = "target_height" type = "number" size = "8" >Target Height</field>
+        <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
+        <field name = "tx_count" type = "number" size = "8" >TX Count</field>
+        <field name = "tx_pool_size" type = "number" size = "8" >TX Pool Size</field>
+        <field name = "alt_blocks_count" type = "number" size = "8" >Alt Blocks Count</field>
+        <field name = "outgoing_connections_count" type = "number" size = "8" >Outgoing Connections Count</field>
+        <field name = "incoming_connections_count" type = "number" size = "8" >Incoming Connections Count</field>
+        <field name = "white_peerlist_size" type = "number" size = "8" >White Peerlist Size</field>
+        <field name = "grey_peerlist_size" type = "number" size = "8" >Grey Peerlist Size</field>
+    </reply>
 
     <method name = "start" return = "status">
     Send start command to server.
@@ -305,7 +343,19 @@
     </method>
     
     <reply name = "STOP OK">
-        <field name = "status" type = "integer" />
+        <field name = "status" type = "number" size = "8" />
+    </reply>
+    
+    <method name = "get peer list" return = "status">
+    		Get peer list
+        <accept reply = "GET PEER LIST OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET PEER LIST OK">
+        <field name = "status" type = "number" size = "8" />
+        <field name = "white_list" type = "frame" >White list</field>
+        <field name = "gray_list" type = "frame" >Gray list</field>
     </reply>
     
 </class>

@@ -95,6 +95,31 @@ int main (int argc, char *argv [])
     rc = wap_client_save_bc(client);
     assert(wap_client_status(client) == 34);
     
+    rc = wap_client_get_info(client);
+    assert(wap_client_status(client) == 0);
+    assert(wap_client_height(client) == 1);
+    assert(wap_client_target_height(client) == 2);
+    assert(wap_client_difficulty(client) == 3);
+    assert(wap_client_tx_count(client) == 4);
+    assert(wap_client_tx_pool_size(client) == 5);
+    assert(wap_client_alt_blocks_count(client) == 6);
+    assert(wap_client_outgoing_connections_count(client) == 7);
+    assert(wap_client_incoming_connections_count(client) == 8);
+    assert(wap_client_white_peerlist_size(client) == 9);
+    assert(wap_client_grey_peerlist_size(client) == 10);
+    
+    rc = wap_client_get_peer_list(client);
+    frame = wap_client_white_list(client);
+    assert(frame != 0);
+    data = (char*)zframe_data(frame);
+    assert(data[0] == 'h');
+    assert(data[1] == 'i');
+    frame = wap_client_gray_list(client);
+    assert(frame != 0);
+    data = (char*)zframe_data(frame);
+    assert(data[0] == 'h');
+    assert(data[1] == 'i');
+    
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

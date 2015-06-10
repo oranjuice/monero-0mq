@@ -315,3 +315,40 @@ save_bc (client_t *self)
     wap_proto_set_status(self->message, 34);
 }
 
+
+//  ---------------------------------------------------------------------------
+//  getinfo
+//
+
+static void
+getinfo (client_t *self)
+{
+    wap_proto_set_status(self->message, 0);
+    wap_proto_set_height(self->message, 1);
+    wap_proto_set_target_height(self->message, 2);
+    wap_proto_set_difficulty(self->message, 3);
+    wap_proto_set_tx_count(self->message, 4);
+    wap_proto_set_tx_pool_size(self->message, 5);
+    wap_proto_set_alt_blocks_count(self->message, 6);
+    wap_proto_set_outgoing_connections_count(self->message, 7);
+    wap_proto_set_incoming_connections_count(self->message, 8);
+    wap_proto_set_white_peerlist_size(self->message, 9);
+    wap_proto_set_grey_peerlist_size(self->message, 10);
+}
+
+//  ---------------------------------------------------------------------------
+//  get_peer_list
+//
+
+static void
+get_peer_list (client_t *self)
+{
+    wap_proto_set_status(self->message, 0);
+    char hello[] = {'h', 'i'};
+    zframe_t *frame = zframe_new(hello, sizeof(char) * 2);
+    wap_proto_set_white_list(self->message, &frame);
+    char hello2[] = {'h', 'i'};
+    zframe_t *frame2 = zframe_new(hello2, sizeof(char) * 2);
+    wap_proto_set_gray_list(self->message, &frame2);
+}
+

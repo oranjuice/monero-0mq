@@ -60,6 +60,14 @@
             <action name = "height" />
             <action name = "send" message = "GET HEIGHT OK" />
         </event>
+        <event name = "GET INFO">
+            <action name = "getinfo" />
+            <action name = "send" message = "GET INFO OK" />
+        </event>
+        <event name = "GET PEER LIST">
+            <action name = "get peer list" />
+            <action name = "send" message = "GET PEER LIST OK" />
+        </event>
     </state>
 
     <state name = "defaults">

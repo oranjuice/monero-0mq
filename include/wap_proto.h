@@ -89,6 +89,28 @@ ERROR.
     START_OK - Daemon replies to a start mining request.
         status              number 8    
 
+    GET_INFO - getinfo IPC
+
+    GET_INFO_OK - This is a codec for a Bitcoin Wallet Access Protocol (RFC tbd)
+        status              number 8    Status
+        height              number 8    Height
+        target_height       number 8    Target Height
+        difficulty          number 8    Difficulty
+        tx_count            number 8    TX Count
+        tx_pool_size        number 8    TX Pool Size
+        alt_blocks_count    number 8    Alt Blocks Count
+        outgoing_connections_count  number 8  Outgoing Connections Count
+        incoming_connections_count  number 8  Incoming Connections Count
+        white_peerlist_size  number 8   White Peerlist Size
+        grey_peerlist_size  number 8    Grey Peerlist Size
+
+    GET_PEER_LIST - get_peer_list IPC
+
+    GET_PEER_LIST_OK - This is a codec for a Bitcoin Wallet Access Protocol (RFC tbd)
+        status              number 8    Status
+        white_list          frame       White list
+        gray_list           frame       Gray list
+
     STOP - Wallet asks daemon to start mining. Daemon replies with STOP-OK, or
 ERROR.
 
@@ -138,13 +160,17 @@ Daemon will reply with CLOSE-OK or ERROR.
 #define WAP_PROTO_SAVE_BC_OK                16
 #define WAP_PROTO_START                     17
 #define WAP_PROTO_START_OK                  18
-#define WAP_PROTO_STOP                      19
-#define WAP_PROTO_STOP_OK                   20
-#define WAP_PROTO_CLOSE                     21
-#define WAP_PROTO_CLOSE_OK                  22
-#define WAP_PROTO_PING                      23
-#define WAP_PROTO_PING_OK                   24
-#define WAP_PROTO_ERROR                     25
+#define WAP_PROTO_GET_INFO                  19
+#define WAP_PROTO_GET_INFO_OK               20
+#define WAP_PROTO_GET_PEER_LIST             21
+#define WAP_PROTO_GET_PEER_LIST_OK          22
+#define WAP_PROTO_STOP                      23
+#define WAP_PROTO_STOP_OK                   24
+#define WAP_PROTO_CLOSE                     25
+#define WAP_PROTO_CLOSE_OK                  26
+#define WAP_PROTO_PING                      27
+#define WAP_PROTO_PING_OK                   28
+#define WAP_PROTO_ERROR                     29
 
 #include <czmq.h>
 
@@ -325,6 +351,80 @@ uint64_t
     wap_proto_thread_count (wap_proto_t *self);
 void
     wap_proto_set_thread_count (wap_proto_t *self, uint64_t thread_count);
+
+//  Get/set the target_height field
+uint64_t
+    wap_proto_target_height (wap_proto_t *self);
+void
+    wap_proto_set_target_height (wap_proto_t *self, uint64_t target_height);
+
+//  Get/set the difficulty field
+uint64_t
+    wap_proto_difficulty (wap_proto_t *self);
+void
+    wap_proto_set_difficulty (wap_proto_t *self, uint64_t difficulty);
+
+//  Get/set the tx_count field
+uint64_t
+    wap_proto_tx_count (wap_proto_t *self);
+void
+    wap_proto_set_tx_count (wap_proto_t *self, uint64_t tx_count);
+
+//  Get/set the tx_pool_size field
+uint64_t
+    wap_proto_tx_pool_size (wap_proto_t *self);
+void
+    wap_proto_set_tx_pool_size (wap_proto_t *self, uint64_t tx_pool_size);
+
+//  Get/set the alt_blocks_count field
+uint64_t
+    wap_proto_alt_blocks_count (wap_proto_t *self);
+void
+    wap_proto_set_alt_blocks_count (wap_proto_t *self, uint64_t alt_blocks_count);
+
+//  Get/set the outgoing_connections_count field
+uint64_t
+    wap_proto_outgoing_connections_count (wap_proto_t *self);
+void
+    wap_proto_set_outgoing_connections_count (wap_proto_t *self, uint64_t outgoing_connections_count);
+
+//  Get/set the incoming_connections_count field
+uint64_t
+    wap_proto_incoming_connections_count (wap_proto_t *self);
+void
+    wap_proto_set_incoming_connections_count (wap_proto_t *self, uint64_t incoming_connections_count);
+
+//  Get/set the white_peerlist_size field
+uint64_t
+    wap_proto_white_peerlist_size (wap_proto_t *self);
+void
+    wap_proto_set_white_peerlist_size (wap_proto_t *self, uint64_t white_peerlist_size);
+
+//  Get/set the grey_peerlist_size field
+uint64_t
+    wap_proto_grey_peerlist_size (wap_proto_t *self);
+void
+    wap_proto_set_grey_peerlist_size (wap_proto_t *self, uint64_t grey_peerlist_size);
+
+//  Get a copy of the white_list field
+zframe_t *
+    wap_proto_white_list (wap_proto_t *self);
+//  Get the white_list field and transfer ownership to caller
+zframe_t *
+    wap_proto_get_white_list (wap_proto_t *self);
+//  Set the white_list field, transferring ownership from caller
+void
+    wap_proto_set_white_list (wap_proto_t *self, zframe_t **frame_p);
+
+//  Get a copy of the gray_list field
+zframe_t *
+    wap_proto_gray_list (wap_proto_t *self);
+//  Get the gray_list field and transfer ownership to caller
+zframe_t *
+    wap_proto_get_gray_list (wap_proto_t *self);
+//  Set the gray_list field, transferring ownership from caller
+void
+    wap_proto_set_gray_list (wap_proto_t *self, zframe_t **frame_p);
 
 //  Get/set the reason field
 const char *

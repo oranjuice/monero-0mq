@@ -33,10 +33,12 @@ typedef enum {
     expect_output_indexes_ok_state = 10,
     expect_random_outs_ok_state = 11,
     expect_get_height_ok_state = 12,
-    expect_close_ok_state = 13,
-    defaults_state = 14,
-    have_error_state = 15,
-    reexpect_open_ok_state = 16
+    expect_get_info_ok_state = 13,
+    expect_get_peer_list_ok_state = 14,
+    expect_close_ok_state = 15,
+    defaults_state = 16,
+    have_error_state = 17,
+    reexpect_open_ok_state = 18
 } state_t;
 
 typedef enum {
@@ -54,22 +56,26 @@ typedef enum {
     output_indexes_event = 11,
     random_outs_event = 12,
     get_height_event = 13,
-    destructor_event = 14,
-    blocks_ok_event = 15,
-    get_ok_event = 16,
-    put_ok_event = 17,
-    save_bc_ok_event = 18,
-    start_ok_event = 19,
-    stop_ok_event = 20,
-    output_indexes_ok_event = 21,
-    random_outs_ok_event = 22,
-    get_height_ok_event = 23,
-    close_ok_event = 24,
-    ping_ok_event = 25,
-    error_event = 26,
-    exception_event = 27,
-    command_invalid_event = 28,
-    other_event = 29
+    get_info_event = 14,
+    get_peer_list_event = 15,
+    destructor_event = 16,
+    blocks_ok_event = 17,
+    get_ok_event = 18,
+    put_ok_event = 19,
+    save_bc_ok_event = 20,
+    start_ok_event = 21,
+    stop_ok_event = 22,
+    output_indexes_ok_event = 23,
+    random_outs_ok_event = 24,
+    get_height_ok_event = 25,
+    get_info_ok_event = 26,
+    get_peer_list_ok_event = 27,
+    close_ok_event = 28,
+    ping_ok_event = 29,
+    error_event = 30,
+    exception_event = 31,
+    command_invalid_event = 32,
+    other_event = 33
 } event_t;
 
 //  Names for state machine logging and error reporting
@@ -88,6 +94,8 @@ s_state_name [] = {
     "expect output indexes ok",
     "expect random outs ok",
     "expect get height ok",
+    "expect get info ok",
+    "expect get peer list ok",
     "expect close ok",
     "defaults",
     "have error",
@@ -110,6 +118,8 @@ s_event_name [] = {
     "OUTPUT_INDEXES",
     "RANDOM_OUTS",
     "GET_HEIGHT",
+    "GET_INFO",
+    "GET_PEER_LIST",
     "destructor",
     "BLOCKS_OK",
     "GET_OK",
@@ -120,6 +130,8 @@ s_event_name [] = {
     "OUTPUT_INDEXES_OK",
     "RANDOM_OUTS_OK",
     "GET_HEIGHT_OK",
+    "GET_INFO_OK",
+    "GET_PEER_LIST_OK",
     "CLOSE_OK",
     "PING_OK",
     "ERROR",
@@ -230,6 +242,10 @@ static void
     signal_have_random_outs_ok (client_t *self);
 static void
     signal_have_get_height_ok (client_t *self);
+static void
+    signal_have_get_info_ok (client_t *self);
+static void
+    signal_have_get_peer_list_ok (client_t *self);
 static void
     signal_failure (client_t *self);
 static void
@@ -472,6 +488,18 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
             break;
         case WAP_PROTO_START_OK:
             return start_ok_event;
+            break;
+        case WAP_PROTO_GET_INFO:
+            return get_info_event;
+            break;
+        case WAP_PROTO_GET_INFO_OK:
+            return get_info_ok_event;
+            break;
+        case WAP_PROTO_GET_PEER_LIST:
+            return get_peer_list_event;
+            break;
+        case WAP_PROTO_GET_PEER_LIST_OK:
+            return get_peer_list_ok_event;
             break;
         case WAP_PROTO_STOP:
             return stop_event;
@@ -781,6 +809,30 @@ s_client_execute (s_client_t *self, event_t event)
                     }
                     if (!self->exception)
                         self->state = expect_get_height_ok_state;
+                }
+                else
+                if (self->event == get_info_event) {
+                    if (!self->exception) {
+                        //  send GET_INFO
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ send GET_INFO");
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_INFO);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_info_ok_state;
+                }
+                else
+                if (self->event == get_peer_list_event) {
+                    if (!self->exception) {
+                        //  send GET_PEER_LIST
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ send GET_PEER_LIST");
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_PEER_LIST);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_peer_list_ok_state;
                 }
                 else
                 if (self->event == destructor_event) {
@@ -1249,6 +1301,96 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 break;
 
+            case expect_get_info_ok_state:
+                if (self->event == get_info_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get info ok
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ signal have get info ok");
+                        signal_have_get_info_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ check status code");
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
+                }
+                else {
+                    //  Handle unexpected protocol events
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ *");
+                }
+                break;
+
+            case expect_get_peer_list_ok_state:
+                if (self->event == get_peer_list_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get peer list ok
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ signal have get peer list ok");
+                        signal_have_get_peer_list_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ client is connected");
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ check status code");
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ exception");
+                }
+                else {
+                    //  Handle unexpected protocol events
+                        //  No action - just logging
+                        if (wap_client_verbose)
+                            zsys_debug ("wap_client:            $ *");
+                }
+                break;
+
             case expect_close_ok_state:
                 if (self->event == close_ok_event) {
                     if (!self->exception) {
@@ -1539,6 +1681,10 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         s_client_execute (self, get_height_event);
     }
     else
+    if (streq (method, "GET INFO")) {
+        s_client_execute (self, get_info_event);
+    }
+    else
     if (streq (method, "START")) {
         zchunk_destroy (&self->args.address);
         zsock_recv (self->cmdpipe, "p8", &self->args.address, &self->args.thread_count);
@@ -1547,6 +1693,10 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     else
     if (streq (method, "STOP")) {
         s_client_execute (self, stop_event);
+    }
+    else
+    if (streq (method, "GET PEER LIST")) {
+        s_client_execute (self, get_peer_list_event);
     }
     //  Cleanup pipe if any argument frames are still waiting to be eaten
     if (zsock_rcvmore (self->cmdpipe)) {
@@ -1669,6 +1819,17 @@ struct _wap_client_t {
     zframe_t *o_indexes;        //  Returned by actor reply
     zframe_t *random_outputs;   //  Returned by actor reply
     uint64_t height;            //  Returned by actor reply
+    uint64_t target_height;     //  Returned by actor reply
+    uint64_t difficulty;        //  Returned by actor reply
+    uint64_t tx_count;          //  Returned by actor reply
+    uint64_t tx_pool_size;      //  Returned by actor reply
+    uint64_t alt_blocks_count;  //  Returned by actor reply
+    uint64_t outgoing_connections_count;  //  Returned by actor reply
+    uint64_t incoming_connections_count;  //  Returned by actor reply
+    uint64_t white_peerlist_size;  //  Returned by actor reply
+    uint64_t grey_peerlist_size;  //  Returned by actor reply
+    zframe_t *white_list;       //  Returned by actor reply
+    zframe_t *gray_list;        //  Returned by actor reply
 };
 
 
@@ -1721,6 +1882,8 @@ wap_client_destroy (wap_client_t **self_p)
         zchunk_destroy (&self->tx_data);
         zframe_destroy (&self->o_indexes);
         zframe_destroy (&self->random_outputs);
+        zframe_destroy (&self->white_list);
+        zframe_destroy (&self->gray_list);
         free (self);
         *self_p = NULL;
     }
@@ -1831,12 +1994,22 @@ s_accept_reply (wap_client_t *self, ...)
                     zsock_recv (self->actor, "88", &self->status, &self->height);
                 }
                 else
+                if (streq (reply, "GET INFO OK")) {
+                    zsock_recv (self->actor, "88888888888", &self->status, &self->height, &self->target_height, &self->difficulty, &self->tx_count, &self->tx_pool_size, &self->alt_blocks_count, &self->outgoing_connections_count, &self->incoming_connections_count, &self->white_peerlist_size, &self->grey_peerlist_size);
+                }
+                else
                 if (streq (reply, "START OK")) {
                     zsock_recv (self->actor, "8", &self->status);
                 }
                 else
                 if (streq (reply, "STOP OK")) {
-                    zsock_recv (self->actor, "i", &self->status);
+                    zsock_recv (self->actor, "8", &self->status);
+                }
+                else
+                if (streq (reply, "GET PEER LIST OK")) {
+                    zframe_destroy (&self->white_list);
+                    zframe_destroy (&self->gray_list);
+                    zsock_recv (self->actor, "8pp", &self->status, &self->white_list, &self->gray_list);
                 }
                 break;
             }
@@ -2007,6 +2180,22 @@ wap_client_get_height (wap_client_t *self)
 
 
 //  ---------------------------------------------------------------------------
+//  Ask for height.                                                                 
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_info (wap_client_t *self)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s", "GET INFO");
+    if (s_accept_reply (self, "GET INFO OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
 //  Send start command to server.                                                   
 //  Returns >= 0 if successful, -1 if interrupted.
 
@@ -2034,6 +2223,22 @@ wap_client_stop (wap_client_t *self)
 
     zsock_send (self->actor, "s", "STOP");
     if (s_accept_reply (self, "STOP OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Get peer list                                                                   
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_peer_list (wap_client_t *self)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s", "GET PEER LIST");
+    if (s_accept_reply (self, "GET PEER LIST OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
@@ -2135,4 +2340,125 @@ wap_client_height (wap_client_t *self)
 {
     assert (self);
     return self->height;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received target_height
+
+uint64_t 
+wap_client_target_height (wap_client_t *self)
+{
+    assert (self);
+    return self->target_height;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received difficulty
+
+uint64_t 
+wap_client_difficulty (wap_client_t *self)
+{
+    assert (self);
+    return self->difficulty;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received tx_count
+
+uint64_t 
+wap_client_tx_count (wap_client_t *self)
+{
+    assert (self);
+    return self->tx_count;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received tx_pool_size
+
+uint64_t 
+wap_client_tx_pool_size (wap_client_t *self)
+{
+    assert (self);
+    return self->tx_pool_size;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received alt_blocks_count
+
+uint64_t 
+wap_client_alt_blocks_count (wap_client_t *self)
+{
+    assert (self);
+    return self->alt_blocks_count;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received outgoing_connections_count
+
+uint64_t 
+wap_client_outgoing_connections_count (wap_client_t *self)
+{
+    assert (self);
+    return self->outgoing_connections_count;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received incoming_connections_count
+
+uint64_t 
+wap_client_incoming_connections_count (wap_client_t *self)
+{
+    assert (self);
+    return self->incoming_connections_count;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received white_peerlist_size
+
+uint64_t 
+wap_client_white_peerlist_size (wap_client_t *self)
+{
+    assert (self);
+    return self->white_peerlist_size;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received grey_peerlist_size
+
+uint64_t 
+wap_client_grey_peerlist_size (wap_client_t *self)
+{
+    assert (self);
+    return self->grey_peerlist_size;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received white_list
+
+zframe_t *
+wap_client_white_list (wap_client_t *self)
+{
+    assert (self);
+    return self->white_list;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received gray_list
+
+zframe_t *
+wap_client_gray_list (wap_client_t *self)
+{
+    assert (self);
+    return self->gray_list;
 }
