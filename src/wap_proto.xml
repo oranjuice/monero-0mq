@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -25,6 +25,7 @@
     height = C:GET-HEIGHT ( S:GET-HEIGHT-OK / S:ERROR )
     info = C:GET-INFO ( S:GET-INFO-OK / S:ERROR )
     peer_list = C:GET-PEER-LIST ( S:GET-PEER-LIST-OK / S:ERROR )
+    mining_status = C:GET-MINING-STATUS ( S:GET-MINING-STATUS-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -160,6 +161,18 @@
         <field name = "status" type = "number" size = "8" >Status</field>
         <field name = "white_list" type = "frame" >White list</field>
         <field name = "gray_list" type = "frame" >Gray list</field>
+    </message>
+    
+    <message name = "GET-MINING-STATUS">
+        get_mining_status IPC
+    </message>
+    
+		<message name = "GET-MINING-STATUS-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "active" type = "number" size = "1" >Active</field>
+        <field name = "speed" type = "number" size = "8" >Speed</field>
+        <field name = "thread_count" type = "number" size = "8" >Threads count</field>
+        <field name = "address" type = "chunk" >Address</field>
     </message>
 
     <message name = "STOP">

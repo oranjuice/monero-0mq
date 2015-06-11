@@ -352,3 +352,18 @@ get_peer_list (client_t *self)
     wap_proto_set_gray_list(self->message, &frame2);
 }
 
+//  ---------------------------------------------------------------------------
+//  get_mining_status
+//
+
+static void
+get_mining_status (client_t *self)
+{
+    wap_proto_set_status(self->message, 0);
+    wap_proto_set_speed(self->message, 100);
+    wap_proto_set_thread_count(self->message, 2);
+    wap_proto_set_active(self->message, 1);
+    zchunk_t *address = zchunk_new("12045", 5);
+    wap_proto_set_address(self->message, &address);
+}
+

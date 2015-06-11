@@ -74,6 +74,9 @@
         <event name = "get peer list" next = "expect get peer list ok">
             <action name = "send" message = "GET PEER LIST" />
         </event>
+        <event name = "get mining status" next = "expect get mining status ok">
+            <action name = "send" message = "GET MINING STATUS" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -146,6 +149,12 @@
 		<state name = "expect get peer list ok" inherit = "defaults">
         <event name = "GET PEER LIST OK" next = "connected">
             <action name = "signal have get peer list ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get mining status ok" inherit = "defaults">
+        <event name = "GET MINING STATUS OK" next = "connected">
+            <action name = "signal have get mining status ok" />
         </event>
     </state>
 
@@ -356,6 +365,20 @@
         <field name = "status" type = "number" size = "8" />
         <field name = "white_list" type = "frame" >White list</field>
         <field name = "gray_list" type = "frame" >Gray list</field>
+    </reply>
+    
+    <method name = "get mining status" return = "status">
+    		Get mining status
+        <accept reply = "GET MINING STATUS OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET MINING STATUS OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "active" type = "number" size = "1" >Active</field>
+        <field name = "speed" type = "number" size = "8" >Speed</field>
+        <field name = "thread_count" type = "number" size = "8" >Threads count</field>
+        <field name = "address" type = "chunk" >Address</field>
     </reply>
     
 </class>

@@ -68,6 +68,10 @@
             <action name = "get peer list" />
             <action name = "send" message = "GET PEER LIST OK" />
         </event>
+        <event name = "GET MINING STATUS">
+            <action name = "get mining status" />
+            <action name = "send" message = "GET MINING STATUS OK" />
+        </event>
     </state>
 
     <state name = "defaults">

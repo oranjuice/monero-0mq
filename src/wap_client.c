@@ -402,7 +402,7 @@ signal_have_get_info_ok (client_t *self)
 
 
 //  ---------------------------------------------------------------------------
-//  signal_have_get_get_peer_list_ok
+//  signal_have_get_peer_list_ok
 //
 
 static void
@@ -412,5 +412,20 @@ signal_have_get_peer_list_ok (client_t *self)
         wap_proto_status (self->message),
         wap_proto_get_white_list (self->message),
         wap_proto_get_gray_list (self->message));
+}
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_mining_ok
+//
+
+static void
+signal_have_get_mining_status_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s8188p", "GET MINING STATUS OK",
+        wap_proto_status (self->message),
+        wap_proto_active (self->message),
+        wap_proto_speed (self->message),
+        wap_proto_thread_count (self->message),
+        wap_proto_get_address (self->message));
 }
 

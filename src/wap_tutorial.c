@@ -120,6 +120,16 @@ int main (int argc, char *argv [])
     assert(data[0] == 'h');
     assert(data[1] == 'i');
     
+    rc = wap_client_get_mining_status(client);
+    assert(wap_client_active(client) == 1);
+    assert(wap_client_status(client) == 0);
+    assert(wap_client_speed(client) == 100);
+    assert(wap_client_thread_count(client) == 2);
+    address = wap_client_address(client);
+    assert(zchunk_size(address) == 5);
+    char *x = "12045";
+    assert(memcmp((char*)zchunk_data(address), x, 5) == 0);
+    
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);
