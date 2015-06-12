@@ -72,6 +72,14 @@
             <action name = "get mining status" />
             <action name = "send" message = "GET MINING STATUS OK" />
         </event>
+        <event name = "SET LOG HASH RATE">
+            <action name = "set log hash rate" />
+            <action name = "send" message = "SET LOG HASH RATE OK" />
+        </event>
+        <event name = "SET LOG LEVEL">
+            <action name = "set log level" />
+            <action name = "send" message = "SET LOG LEVEL OK" />
+        </event>
     </state>
 
     <state name = "defaults">

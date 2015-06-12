@@ -4,7 +4,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -18,6 +18,8 @@ The following ABNF grammar defines the Wallet Access Protocol:
     info = C:GET-INFO ( S:GET-INFO-OK / S:ERROR )
     peer_list = C:GET-PEER-LIST ( S:GET-PEER-LIST-OK / S:ERROR )
     mining_status = C:GET-MINING-STATUS ( S:GET-MINING-STATUS-OK / S:ERROR )
+    log_hash_rate = C:SET-LOG-HASH-RATE ( S:SET-LOG-HASH-RATE-OK / S:ERROR )
+    log_level = C:SET-LOG-LEVEL ( S:SET-LOG-LEVEL-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -169,35 +171,55 @@ The following ABNF grammar defines the Wallet Access Protocol:
     thread_count    = number-8              ; Threads count
     address         = chunk                 ; Address
 
+    ;  set_log_hash_rate IPC                                                 
+
+    SET-LOG-HASH-RATE = signature %d25 visible
+    visible         = number-1              ; Visible
+
+    ;  No description                                                        
+
+    SET-LOG-HASH-RATE-OK = signature %d26 status
+    status          = number-8              ; Status
+
+    ;  set_log_level IPC                                                     
+
+    SET-LOG-LEVEL   = signature %d27 level
+    level           = number-1              ; Level
+
+    ;  No description                                                        
+
+    SET-LOG-LEVEL-OK = signature %d28 status
+    status          = number-8              ; Status
+
     ;  Wallet asks daemon to start mining. Daemon replies with STOP-OK, or   
     ;  ERROR.                                                                
 
-    STOP            = signature %d25
+    STOP            = signature %d29
 
     ;  Daemon replies to a stop mining request.                              
 
-    STOP-OK         = signature %d26
+    STOP-OK         = signature %d30
 
     ;  Wallet closes the connection. This is polite though not mandatory.    
     ;  Daemon will reply with CLOSE-OK or ERROR.                             
 
-    CLOSE           = signature %d27
+    CLOSE           = signature %d31
 
     ;  Daemon replies to a wallet connection close request.                  
 
-    CLOSE-OK        = signature %d28
+    CLOSE-OK        = signature %d32
 
     ;  Wallet heartbeats an idle connection.                                 
 
-    PING            = signature %d29
+    PING            = signature %d33
 
     ;  Daemon replies to a wallet ping request.                              
 
-    PING-OK         = signature %d30
+    PING-OK         = signature %d34
 
     ;  Daemon replies with failure status. Status codes tbd.                 
 
-    ERROR           = signature %d31 status reason
+    ERROR           = signature %d35 status reason
     status          = number-2              ; Error status
     reason          = string                ; Printable explanation
 

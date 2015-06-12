@@ -77,6 +77,14 @@
         <event name = "get mining status" next = "expect get mining status ok">
             <action name = "send" message = "GET MINING STATUS" />
         </event>
+        <event name = "set log hash rate" next = "expect set log hash rate ok">
+        		<action name = "prepare set log hash rate command" />
+            <action name = "send" message = "SET LOG HASH RATE" />
+        </event>
+        <event name = "set log level" next = "expect set log level ok">
+        		<action name = "prepare set log level command" />
+            <action name = "send" message = "SET LOG LEVEL" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -155,6 +163,18 @@
     <state name = "expect get mining status ok" inherit = "defaults">
         <event name = "GET MINING STATUS OK" next = "connected">
             <action name = "signal have get mining status ok" />
+        </event>
+    </state>
+    
+    <state name = "expect set log hash rate ok" inherit = "defaults">
+        <event name = "SET LOG HASH RATE OK" next = "connected">
+            <action name = "signal have set log hash rate ok" />
+        </event>
+    </state>
+
+		<state name = "expect set log level ok" inherit = "defaults">
+        <event name = "SET LOG LEVEL OK" next = "connected">
+            <action name = "signal have set log level ok" />
         </event>
     </state>
 
@@ -381,5 +401,26 @@
         <field name = "address" type = "chunk" >Address</field>
     </reply>
     
+    <method name = "set log hash rate" return = "status">
+    		Set log hash rate
+    		<field name = "visible" type = "number" size = "1" />
+        <accept reply = "SET LOG HASH RATE OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "SET LOG HASH RATE OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+    </reply>
+    
+    <method name = "set log level" return = "status">
+    		Set log hash rate
+    		<field name = "level" type = "number" size = "1" />
+        <accept reply = "SET LOG LEVEL OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "SET LOG LEVEL OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+    </reply>
 </class>
 

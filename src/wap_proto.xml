@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -26,6 +26,8 @@
     info = C:GET-INFO ( S:GET-INFO-OK / S:ERROR )
     peer_list = C:GET-PEER-LIST ( S:GET-PEER-LIST-OK / S:ERROR )
     mining_status = C:GET-MINING-STATUS ( S:GET-MINING-STATUS-OK / S:ERROR )
+    log_hash_rate = C:SET-LOG-HASH-RATE ( S:SET-LOG-HASH-RATE-OK / S:ERROR )
+    log_level = C:SET-LOG-LEVEL ( S:SET-LOG-LEVEL-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -173,6 +175,24 @@
         <field name = "speed" type = "number" size = "8" >Speed</field>
         <field name = "thread_count" type = "number" size = "8" >Threads count</field>
         <field name = "address" type = "chunk" >Address</field>
+    </message>
+    
+    <message name = "SET-LOG-HASH-RATE">
+        set_log_hash_rate IPC
+        <field name = "visible" type = "number" size = "1" >Visible</field>
+    </message>
+    
+		<message name = "SET-LOG-HASH-RATE-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+    </message>
+
+		<message name = "SET-LOG-LEVEL">
+        set_log_level IPC
+        <field name = "level" type = "number" size = "1" >Level</field>
+    </message>
+    
+		<message name = "SET-LOG-LEVEL-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
     </message>
 
     <message name = "STOP">

@@ -130,6 +130,12 @@ int main (int argc, char *argv [])
     char *x = "12045";
     assert(memcmp((char*)zchunk_data(address), x, 5) == 0);
     
+    rc = wap_client_set_log_hash_rate(client, 1);
+    assert(wap_client_status(client) == 2);
+    
+    rc = wap_client_set_log_level(client, -12);
+    assert(wap_client_status(client) == 2);
+   
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

@@ -367,3 +367,27 @@ get_mining_status (client_t *self)
     wap_proto_set_address(self->message, &address);
 }
 
+//  ---------------------------------------------------------------------------
+//  set_log_hash_rate
+//
+
+static void
+set_log_hash_rate (client_t *self)
+{
+		assert(wap_proto_visible(self->message) == 1);
+    wap_proto_set_status(self->message, 2);
+}
+
+
+
+//  ---------------------------------------------------------------------------
+//  set_log_level
+//
+
+static void
+set_log_level (client_t *self)
+{
+		assert((int8_t)wap_proto_level(self->message) == -12);
+    wap_proto_set_status(self->message, 2);
+}
+
