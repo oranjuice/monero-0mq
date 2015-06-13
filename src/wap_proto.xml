@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -28,6 +28,8 @@
     mining_status = C:GET-MINING-STATUS ( S:GET-MINING-STATUS-OK / S:ERROR )
     log_hash_rate = C:SET-LOG-HASH-RATE ( S:SET-LOG-HASH-RATE-OK / S:ERROR )
     log_level = C:SET-LOG-LEVEL ( S:SET-LOG-LEVEL-OK / S:ERROR )
+    start_save_graph = C:START-SAVE-GRAPH ( S:START-SAVE-GRAPH-OK / S:ERROR )
+    stop_save_graph = C:STOP-SAVE-GRAPH ( S:STOP-SAVE-GRAPH-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -192,6 +194,22 @@
     </message>
     
 		<message name = "SET-LOG-LEVEL-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+    </message>
+    
+    <message name = "START-SAVE-GRAPH">
+        start_save_graph IPC
+    </message>
+    
+		<message name = "START-SAVE-GRAPH-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+    </message>
+    
+    <message name = "STOP-SAVE-GRAPH">
+        stop_save_graph IPC
+    </message>
+    
+		<message name = "STOP-SAVE-GRAPH-OK">
         <field name = "status" type = "number" size = "8" >Status</field>
     </message>
 

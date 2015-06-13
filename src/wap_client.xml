@@ -85,6 +85,12 @@
         		<action name = "prepare set log level command" />
             <action name = "send" message = "SET LOG LEVEL" />
         </event>
+        <event name = "start save graph" next = "expect start save graph ok">
+            <action name = "send" message = "START SAVE GRAPH" />
+        </event>
+        <event name = "stop save graph" next = "expect stop save graph ok">
+            <action name = "send" message = "STOP SAVE GRAPH" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -175,6 +181,18 @@
 		<state name = "expect set log level ok" inherit = "defaults">
         <event name = "SET LOG LEVEL OK" next = "connected">
             <action name = "signal have set log level ok" />
+        </event>
+    </state>
+    
+    <state name = "expect start save graph ok" inherit = "defaults">
+        <event name = "START SAVE GRAPH OK" next = "connected">
+            <action name = "signal have start save graph ok" />
+        </event>
+    </state>
+
+    <state name = "expect stop save graph ok" inherit = "defaults">
+        <event name = "STOP SAVE GRAPH OK" next = "connected">
+            <action name = "signal have stop save graph ok" />
         </event>
     </state>
 
@@ -420,6 +438,26 @@
     </method>
     
     <reply name = "SET LOG LEVEL OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+    </reply>
+    
+    <method name = "start save graph" return = "status">
+    		Start save graph
+        <accept reply = "START SAVE GRAPH OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "START SAVE GRAPH OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+    </reply>
+    
+    <method name = "stop save graph" return = "status">
+    		Stop save graph
+        <accept reply = "STOP SAVE GRAPH OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "STOP SAVE GRAPH OK">
         <field name = "status" type = "number" size = "8" >Status</field>
     </reply>
 </class>

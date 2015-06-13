@@ -471,3 +471,25 @@ signal_have_set_log_level_ok (client_t *self)
         wap_proto_status (self->message));
 }
 
+//  ---------------------------------------------------------------------------
+//  signal_have_start_save_graph_ok
+//
+
+static void
+signal_have_start_save_graph_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s8", "START SAVE GRAPH OK",
+        wap_proto_status (self->message));
+}
+
+//  ---------------------------------------------------------------------------
+//  signal_have_stop_save_graph_ok
+//
+
+static void
+signal_have_stop_save_graph_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s8", "STOP SAVE GRAPH OK",
+        wap_proto_status (self->message));
+}
+

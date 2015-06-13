@@ -135,7 +135,13 @@ int main (int argc, char *argv [])
     
     rc = wap_client_set_log_level(client, -12);
     assert(wap_client_status(client) == 2);
-   
+
+    rc = wap_client_start_save_graph(client);
+    assert(wap_client_status(client) == 2);
+    
+    rc = wap_client_stop_save_graph(client);
+    assert(wap_client_status(client) == 2);
+    
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

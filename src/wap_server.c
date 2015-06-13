@@ -391,3 +391,23 @@ set_log_level (client_t *self)
     wap_proto_set_status(self->message, 2);
 }
 
+//  ---------------------------------------------------------------------------
+//  start_save_graph
+//
+
+static void
+start_save_graph (client_t *self)
+{
+    wap_proto_set_status(self->message, 2);
+}
+
+//  ---------------------------------------------------------------------------
+//  stop_save_graph
+//
+
+static void
+stop_save_graph (client_t *self)
+{
+    wap_proto_set_status(self->message, 2);
+}
+

@@ -80,6 +80,14 @@
             <action name = "set log level" />
             <action name = "send" message = "SET LOG LEVEL OK" />
         </event>
+        <event name = "START SAVE GRAPH">
+            <action name = "start save graph" />
+            <action name = "send" message = "START SAVE GRAPH OK" />
+        </event>
+        <event name = "STOP SAVE GRAPH">
+            <action name = "stop save graph" />
+            <action name = "send" message = "STOP SAVE GRAPH OK" />
+        </event>
     </state>
 
     <state name = "defaults">
