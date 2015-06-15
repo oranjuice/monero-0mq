@@ -195,6 +195,7 @@ Note: Certain types of fields (like frames) have two types of accessors: one tha
 
 * Now let's look at the server side of all that we discussed. The server is again a state machine. When the server is in "connected" state, for our example, there should be an event for "get_info" request.
 Here it is:
+
     <state name = "connected" inherit = "defaults">
         ...
         <event name = "GET INFO">
