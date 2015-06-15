@@ -411,3 +411,35 @@ stop_save_graph (client_t *self)
     wap_proto_set_status(self->message, 2);
 }
 
+//  ---------------------------------------------------------------------------
+//  get_block_hash
+//
+
+static void
+get_block_hash (client_t *self)
+{
+		assert(wap_proto_height(self->message) == 3);
+		zchunk_t *hash = zchunk_new("12045", 5);
+    wap_proto_set_hash(self->message, &hash);
+    wap_proto_set_status(self->message, 2);
+}
+
+//  ---------------------------------------------------------------------------
+//  get_block_template
+//
+
+static void
+get_block_template (client_t *self)
+{
+		zchunk_t *address = wap_proto_get_address(self->message);
+		assert(memcmp(zchunk_data(address), "12045", 5) == 0);
+		assert(wap_proto_reserve_size(self->message) == 5);
+		
+    wap_proto_set_status(self->message, 2);
+    wap_proto_set_reserved_offset(self->message, 3);
+    wap_proto_set_height(self->message, 4);
+    wap_proto_set_difficulty(self->message, 5);
+    zchunk_t *hash = zchunk_new("12045", 5);
+    wap_proto_set_prev_hash(self->message, &hash);
+}
+

@@ -493,3 +493,50 @@ signal_have_stop_save_graph_ok (client_t *self)
         wap_proto_status (self->message));
 }
 
+//  ---------------------------------------------------------------------------
+//  prepare_get_block_hash_command
+//
+
+static void
+prepare_get_block_hash_command (client_t *self)
+{
+		wap_proto_set_height (self->message, self->args->height);
+}
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_block_hash_ok
+//
+
+static void
+signal_have_get_block_hash_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s8p", "GET BLOCK HASH OK",
+        wap_proto_status (self->message), wap_proto_get_hash (self->message));
+}
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_block_template_command
+//
+
+static void
+prepare_get_block_template_command (client_t *self)
+{
+		wap_proto_set_reserve_size (self->message, self->args->reserve_size);
+		wap_proto_set_address (self->message, &self->args->address);
+}
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_block_template_ok
+//
+
+static void
+signal_have_get_block_template_ok (client_t *self)
+{
+    zsock_send (self->cmdpipe, "s8888p", "GET BLOCK TEMPLATE OK",
+        wap_proto_status (self->message), 
+        wap_proto_reserved_offset (self->message),
+        wap_proto_height (self->message),
+        wap_proto_difficulty (self->message),
+        wap_proto_get_prev_hash (self->message));
+}
+

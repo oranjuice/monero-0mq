@@ -142,6 +142,19 @@ int main (int argc, char *argv [])
     rc = wap_client_stop_save_graph(client);
     assert(wap_client_status(client) == 2);
     
+    rc = wap_client_get_block_hash(client, 3);
+		zchunk_t *hash = wap_client_hash(client);
+		assert(zchunk_size(hash) == 5);
+ 
+ 		address = zchunk_new("12045", 5);
+    rc = wap_client_get_block_template(client, 5, &address);
+    assert(memcmp((char*)zchunk_data(hash), x, 5) == 0);
+    assert(wap_client_status(client) == 2);
+    assert(wap_client_reserved_offset(client) == 3);
+    assert(wap_client_height(client) == 4);
+    assert(wap_client_difficulty(client) == 5);
+    assert(memcmp((char*)zchunk_data(wap_client_address(client)), x, 5) == 0);
+    
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:
     wap_client_destroy (&client);

@@ -4,7 +4,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -22,6 +22,8 @@ The following ABNF grammar defines the Wallet Access Protocol:
     log_level = C:SET-LOG-LEVEL ( S:SET-LOG-LEVEL-OK / S:ERROR )
     start_save_graph = C:START-SAVE-GRAPH ( S:START-SAVE-GRAPH-OK / S:ERROR )
     stop_save_graph = C:STOP-SAVE-GRAPH ( S:STOP-SAVE-GRAPH-OK / S:ERROR )
+    block_hash = C:GET-BLOCK-HASH ( S:GET-BLOCK-HASH-OK / S:ERROR )
+    block_template = C:GET-BLOCK-TEMPLATE ( S:GET-BLOCK-TEMPLATE-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -211,35 +213,61 @@ The following ABNF grammar defines the Wallet Access Protocol:
     STOP-SAVE-GRAPH-OK = signature %d32 status
     status          = number-8              ; Status
 
+    ;  get_block_hash IPC                                                    
+
+    GET-BLOCK-HASH  = signature %d33 height
+    height          = number-8              ; Height
+
+    ;  No description                                                        
+
+    GET-BLOCK-HASH-OK = signature %d34 status hash
+    status          = number-8              ; Status
+    hash            = chunk                 ; Hash
+
+    ;  get_block_template IPC                                                
+
+    GET-BLOCK-TEMPLATE = signature %d35 reserve_size address
+    reserve_size    = number-8              ; Reserve size
+    address         = chunk                 ; Address
+
+    ;  No description                                                        
+
+    GET-BLOCK-TEMPLATE-OK = signature %d36 status reserved_offset height difficulty prev_hash
+    status          = number-8              ; Status
+    reserved_offset = number-8              ; Rservered Offset
+    height          = number-8              ; Height
+    difficulty      = number-8              ; Difficulty
+    prev_hash       = chunk                 ; Previous Hash
+
     ;  Wallet asks daemon to start mining. Daemon replies with STOP-OK, or   
     ;  ERROR.                                                                
 
-    STOP            = signature %d33
+    STOP            = signature %d37
 
     ;  Daemon replies to a stop mining request.                              
 
-    STOP-OK         = signature %d34
+    STOP-OK         = signature %d38
 
     ;  Wallet closes the connection. This is polite though not mandatory.    
     ;  Daemon will reply with CLOSE-OK or ERROR.                             
 
-    CLOSE           = signature %d35
+    CLOSE           = signature %d39
 
     ;  Daemon replies to a wallet connection close request.                  
 
-    CLOSE-OK        = signature %d36
+    CLOSE-OK        = signature %d40
 
     ;  Wallet heartbeats an idle connection.                                 
 
-    PING            = signature %d37
+    PING            = signature %d41
 
     ;  Daemon replies to a wallet ping request.                              
 
-    PING-OK         = signature %d38
+    PING-OK         = signature %d42
 
     ;  Daemon replies with failure status. Status codes tbd.                 
 
-    ERROR           = signature %d39 status reason
+    ERROR           = signature %d43 status reason
     status          = number-2              ; Error status
     reason          = string                ; Printable explanation
 

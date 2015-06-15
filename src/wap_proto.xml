@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -30,6 +30,8 @@
     log_level = C:SET-LOG-LEVEL ( S:SET-LOG-LEVEL-OK / S:ERROR )
     start_save_graph = C:START-SAVE-GRAPH ( S:START-SAVE-GRAPH-OK / S:ERROR )
     stop_save_graph = C:STOP-SAVE-GRAPH ( S:STOP-SAVE-GRAPH-OK / S:ERROR )
+    block_hash = C:GET-BLOCK-HASH ( S:GET-BLOCK-HASH-OK / S:ERROR )
+    block_template = C:GET-BLOCK-TEMPLATE ( S:GET-BLOCK-TEMPLATE-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -211,6 +213,30 @@
     
 		<message name = "STOP-SAVE-GRAPH-OK">
         <field name = "status" type = "number" size = "8" >Status</field>
+    </message>
+    
+    <message name = "GET-BLOCK-HASH">
+    		<field name = "height" type = "number" size = "8" >Height</field>
+        get_block_hash IPC
+    </message>
+    
+		<message name = "GET-BLOCK-HASH-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "hash" type = "chunk" >Hash</field>
+    </message>
+    
+    <message name = "GET-BLOCK-TEMPLATE">
+    		<field name = "reserve_size" type = "number" size = "8" >Reserve size</field>
+    		<field name = "address" type = "chunk" >Address</field>
+        get_block_template IPC
+    </message>
+    
+		<message name = "GET-BLOCK-TEMPLATE-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "reserved_offset" type = "number" size = "8" >Rservered Offset</field>
+        <field name = "height" type = "number" size = "8" >Height</field>
+        <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
+        <field name = "prev_hash" type = "chunk" >Previous Hash</field>
     </message>
 
     <message name = "STOP">

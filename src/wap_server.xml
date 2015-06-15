@@ -88,6 +88,14 @@
             <action name = "stop save graph" />
             <action name = "send" message = "STOP SAVE GRAPH OK" />
         </event>
+        <event name = "GET BLOCK HASH">
+            <action name = "get block hash" />
+            <action name = "send" message = "GET BLOCK HASH OK" />
+        </event>
+        <event name = "GET BLOCK TEMPLATE">
+            <action name = "get block template" />
+            <action name = "send" message = "GET BLOCK TEMPLATE OK" />
+        </event>
     </state>
 
     <state name = "defaults">

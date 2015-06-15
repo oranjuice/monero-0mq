@@ -91,6 +91,14 @@
         <event name = "stop save graph" next = "expect stop save graph ok">
             <action name = "send" message = "STOP SAVE GRAPH" />
         </event>
+        <event name = "get block hash" next = "expect get block hash ok">
+        		<action name = "prepare get block hash command" />
+            <action name = "send" message = "GET BLOCK HASH" />
+        </event>
+        <event name = "get block template" next = "expect get block template ok">
+        		<action name = "prepare get block template command" />
+            <action name = "send" message = "GET BLOCK TEMPLATE" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -195,7 +203,19 @@
             <action name = "signal have stop save graph ok" />
         </event>
     </state>
+    
+    <state name = "expect get block hash ok" inherit = "defaults">
+        <event name = "GET BLOCK HASH OK" next = "connected">
+            <action name = "signal have get block hash ok" />
+        </event>
+    </state>
 
+		<state name = "expect get block template ok" inherit = "defaults">
+        <event name = "GET BLOCK TEMPLATE OK" next = "connected">
+            <action name = "signal have get block template ok" />
+        </event>
+    </state>
+    
     <state name = "expect close ok" inherit = "defaults">
         <event name = "CLOSE OK">
             <action name = "signal success" />
@@ -459,6 +479,34 @@
     
     <reply name = "STOP SAVE GRAPH OK">
         <field name = "status" type = "number" size = "8" >Status</field>
+    </reply>
+    
+    <method name = "get block hash" return = "status">
+    		Get block hash
+    		<field name = "height" type = "number" size = "8" >Height</field>
+        <accept reply = "GET BLOCK HASH OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET BLOCK HASH OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "hash" type = "chunk" >Hash</field>
+    </reply>
+    
+    <method name = "get block template" return = "status">
+    		Get block template
+    		<field name = "reserve_size" type = "number" size = "8" >Reserve size</field>
+    		<field name = "address" type = "chunk" >Address</field>
+        <accept reply = "GET BLOCK TEMPLATE OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET BLOCK TEMPLATE OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "reserved_offset" type = "number" size = "8" >Rservered Offset</field>
+        <field name = "height" type = "number" size = "8" >Height</field>
+        <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
+        <field name = "prev_hash" type = "chunk" >Previous Hash</field>
     </reply>
 </class>
 
