@@ -232,12 +232,13 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  No description                                                        
 
-    GET-BLOCK-TEMPLATE-OK = signature %d36 status reserved_offset height difficulty prev_hash
+    GET-BLOCK-TEMPLATE-OK = signature %d36 status reserved_offset height difficulty prev_hash block_template_blob
     status          = number-8              ; Status
     reserved_offset = number-8              ; Rservered Offset
     height          = number-8              ; Height
     difficulty      = number-8              ; Difficulty
     prev_hash       = chunk                 ; Previous Hash
+    block_template_blob = chunk             ; Block template blob
 
     ;  Wallet asks daemon to start mining. Daemon replies with STOP-OK, or   
     ;  ERROR.                                                                

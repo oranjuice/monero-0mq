@@ -532,11 +532,12 @@ prepare_get_block_template_command (client_t *self)
 static void
 signal_have_get_block_template_ok (client_t *self)
 {
-    zsock_send (self->cmdpipe, "s8888p", "GET BLOCK TEMPLATE OK",
+    zsock_send (self->cmdpipe, "s8888pp", "GET BLOCK TEMPLATE OK",
         wap_proto_status (self->message), 
         wap_proto_reserved_offset (self->message),
         wap_proto_height (self->message),
         wap_proto_difficulty (self->message),
-        wap_proto_get_prev_hash (self->message));
+        wap_proto_get_prev_hash (self->message),
+        wap_proto_get_block_template_blob (self->message));
 }
 

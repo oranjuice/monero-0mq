@@ -265,6 +265,10 @@ WAP_EXPORT uint64_t
 WAP_EXPORT zchunk_t *
     wap_client_prev_hash (wap_client_t *self);
 
+//  Return last received block_template_blob
+WAP_EXPORT zchunk_t *
+    wap_client_block_template_blob (wap_client_t *self);
+
 //  Self test of this class
 WAP_EXPORT void
     wap_client_test (bool verbose);

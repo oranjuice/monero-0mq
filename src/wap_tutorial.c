@@ -154,6 +154,7 @@ int main (int argc, char *argv [])
     assert(wap_client_height(client) == 4);
     assert(wap_client_difficulty(client) == 5);
     assert(memcmp((char*)zchunk_data(wap_client_address(client)), x, 5) == 0);
+    assert(memcmp((char*)zchunk_data(wap_client_block_template_blob(client)), "12046", 5) == 0);
     
     //  Great, it all works. Now to shutdown, we use the destroy method,
     //  which does a proper deconnect handshake internally:

@@ -159,6 +159,7 @@ ERROR.
         height              number 8    Height
         difficulty          number 8    Difficulty
         prev_hash           chunk       Previous Hash
+        block_template_blob  chunk      Block template blob
 
     STOP - Wallet asks daemon to start mining. Daemon replies with STOP-OK, or
 ERROR.
@@ -544,6 +545,16 @@ zchunk_t *
 //  Set the prev_hash field, transferring ownership from caller
 void
     wap_proto_set_prev_hash (wap_proto_t *self, zchunk_t **chunk_p);
+
+//  Get a copy of the block_template_blob field
+zchunk_t *
+    wap_proto_block_template_blob (wap_proto_t *self);
+//  Get the block_template_blob field and transfer ownership to caller
+zchunk_t *
+    wap_proto_get_block_template_blob (wap_proto_t *self);
+//  Set the block_template_blob field, transferring ownership from caller
+void
+    wap_proto_set_block_template_blob (wap_proto_t *self, zchunk_t **chunk_p);
 
 //  Get/set the reason field
 const char *

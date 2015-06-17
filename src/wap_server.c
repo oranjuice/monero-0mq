@@ -441,5 +441,7 @@ get_block_template (client_t *self)
     wap_proto_set_difficulty(self->message, 5);
     zchunk_t *hash = zchunk_new("12045", 5);
     wap_proto_set_prev_hash(self->message, &hash);
+    zchunk_t *blob = zchunk_new("12046", 5);
+    wap_proto_set_block_template_blob(self->message, &blob);
 }
 

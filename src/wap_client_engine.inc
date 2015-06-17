@@ -2403,6 +2403,7 @@ struct _wap_client_t {
     zchunk_t *hash;             //  Returned by actor reply
     uint64_t reserved_offset;   //  Returned by actor reply
     zchunk_t *prev_hash;        //  Returned by actor reply
+    zchunk_t *block_template_blob;  //  Returned by actor reply
 };
 
 
@@ -2460,6 +2461,7 @@ wap_client_destroy (wap_client_t **self_p)
         zchunk_destroy (&self->address);
         zchunk_destroy (&self->hash);
         zchunk_destroy (&self->prev_hash);
+        zchunk_destroy (&self->block_template_blob);
         free (self);
         *self_p = NULL;
     }
@@ -2616,7 +2618,8 @@ s_accept_reply (wap_client_t *self, ...)
                 else
                 if (streq (reply, "GET BLOCK TEMPLATE OK")) {
                     zchunk_destroy (&self->prev_hash);
-                    zsock_recv (self->actor, "8888p", &self->status, &self->reserved_offset, &self->height, &self->difficulty, &self->prev_hash);
+                    zchunk_destroy (&self->block_template_blob);
+                    zsock_recv (self->actor, "8888pp", &self->status, &self->reserved_offset, &self->height, &self->difficulty, &self->prev_hash, &self->block_template_blob);
                 }
                 break;
             }
@@ -3258,4 +3261,15 @@ wap_client_prev_hash (wap_client_t *self)
 {
     assert (self);
     return self->prev_hash;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received block_template_blob
+
+zchunk_t *
+wap_client_block_template_blob (wap_client_t *self)
+{
+    assert (self);
+    return self->block_template_blob;
 }

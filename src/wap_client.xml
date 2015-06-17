@@ -507,6 +507,7 @@
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
         <field name = "prev_hash" type = "chunk" >Previous Hash</field>
+        <field name = "block_template_blob" type = "chunk" >Block template blob</field>
     </reply>
 </class>
 
