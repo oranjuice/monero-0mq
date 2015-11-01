@@ -389,6 +389,7 @@
         <field name = "incoming_connections_count" type = "number" size = "8" >Incoming Connections Count</field>
         <field name = "white_peerlist_size" type = "number" size = "8" >White Peerlist Size</field>
         <field name = "grey_peerlist_size" type = "number" size = "8" >Grey Peerlist Size</field>
+        <field name = "testnet" type = "number" size = "1" >Testnet</field>
     </reply>
 
     <method name = "start" return = "status">

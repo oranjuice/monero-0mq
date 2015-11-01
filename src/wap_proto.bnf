@@ -138,7 +138,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  No description                                                        
 
-    GET-INFO-OK     = signature %d20 status height target_height difficulty tx_count tx_pool_size alt_blocks_count outgoing_connections_count incoming_connections_count white_peerlist_size grey_peerlist_size
+    GET-INFO-OK     = signature %d20 status height target_height difficulty tx_count tx_pool_size alt_blocks_count outgoing_connections_count incoming_connections_count white_peerlist_size grey_peerlist_size testnet
     status          = number-8              ; Status
     height          = number-8              ; Height
     target_height   = number-8              ; Target Height
@@ -150,6 +150,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     incoming_connections_count = number-8   ; Incoming Connections Count
     white_peerlist_size = number-8          ; White Peerlist Size
     grey_peerlist_size = number-8           ; Grey Peerlist Size
+    testnet         = number-1              ; Testnet
 
     ;  get_peer_list IPC                                                     
 
