@@ -57,7 +57,7 @@ typedef enum {
 } event_t;
 
 //  Names for state machine logging and error reporting
-static char *
+static const char *
 s_state_name [] = {
     "(NONE)",
     "start",
@@ -66,7 +66,7 @@ s_state_name [] = {
     "settling"
 };
 
-static char *
+static const char *
 s_event_name [] = {
     "(NONE)",
     "terminate",
@@ -113,7 +113,7 @@ typedef struct {
     uint client_id;             //  Client identifier counter
     size_t timeout;             //  Default client expiry timeout
     bool verbose;               //  Verbose logging enabled?
-    char *log_prefix;           //  Default log prefix
+    const char *log_prefix;     //  Default log prefix
 } s_server_t;
 
 
@@ -281,21 +281,27 @@ engine_broadcast_event (server_t *server, client_t *client, event_t event)
     }
 }
 
-//  Poll socket for activity, invoke handler on any received message.
-//  Handler must be a CZMQ zloop_fn function; receives server as arg.
+//  Poll actor or zsock for activity, invoke handler on any received
+//  message. Handler must be a CZMQ zloop_fn function; receives server
+//  as arg.
 
 static void
-engine_handle_socket (server_t *server, zsock_t *socket, zloop_reader_fn handler)
+engine_handle_socket (server_t *server, void *sock, zloop_reader_fn handler)
 {
     if (server) {
         s_server_t *self = (s_server_t *) server;
+        //  Resolve zactor_t -> zsock_t
+        if (zactor_is (sock))
+            sock = zactor_sock ((zactor_t *) sock);
+        else
+            assert (zsock_is (sock));
         if (handler != NULL) {
-            int rc = zloop_reader (self->loop, socket, handler, self);
+            int rc = zloop_reader (self->loop, (zsock_t *) sock, handler, self);
             assert (rc == 0);
-            zloop_reader_set_tolerant (self->loop, socket);
+            zloop_reader_set_tolerant (self->loop, (zsock_t *) sock);
         }
         else
-            zloop_reader_end (self->loop, socket);
+            zloop_reader_end (self->loop, (zsock_t *) sock);
     }
 }
 
@@ -1263,8 +1269,8 @@ static int
 s_client_handle_ticket (zloop_t *loop, int timer_id, void *argument)
 {
     s_client_t *self = (s_client_t *) argument;
-    s_client_execute (self, expired_event);
     self->ticket = NULL;        //  Ticket is now dead
+    s_client_execute (self, expired_event);
     return 0;
 }
 
@@ -1312,6 +1318,7 @@ s_server_new (zsock_t *pipe)
 
     self->pipe = pipe;
     self->router = zsock_new (ZMQ_ROUTER);
+    assert (self->router);
     //  By default the socket will discard outgoing messages above the
     //  HWM of 1,000. This isn't helpful for high-volume streaming. We
     //  will use a unbounded queue here. If applications need to guard
