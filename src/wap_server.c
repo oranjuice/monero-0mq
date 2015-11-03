@@ -445,3 +445,14 @@ get_block_template (client_t *self)
     wap_proto_set_block_template_blob(self->message, &blob);
 }
 
+
+
+//  ---------------------------------------------------------------------------
+//  get_hard_fork_info
+//
+
+static void
+get_hard_fork_info (client_t *self)
+{
+
+}

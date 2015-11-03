@@ -541,3 +541,13 @@ signal_have_get_block_template_ok (client_t *self)
         wap_proto_get_block_template_blob (self->message));
 }
 
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_hard_fork_info_ok
+//
+
+static void
+signal_have_get_hard_fork_info_ok (client_t *self)
+{
+}

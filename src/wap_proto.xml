@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     put = C:PUT ( S:PUT-OK / S:ERROR )
@@ -32,6 +32,7 @@
     stop_save_graph = C:STOP-SAVE-GRAPH ( S:STOP-SAVE-GRAPH-OK / S:ERROR )
     block_hash = C:GET-BLOCK-HASH ( S:GET-BLOCK-HASH-OK / S:ERROR )
     block_template = C:GET-BLOCK-TEMPLATE ( S:GET-BLOCK-TEMPLATE-OK / S:ERROR )
+    get_hard_fork_info = C:GET-HARD-FORK-INFO ( S:GET-HARD-FORK-INFO-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -248,6 +249,22 @@
 
     <message name = "STOP-OK">
         Daemon replies to a stop mining request.
+    </message>
+
+    <message name = "GET-HARD-FORK-INFO">
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
+        get_hard_fork_info IPC
+    </message>
+
+    <message name = "GET-HARD-FORK-INFO-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
+        <field name = "enabled" type = "number" size = "1" >Enabled</field>
+        <field name = "window" type = "number" size = "4" >Window</field>
+        <field name = "votes" type = "number" size = "4" >Votes</field>
+        <field name = "threshold" type = "number" size = "4" >Threshold</field>
+        <field name = "voting" type = "number" size = "1" >Voting</field>
+        <field name = "hfstate" type = "number" size = "4" >State</field>
     </message>
 
     <message name = "CLOSE">

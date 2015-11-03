@@ -96,6 +96,10 @@
             <action name = "get block template" />
             <action name = "send" message = "GET BLOCK TEMPLATE OK" />
         </event>
+        <event name = "GET HARD FORK INFO">
+            <action name = "get_hard_fork_info" />
+            <action name = "send" message = "GET HARD FORK INFO OK" />
+        </event>
     </state>
 
     <state name = "defaults">

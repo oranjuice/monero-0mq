@@ -99,6 +99,9 @@
         		<action name = "prepare get block template command" />
             <action name = "send" message = "GET BLOCK TEMPLATE" />
         </event>
+        <event name = "get hard fork info" next = "expect get hard fork info ok">
+            <action name = "send" message = "GET HARD FORK INFO" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -216,6 +219,12 @@
         </event>
     </state>
     
+    <state name = "expect get hard fork info ok" inherit = "defaults">
+        <event name = "GET HARD FORK INFO OK" next = "connected">
+            <action name = "signal have get hard fork info ok" />
+        </event>
+    </state>
+
     <state name = "expect close ok" inherit = "defaults">
         <event name = "CLOSE OK">
             <action name = "signal success" />
@@ -510,5 +519,23 @@
         <field name = "prev_hash" type = "chunk" >Previous Hash</field>
         <field name = "block_template_blob" type = "chunk" >Block template blob</field>
     </reply>
+
+    <method name = "get hard fork info" return = "status">
+        Ask for hard fork info.
+        <accept reply = "GET HARD FORK INFO OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET HARD FORK INFO OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
+        <field name = "enabled" type = "number" size = "1" >Enabled</field>
+        <field name = "window" type = "number" size = "4" >Window</field>
+        <field name = "votes" type = "number" size = "4" >Votes</field>
+        <field name = "threshold" type = "number" size = "4" >Threshold</field>
+        <field name = "voting" type = "number" size = "1" >Voting</field>
+        <field name = "hfstate" type = "number" size = "4" >State</field>
+    </reply>
+
 </class>
 
