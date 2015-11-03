@@ -15,7 +15,7 @@
     traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
-    put = C:PUT ( S:PUT-OK / S:ERROR )
+    send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
     get = C:GET ( S:GET-OK / S:ERROR )
     save_bc = C:SAVE-BC ( S:SAVE-BC-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
@@ -66,13 +66,13 @@
         <field name = "block data" type = "msg">Frames of block data</field>
     </message>
 
-    <message name = "PUT">
+    <message name = "SEND-RAW-TRANSACTION">
         Wallet sends a raw transaction to the daemon. Daemon replies with
-        PUT-OK, or ERROR.
+        SEND-RAW-TRANSACTION-OK, or ERROR.
         <field name = "tx as hex" type = "chunk">Transaction as hex</field>
     </message>
 
-    <message name = "PUT-OK">
+    <message name = "SEND-RAW-TRANSACTION-OK">
         Daemon confirms that it accepted the raw transaction.
         <field name = "status" type = "number" size = "8">Transaction ID</field>
     </message>

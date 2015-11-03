@@ -28,9 +28,9 @@
             <action name = "retrieve blocks" />
             <action name = "send" message = "BLOCKS OK" />
         </event>
-        <event name = "PUT">
+        <event name = "SEND RAW TRANSACTION">
             <action name = "send transaction" />
-            <action name = "send" message = "PUT OK" />
+            <action name = "send" message = "SEND RAW TRANSACTION OK" />
         </event>
         <event name = "GET">
             <action name = "retrieve transaction" />

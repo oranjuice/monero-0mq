@@ -7,7 +7,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
-    put = C:PUT ( S:PUT-OK / S:ERROR )
+    send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
     get = C:GET ( S:GET-OK / S:ERROR )
     save_bc = C:SAVE-BC ( S:SAVE-BC-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
@@ -58,14 +58,14 @@ The following ABNF grammar defines the Wallet Access Protocol:
     block_data      = msg                   ; Frames of block data
 
     ;  Wallet sends a raw transaction to the daemon. Daemon replies with     
-    ;  PUT-OK, or ERROR.                                                     
+    ;  SEND-RAW-TRANSACTION-OK, or ERROR.                                    
 
-    PUT             = signature %d5 tx_as_hex
+    SEND-RAW-TRANSACTION = signature %d5 tx_as_hex
     tx_as_hex       = chunk                 ; Transaction as hex
 
     ;  Daemon confirms that it accepted the raw transaction.                 
 
-    PUT-OK          = signature %d6 status
+    SEND-RAW-TRANSACTION-OK = signature %d6 status
     status          = number-8              ; Transaction ID
 
     ;  Ask for tx output indexes.                                            

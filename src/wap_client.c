@@ -551,3 +551,23 @@ static void
 signal_have_get_hard_fork_info_ok (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_send_raw_transaction_command
+//
+
+static void
+prepare_send_raw_transaction_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_send_raw_transaction_ok
+//
+
+static void
+signal_have_send_raw_transaction_ok (client_t *self)
+{
+}

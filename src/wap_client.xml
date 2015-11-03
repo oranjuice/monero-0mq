@@ -43,9 +43,9 @@
             <action name = "prepare get command" />
             <action name = "send" message = "GET" />
         </event>
-        <event name = "put" next = "expect put ok">
-            <action name = "prepare put command" />
-            <action name = "send" message = "PUT" />
+        <event name = "send raw transaction" next = "expect send raw transaction ok">
+            <action name = "prepare send raw transaction command" />
+            <action name = "send" message = "SEND RAW TRANSACTION" />
         </event>
         <event name = "save bc" next = "expect save bc ok">
             <action name = "send" message = "SAVE BC" />
@@ -123,9 +123,9 @@
         </event>
     </state>
 
-    <state name = "expect put ok" inherit = "defaults">
-        <event name = "PUT OK" next = "connected">
-            <action name = "signal have put ok" />
+    <state name = "expect send raw transaction ok" inherit = "defaults">
+        <event name = "SEND RAW TRANSACTION OK" next = "connected">
+            <action name = "signal have send raw transaction ok" />
         </event>
     </state>
 
@@ -311,14 +311,14 @@
         <field name = "block data" type = "msg" />
     </reply>
     
-    <method name = "put" return = "status">
+    <method name = "send raw transaction" return = "status">
     Send a raw transaction to the daemon.
         <field name = "tx as hex" type = "chunk" />
-        <accept reply = "PUT OK" />
+        <accept reply = "SEND RAW TRANSACTION OK" />
         <accept reply = "FAILURE" />
     </method>
 
-    <reply name = "PUT OK">
+    <reply name = "SEND RAW TRANSACTION OK">
         <field name = "status" type = "number" size = "8" />
     </reply>
 
