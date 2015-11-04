@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
@@ -33,6 +33,7 @@
     block_hash = C:GET-BLOCK-HASH ( S:GET-BLOCK-HASH-OK / S:ERROR )
     block_template = C:GET-BLOCK-TEMPLATE ( S:GET-BLOCK-TEMPLATE-OK / S:ERROR )
     get_hard_fork_info = C:GET-HARD-FORK-INFO ( S:GET-HARD-FORK-INFO-OK / S:ERROR )
+    connections_list = C:GET-CONNECTIONS-LIST ( S:GET-CONNECTIONS-LIST-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -267,6 +268,15 @@
         <field name = "hfstate" type = "number" size = "4" >State</field>
     </message>
 
+    <message name = "GET-CONNECTIONS LIST">
+        get_connections_list IPC
+    </message>
+    
+    <message name = "GET-CONNECTIONS-LIST-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "connections" type = "frame" >Connections</field>
+    </message>
+    
     <message name = "CLOSE">
         Wallet closes the connection. This is polite though not mandatory.
         Daemon will reply with CLOSE-OK or ERROR.

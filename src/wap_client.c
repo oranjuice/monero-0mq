@@ -571,3 +571,13 @@ static void
 signal_have_send_raw_transaction_ok (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_connections_list_ok
+//
+
+static void
+signal_have_get_connections_list_ok (client_t *self)
+{
+}

@@ -456,3 +456,25 @@ get_hard_fork_info (client_t *self)
 {
 
 }
+
+
+//  ---------------------------------------------------------------------------
+//  get_connections
+//
+
+static void
+get_connections (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_connections_list
+//
+
+static void
+get_connections_list (client_t *self)
+{
+
+}

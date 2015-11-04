@@ -102,6 +102,9 @@
         <event name = "get hard fork info" next = "expect get hard fork info ok">
             <action name = "send" message = "GET HARD FORK INFO" />
         </event>
+        <event name = "get connections list" next = "expect get connections list ok">
+            <action name = "send" message = "GET CONNECTIONS LIST" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -225,6 +228,12 @@
         </event>
     </state>
 
+    <state name = "expect get connections list ok" inherit = "defaults">
+        <event name = "GET CONNECTIONS LIST OK" next = "connected">
+            <action name = "signal have get connections list ok" />
+        </event>
+    </state>
+    
     <state name = "expect close ok" inherit = "defaults">
         <event name = "CLOSE OK">
             <action name = "signal success" />
@@ -537,5 +546,16 @@
         <field name = "hfstate" type = "number" size = "4" >State</field>
     </reply>
 
+    <method name = "get connections list" return = "status">
+    	Get connections
+        <accept reply = "GET CONNECTIONS LIST OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET CONNECTIONS LIST OK">
+        <field name = "status" type = "number" size = "8" />
+        <field name = "connections" type = "frame" >Connections</field>
+    </reply>
+    
 </class>
 
