@@ -105,6 +105,9 @@
         <event name = "get connections list" next = "expect get connections list ok">
             <action name = "send" message = "GET CONNECTIONS LIST" />
         </event>
+        <event name = "stop daemon" next = "expect stop daemon ok">
+            <action name = "send" message = "STOP DAEMON" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -231,6 +234,12 @@
     <state name = "expect get connections list ok" inherit = "defaults">
         <event name = "GET CONNECTIONS LIST OK" next = "connected">
             <action name = "signal have get connections list ok" />
+        </event>
+    </state>
+    
+    <state name = "expect stop daemon ok" inherit = "defaults">
+        <event name = "STOP DAEMON OK" next = "connected">
+            <action name = "signal have stop daemon ok" />
         </event>
     </state>
     
@@ -555,6 +564,16 @@
     <reply name = "GET CONNECTIONS LIST OK">
         <field name = "status" type = "number" size = "8" />
         <field name = "connections" type = "frame" >Connections</field>
+    </reply>
+    
+    <method name = "stop daemon" return = "status">
+        Stop daemon
+        <accept reply = "STOP DAEMON OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "STOP DAEMON OK">
+        <field name = "status" type = "number" size = "8" />
     </reply>
     
 </class>

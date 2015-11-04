@@ -478,3 +478,14 @@ get_connections_list (client_t *self)
 {
 
 }
+
+
+//  ---------------------------------------------------------------------------
+//  stop_daemon
+//
+
+static void
+stop_daemon (client_t *self)
+{
+
+}

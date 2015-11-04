@@ -104,6 +104,10 @@
             <action name = "get connections list" />
             <action name = "send" message = "GET CONNECTIONS LIST OK" />
         </event>
+        <event name = "STOP DAEMON">
+            <action name = "stop daemon" />
+            <action name = "send" message = "STOP DAEMON OK" />
+        </event>
     </state>
 
     <state name = "defaults">
