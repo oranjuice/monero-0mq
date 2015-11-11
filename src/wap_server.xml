@@ -32,9 +32,9 @@
             <action name = "send transaction" />
             <action name = "send" message = "SEND RAW TRANSACTION OK" />
         </event>
-        <event name = "GET">
+        <event name = "GET TX">
             <action name = "retrieve transaction" />
-            <action name = "send" message = "GET OK" />
+            <action name = "send" message = "GET TX OK" />
         </event>
         <event name = "SAVE BC">
         		<action name = "save bc" />

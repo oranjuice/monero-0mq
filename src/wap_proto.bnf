@@ -4,11 +4,11 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash
+    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
-    get = C:GET ( S:GET-OK / S:ERROR )
+    get_tx = C:GET-TX ( S:GET-TX-OK / S:ERROR )
     save_bc = C:SAVE-BC ( S:SAVE-BC-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
     stop = C:STOP ( S:STOP-OK / S:ERROR )
@@ -108,12 +108,12 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Wallet requests transaction data from the daemon. Daemon replies with 
     ;  GET-OK, or ERROR.                                                     
 
-    GET             = signature %d13 tx_id
+    GET-TX          = signature %d13 tx_id
     tx_id           = chunk                 ; Transaction ID
 
     ;  Daemon replies with transaction data.                                 
 
-    GET-OK          = signature %d14 tx_data
+    GET-TX-OK       = signature %d14 tx_data
     tx_data         = chunk                 ; Transaction data
 
     ;  save_bc command. Details tbd.                                         

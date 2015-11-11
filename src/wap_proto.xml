@@ -12,11 +12,11 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash
+    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
-    get = C:GET ( S:GET-OK / S:ERROR )
+    get_tx = C:GET-TX ( S:GET-TX-OK / S:ERROR )
     save_bc = C:SAVE-BC ( S:SAVE-BC-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
     stop = C:STOP ( S:STOP-OK / S:ERROR )
@@ -114,13 +114,13 @@
         <field name = "height" type = "number" size = "8" >Height</field>
     </message>
 
-    <message name = "GET">
+    <message name = "GET-TX">
         Wallet requests transaction data from the daemon. Daemon replies
         with GET-OK, or ERROR.
         <field name = "tx id" type = "chunk">Transaction ID</field>
     </message>
 
-    <message name = "GET-OK">
+    <message name = "GET-TX-OK">
         Daemon replies with transaction data.
         <field name = "tx data" type = "chunk">Transaction data</field>
     </message>

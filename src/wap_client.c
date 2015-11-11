@@ -631,3 +631,23 @@ static void
 prepare_get_block_by_hash_command (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_tx_command
+//
+
+static void
+prepare_get_tx_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_tx_ok
+//
+
+static void
+signal_have_get_tx_ok (client_t *self)
+{
+}

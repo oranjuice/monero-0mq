@@ -39,9 +39,9 @@
             <action name = "prepare blocks command" />
             <action name = "send" message = "BLOCKS" />
         </event>
-        <event name = "get" next = "expect get ok">
-            <action name = "prepare get command" />
-            <action name = "send" message = "GET" />
+        <event name = "get tx" next = "expect get tx ok">
+            <action name = "prepare get tx command" />
+            <action name = "send" message = "GET-TX" />
         </event>
         <event name = "send raw transaction" next = "expect send raw transaction ok">
             <action name = "prepare send raw transaction command" />
@@ -131,9 +131,9 @@
         </event>
     </state>
 
-    <state name = "expect get ok" inherit = "defaults">
-        <event name = "GET OK" next = "connected">
-            <action name = "signal have get ok" />
+    <state name = "expect get tx ok" inherit = "defaults">
+        <event name = "GET TX OK" next = "connected">
+            <action name = "signal have get tx ok" />
         </event>
     </state>
 
@@ -360,14 +360,14 @@
         <field name = "status" type = "number" size = "4" />
     </reply>
 
-    <method name = "get" return = "status">
-    Request a set of blocks from the server.
+    <method name = "get tx" return = "status">
+    Request a set of transactions from the server.
         <field name = "tx id" type = "chunk" />
-        <accept reply = "GET OK" />
+        <accept reply = "GET TX OK" />
         <accept reply = "FAILURE" />
     </method>
 
-    <reply name = "GET OK">
+    <reply name = "GET TX OK">
         <field name = "status" type = "integer" />
         <field name = "tx data" type = "chunk" />
     </reply>
