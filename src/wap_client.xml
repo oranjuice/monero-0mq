@@ -117,6 +117,10 @@
             <action name = "prepare get block by hash command" />
             <action name = "send" message = "GET BLOCK BY HASH" />
         </event>
+        <event name = "get key image status" next = "expect get key image status ok">
+            <action name = "prepare get key image status command" />
+            <action name = "send" message = "GET KEY IMAGE STATUS" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -264,6 +268,12 @@
         </event>
     </state>
     
+    <state name = "expect get key image status ok" inherit = "defaults">
+        <event name = "GET KEY IMAGE STATUS OK" next = "connected">
+            <action name = "signal have get key image status ok" />
+        </event>
+    </state>
+
     <state name = "expect close ok" inherit = "defaults">
         <event name = "CLOSE OK">
             <action name = "signal success" />
@@ -648,6 +658,18 @@
         <field name = "hash" type = "chunk" />
         <field name = "difficulty" type = "number" size="8" />
         <field name = "reward" type = "number" size="8" />
+    </reply>
+    
+    <method name = "get key image status" return = "status">
+        Request key image status from the daemon.
+        <field name = "key images" type = "frame" />
+        <accept reply = "GET KEY IMAGE STATUS OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET KEY IMAGE STATUS OK">
+        <field name = "status" type = "number" size = "4" />
+        <field name = "spent" type = "frame" />
     </reply>
     
 </class>

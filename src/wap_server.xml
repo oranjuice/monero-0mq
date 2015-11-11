@@ -116,6 +116,10 @@
             <action name = "get block by hash" />
             <action name = "send" message = "GET BLOCK BY HASH OK" />
         </event>
+        <event name = "GET-KEY-IMAGE-STATUS">
+            <action name = "get key image status" />
+            <action name = "send" message = "GET KEY IMAGE STATUS OK" />
+        </event>
     </state>
 
     <state name = "defaults">

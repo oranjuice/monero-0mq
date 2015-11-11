@@ -511,3 +511,14 @@ get_block_by_hash (client_t *self)
 {
 
 }
+
+
+//  ---------------------------------------------------------------------------
+//  get_key_image_status
+//
+
+static void
+get_key_image_status (client_t *self)
+{
+
+}

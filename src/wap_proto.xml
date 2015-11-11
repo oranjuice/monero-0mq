@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash
+    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash / get_key_image_status
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
@@ -37,6 +37,7 @@
     stop_daemon = C:STOP-DAEMON ( S:STOP-DAEMON-OK / S:ERROR )
     get_block_by_height = C:GET-BLOCK-BY-HEIGHT ( S:GET-BLOCK-BY-HEIGHT-OK / S:ERROR )
     get_block_by_hash = C:GET-BLOCK-BY-HASH ( S:GET-BLOCK-BY-HASH-OK / S:ERROR )
+    get_key_image_status = C:GET-KEY-IMAGE-STATUS ( S:GET-KEY-IMAGE-STATUS-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -334,6 +335,17 @@
         <field name = "hash" type = "chunk" />
         <field name = "difficulty" type = "number" size="8" />
         <field name = "reward" type = "number" size="8" />
+    </message>
+
+    <message name = "GET-KEY-IMAGE-STATUS">
+        Request whether key images are spent
+        <field name = "key images" type = "frame" />
+    </message>
+
+    <message name = "GET-KEY-IMAGE-STATUS-OK">
+        Daemon returns spent status for the key images.
+        <field name = "status" type = "number" size = "4">Status</field>
+        <field name = "spent" type = "frame">Key image spent status</field>
     </message>
 
     <message name = "CLOSE">
