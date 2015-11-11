@@ -100,6 +100,7 @@
             <action name = "send" message = "GET BLOCK TEMPLATE" />
         </event>
         <event name = "get hard fork info" next = "expect get hard fork info ok">
+            <action name = "prepare hard fork info command" />
             <action name = "send" message = "GET HARD FORK INFO" />
         </event>
         <event name = "get connections list" next = "expect get connections list ok">
@@ -562,6 +563,7 @@
 
     <method name = "get hard fork info" return = "status">
         Ask for hard fork info.
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
         <accept reply = "GET HARD FORK INFO OK" />
         <accept reply = "FAILURE" />
     </method>

@@ -651,3 +651,13 @@ static void
 signal_have_get_tx_ok (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_hard_fork_info_command
+//
+
+static void
+prepare_hard_fork_info_command (client_t *self)
+{
+}
