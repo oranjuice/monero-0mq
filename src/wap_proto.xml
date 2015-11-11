@@ -64,7 +64,7 @@
 
     <message name = "BLOCKS-OK">
         Daemon returns a set of blocks to the wallet.
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4">Status</field>
         <field name = "start height" type = "number" size = "8" />
         <field name = "curr height" type = "number" size = "8" />
         <field name = "block data" type = "msg">Frames of block data</field>
@@ -78,7 +78,7 @@
 
     <message name = "SEND-RAW-TRANSACTION-OK">
         Daemon confirms that it accepted the raw transaction.
-        <field name = "status" type = "number" size = "8">Transaction ID</field>
+        <field name = "status" type = "number" size = "4">Status</field>
     </message>
     
     <message name = "OUTPUT-INDEXES">
@@ -88,7 +88,7 @@
     
     <message name = "OUTPUT-INDEXES-OK">
         Daemon returns tx output indexes.
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "o indexes" type = "frame" >Output Indexes</field>
     </message>
     
@@ -100,7 +100,7 @@
     
     <message name = "RANDOM-OUTS-OK">
     		Daemon returns random outputs for amounts.
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "random outputs" type = "frame" >Outputs</field>
     </message>
     
@@ -110,7 +110,7 @@
     
     <message name = "GET-HEIGHT-OK">
     		Daemon returns height.
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
     </message>
 
@@ -131,7 +131,7 @@
 
     <message name = "SAVE-BC-OK">
         Daemon replies to a save_bc command.
-        <field name = "status" type = "number" size = "8">Status</field>
+        <field name = "status" type = "number" size = "4">Status</field>
     </message>
 
     <message name = "START">
@@ -143,7 +143,7 @@
 
     <message name = "START-OK">
         Daemon replies to a start mining request.
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </message>
     
     <message name = "GET-INFO">
@@ -151,7 +151,7 @@
     </message>
 
     <message name = "GET-INFO-OK">
-		    <field name = "status" type = "number" size = "8" >Status</field>
+		    <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "target_height" type = "number" size = "8" >Target Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -170,7 +170,7 @@
     </message>
     
 		<message name = "GET-PEER-LIST-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "white_list" type = "frame" >White list</field>
         <field name = "gray_list" type = "frame" >Gray list</field>
     </message>
@@ -180,7 +180,7 @@
     </message>
     
 		<message name = "GET-MINING-STATUS-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "active" type = "number" size = "1" >Active</field>
         <field name = "speed" type = "number" size = "8" >Speed</field>
         <field name = "thread_count" type = "number" size = "8" >Threads count</field>
@@ -193,7 +193,7 @@
     </message>
     
 		<message name = "SET-LOG-HASH-RATE-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
 
 		<message name = "SET-LOG-LEVEL">
@@ -202,7 +202,7 @@
     </message>
     
 		<message name = "SET-LOG-LEVEL-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
     
     <message name = "START-SAVE-GRAPH">
@@ -210,7 +210,7 @@
     </message>
     
 		<message name = "START-SAVE-GRAPH-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
     
     <message name = "STOP-SAVE-GRAPH">
@@ -218,7 +218,7 @@
     </message>
     
 		<message name = "STOP-SAVE-GRAPH-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
     
     <message name = "GET-BLOCK-HASH">
@@ -227,7 +227,7 @@
     </message>
     
 		<message name = "GET-BLOCK-HASH-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "hash" type = "chunk" >Hash</field>
     </message>
     
@@ -238,7 +238,7 @@
     </message>
     
 		<message name = "GET-BLOCK-TEMPLATE-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "reserved_offset" type = "number" size = "8" >Rservered Offset</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -261,7 +261,7 @@
     </message>
 
     <message name = "GET-HARD-FORK-INFO-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "hfversion" type = "number" size = "1" >Version</field>
         <field name = "enabled" type = "number" size = "1" >Enabled</field>
         <field name = "window" type = "number" size = "4" >Window</field>
@@ -276,7 +276,7 @@
     </message>
     
     <message name = "GET-CONNECTIONS-LIST-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "connections" type = "frame" >Connections</field>
     </message>
     
@@ -285,7 +285,7 @@
     </message>
     
     <message name = "STOP-DAEMON-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
 
     <message name = "GET-BLOCK-BY-HEIGHT">
@@ -296,7 +296,7 @@
     </message>
     
     <message name = "GET-BLOCK-BY-HEIGHT-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "block" type = "chunk" >Block blob</field>
         <field name = "major_version" type = "number" size="1" />
         <field name = "minor_version" type = "number" size="1" />
@@ -319,7 +319,7 @@
     </message>
     
     <message name = "GET-BLOCK-BY-HASH-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "block" type = "chunk" >Block blob</field>
         <field name = "major_version" type = "number" size="1" />
         <field name = "minor_version" type = "number" size="1" />

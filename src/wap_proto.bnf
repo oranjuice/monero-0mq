@@ -56,7 +56,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon returns a set of blocks to the wallet.                         
 
     BLOCKS-OK       = signature %d4 status start_height curr_height block_data
-    status          = number-8              ; 
+    status          = number-4              ; Status
     start_height    = number-8              ; 
     curr_height     = number-8              ; 
     block_data      = msg                   ; Frames of block data
@@ -70,7 +70,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon confirms that it accepted the raw transaction.                 
 
     SEND-RAW-TRANSACTION-OK = signature %d6 status
-    status          = number-8              ; Transaction ID
+    status          = number-4              ; Status
 
     ;  Ask for tx output indexes.                                            
 
@@ -80,7 +80,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon returns tx output indexes.                                     
 
     OUTPUT-INDEXES-OK = signature %d8 status o_indexes
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     o_indexes       = frame                 ; Output Indexes
 
     ;  Get random outputs for amounts.                                       
@@ -92,7 +92,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon returns random outputs for amounts.                            
 
     RANDOM-OUTS-OK  = signature %d10 status random_outputs
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     random_outputs  = frame                 ; Outputs
 
     ;  Get height.                                                           
@@ -102,7 +102,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon returns height.                                                
 
     GET-HEIGHT-OK   = signature %d12 status height
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     height          = number-8              ; Height
 
     ;  Wallet requests transaction data from the daemon. Daemon replies with 
@@ -123,7 +123,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon replies to a save_bc command.                                  
 
     SAVE-BC-OK      = signature %d16 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
     ;  ERROR.                                                                
@@ -135,7 +135,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon replies to a start mining request.                             
 
     START-OK        = signature %d18 status
-    status          = number-8              ; 
+    status          = number-4              ; 
 
     ;  getinfo IPC                                                           
 
@@ -144,7 +144,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-INFO-OK     = signature %d20 status height target_height difficulty tx_count tx_pool_size alt_blocks_count outgoing_connections_count incoming_connections_count white_peerlist_size grey_peerlist_size testnet
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     height          = number-8              ; Height
     target_height   = number-8              ; Target Height
     difficulty      = number-8              ; Difficulty
@@ -164,7 +164,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-PEER-LIST-OK = signature %d22 status white_list gray_list
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     white_list      = frame                 ; White list
     gray_list       = frame                 ; Gray list
 
@@ -175,7 +175,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-MINING-STATUS-OK = signature %d24 status active speed thread_count address
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     active          = number-1              ; Active
     speed           = number-8              ; Speed
     thread_count    = number-8              ; Threads count
@@ -189,7 +189,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     SET-LOG-HASH-RATE-OK = signature %d26 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  set_log_level IPC                                                     
 
@@ -199,7 +199,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     SET-LOG-LEVEL-OK = signature %d28 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  start_save_graph IPC                                                  
 
@@ -208,7 +208,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     START-SAVE-GRAPH-OK = signature %d30 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  stop_save_graph IPC                                                   
 
@@ -217,7 +217,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     STOP-SAVE-GRAPH-OK = signature %d32 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  get_block_hash IPC                                                    
 
@@ -227,7 +227,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-BLOCK-HASH-OK = signature %d34 status hash
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     hash            = chunk                 ; Hash
 
     ;  get_block_template IPC                                                
@@ -239,7 +239,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-BLOCK-TEMPLATE-OK = signature %d36 status reserved_offset height difficulty prev_hash block_template_blob
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     reserved_offset = number-8              ; Rservered Offset
     height          = number-8              ; Height
     difficulty      = number-8              ; Difficulty
@@ -263,7 +263,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-HARD-FORK-INFO-OK = signature %d40 status hfversion enabled window votes threshold voting hfstate
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     hfversion       = number-1              ; Version
     enabled         = number-1              ; Enabled
     window          = number-4              ; Window
@@ -279,7 +279,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-CONNECTIONS-LIST-OK = signature %d42 status connections
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     connections     = frame                 ; Connections
 
     ;  stop_daemon IPC                                                       
@@ -289,7 +289,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     STOP-DAEMON-OK  = signature %d44 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  get_block_by_height IPC                                               
 
@@ -301,7 +301,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-BLOCK-BY-HEIGHT-OK = signature %d46 status block major_version minor_version timestamp prev_hash nonce orphan height depth hash difficulty reward
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     block           = chunk                 ; Block blob
     major_version   = number-1              ; 
     minor_version   = number-1              ; 
@@ -325,7 +325,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-BLOCK-BY-HASH-OK = signature %d48 status block major_version minor_version timestamp prev_hash nonce height depth hash difficulty reward
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     block           = chunk                 ; Block blob
     major_version   = number-1              ; 
     minor_version   = number-1              ; 

@@ -343,7 +343,7 @@
     </method>
 
     <reply name = "BLOCKS OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "start height" type = "number" size = "8" />
         <field name = "curr height" type = "number" size = "8" />
         <field name = "block data" type = "msg" />
@@ -357,7 +357,7 @@
     </method>
 
     <reply name = "SEND RAW TRANSACTION OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </reply>
 
     <method name = "get" return = "status">
@@ -379,7 +379,7 @@
     </method>
 
     <reply name = "SAVE BC OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </reply>
 
 		<method name = "output indexes" return = "status">
@@ -390,7 +390,7 @@
     </method>
 
     <reply name = "OUTPUT INDEXES OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "o indexes" type = "frame" >Output Indexes</field>
     </reply>
     
@@ -403,7 +403,7 @@
     </method>
 
     <reply name = "RANDOM OUTS OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "random outputs" type = "frame" >Outputs</field>
     </reply>
     
@@ -414,7 +414,7 @@
     </method>
 
     <reply name = "GET HEIGHT OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
     </reply>
     
@@ -425,7 +425,7 @@
     </method>
 
     <reply name = "GET INFO OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "target_height" type = "number" size = "8" >Target Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -448,7 +448,7 @@
     </method>
 
     <reply name = "START OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </reply>
 
     <method name = "stop" return = "status">
@@ -458,7 +458,7 @@
     </method>
     
     <reply name = "STOP OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </reply>
     
     <method name = "get peer list" return = "status">
@@ -468,7 +468,7 @@
     </method>
     
     <reply name = "GET PEER LIST OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "white_list" type = "frame" >White list</field>
         <field name = "gray_list" type = "frame" >Gray list</field>
     </reply>
@@ -480,7 +480,7 @@
     </method>
     
     <reply name = "GET MINING STATUS OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "active" type = "number" size = "1" >Active</field>
         <field name = "speed" type = "number" size = "8" >Speed</field>
         <field name = "thread_count" type = "number" size = "8" >Threads count</field>
@@ -495,7 +495,7 @@
     </method>
     
     <reply name = "SET LOG HASH RATE OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "set log level" return = "status">
@@ -506,7 +506,7 @@
     </method>
     
     <reply name = "SET LOG LEVEL OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "start save graph" return = "status">
@@ -516,7 +516,7 @@
     </method>
     
     <reply name = "START SAVE GRAPH OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "stop save graph" return = "status">
@@ -526,7 +526,7 @@
     </method>
     
     <reply name = "STOP SAVE GRAPH OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "get block hash" return = "status">
@@ -537,7 +537,7 @@
     </method>
     
     <reply name = "GET BLOCK HASH OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "hash" type = "chunk" >Hash</field>
     </reply>
     
@@ -550,7 +550,7 @@
     </method>
     
     <reply name = "GET BLOCK TEMPLATE OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "reserved_offset" type = "number" size = "8" >Rservered Offset</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -565,7 +565,7 @@
     </method>
 
     <reply name = "GET HARD FORK INFO OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "hfversion" type = "number" size = "1" >Version</field>
         <field name = "enabled" type = "number" size = "1" >Enabled</field>
         <field name = "window" type = "number" size = "4" >Window</field>
@@ -582,7 +582,7 @@
     </method>
     
     <reply name = "GET CONNECTIONS LIST OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "connections" type = "frame" >Connections</field>
     </reply>
     
@@ -593,7 +593,7 @@
     </method>
     
     <reply name = "STOP DAEMON OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </reply>
     
     <method name = "get block by height" return = "status">
@@ -606,7 +606,7 @@
     </method>
     
     <reply name = "GET BLOCK BY HEIGHT OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "block" type = "chunk" />
         <field name = "major_version" type = "number" size="1" />
         <field name = "minor_version" type = "number" size="1" />
@@ -631,7 +631,7 @@
     </method>
     
     <reply name = "GET BLOCK BY HASH OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "block" type = "chunk" />
         <field name = "major_version" type = "number" size="1" />
         <field name = "minor_version" type = "number" size="1" />
