@@ -108,6 +108,14 @@
             <action name = "stop daemon" />
             <action name = "send" message = "STOP DAEMON OK" />
         </event>
+        <event name = "GET BLOCK BY HEIGHT">
+            <action name = "get block by height" />
+            <action name = "send" message = "GET BLOCK BY HEIGHT OK" />
+        </event>
+        <event name = "GET BLOCK BY HASH">
+            <action name = "get block by hash" />
+            <action name = "send" message = "GET BLOCK BY HASH OK" />
+        </event>
     </state>
 
     <state name = "defaults">

@@ -489,3 +489,25 @@ stop_daemon (client_t *self)
 {
 
 }
+
+
+//  ---------------------------------------------------------------------------
+//  get_block_by_height
+//
+
+static void
+get_block_by_height (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_block_by_hash
+//
+
+static void
+get_block_by_hash (client_t *self)
+{
+
+}

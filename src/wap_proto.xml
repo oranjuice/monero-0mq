@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon
+    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
@@ -35,6 +35,8 @@
     get_hard_fork_info = C:GET-HARD-FORK-INFO ( S:GET-HARD-FORK-INFO-OK / S:ERROR )
     connections_list = C:GET-CONNECTIONS-LIST ( S:GET-CONNECTIONS-LIST-OK / S:ERROR )
     stop_daemon = C:STOP-DAEMON ( S:STOP-DAEMON-OK / S:ERROR )
+    get_block_by_height = C:GET-BLOCK-BY-HEIGHT ( S:GET-BLOCK-BY-HEIGHT-OK / S:ERROR )
+    get_block_by_hash = C:GET-BLOCK-BY-HASH ( S:GET-BLOCK-BY-HASH-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -284,6 +286,51 @@
     
     <message name = "STOP-DAEMON-OK">
         <field name = "status" type = "number" size = "8" >Status</field>
+    </message>
+
+    <message name = "GET-BLOCK-BY-HEIGHT">
+        <field name = "height" type = "number" size = "8" >Height</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        get_block_by_height IPC
+    </message>
+    
+    <message name = "GET-BLOCK-BY-HEIGHT-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "block" type = "chunk" >Block blob</field>
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "orphan" type = "number" size="1" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
+    </message>
+
+    <message name = "GET-BLOCK-BY-HASH">
+        <field name = "hash" type = "chunk" >Hash</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        get_block_by_hash IPC
+    </message>
+    
+    <message name = "GET-BLOCK-BY-HASH-OK">
+        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "block" type = "chunk" >Block blob</field>
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
     </message>
 
     <message name = "CLOSE">

@@ -591,3 +591,43 @@ static void
 signal_have_stop_daemon_ok (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_block_by_height_ok
+//
+
+static void
+signal_have_get_block_by_height_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_block_by_hash_ok
+//
+
+static void
+signal_have_get_block_by_hash_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_block_by_height_command
+//
+
+static void
+prepare_get_block_by_height_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_block_by_hash_command
+//
+
+static void
+prepare_get_block_by_hash_command (client_t *self)
+{
+}

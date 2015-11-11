@@ -108,6 +108,14 @@
         <event name = "stop daemon" next = "expect stop daemon ok">
             <action name = "send" message = "STOP DAEMON" />
         </event>
+        <event name = "get block by height" next = "expect get block by height ok">
+            <action name = "prepare get block by height command" />
+            <action name = "send" message = "GET BLOCK BY HEIGHT" />
+        </event>
+        <event name = "get block by hash" next = "expect get block by hash ok">
+            <action name = "prepare get block by hash command" />
+            <action name = "send" message = "GET BLOCK BY HASH" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -240,6 +248,18 @@
     <state name = "expect stop daemon ok" inherit = "defaults">
         <event name = "STOP DAEMON OK" next = "connected">
             <action name = "signal have stop daemon ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get block by height ok" inherit = "defaults">
+        <event name = "GET BLOCK BY HEIGHT OK" next = "connected">
+            <action name = "signal have get block by height ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get block by hash ok" inherit = "defaults">
+        <event name = "GET BLOCK BY HASH OK" next = "connected">
+            <action name = "signal have get block by hash ok" />
         </event>
     </state>
     
@@ -574,6 +594,56 @@
     
     <reply name = "STOP DAEMON OK">
         <field name = "status" type = "number" size = "8" />
+    </reply>
+    
+    <method name = "get block by height" return = "status">
+        Get block by height
+        <field name = "height" type = "number" size = "8" >Height</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        <accept reply = "GET BLOCK BY HEIGHT OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET BLOCK BY HEIGHT OK">
+        <field name = "status" type = "number" size = "8" />
+        <field name = "block" type = "chunk" />
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "orphan" type = "number" size="1" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
+    </reply>
+    
+    <method name = "get block by hash" return = "status">
+        Get block by hash
+        <field name = "hash" type = "chunk" >Hash</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        <accept reply = "GET BLOCK BY HASH OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET BLOCK BY HASH OK">
+        <field name = "status" type = "number" size = "8" />
+        <field name = "block" type = "chunk" />
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "orphan" type = "number" size="1" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
     </reply>
     
 </class>
