@@ -363,13 +363,15 @@
     <method name = "get tx" return = "status">
     Request a set of transactions from the server.
         <field name = "tx id" type = "chunk" />
+        <field name = "as-json" type = "number" size = "1" />
         <accept reply = "GET TX OK" />
         <accept reply = "FAILURE" />
     </method>
 
     <reply name = "GET TX OK">
-        <field name = "status" type = "integer" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "tx data" type = "chunk" />
+        <field name = "in pool" type = "number" size = "1" />
     </reply>
 
     <method name = "save bc" return = "status">

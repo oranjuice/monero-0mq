@@ -118,11 +118,14 @@
         Wallet requests transaction data from the daemon. Daemon replies
         with GET-OK, or ERROR.
         <field name = "tx id" type = "chunk">Transaction ID</field>
+        <field name = "as-json" type = "number" size = "1">As JSON</field>
     </message>
 
     <message name = "GET-TX-OK">
         Daemon replies with transaction data.
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "tx data" type = "chunk">Transaction data</field>
+        <field name = "in pool" type = "number" size = "1">In pool</field>
     </message>
 
     <message name = "SAVE-BC">
