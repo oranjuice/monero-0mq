@@ -286,6 +286,7 @@
     </message>
     
     <message name = "STOP-DAEMON">
+        <field name = "fast" type = "number" size = "1" >Fast exit</field>
         stop_daemon IPC
     </message>
     

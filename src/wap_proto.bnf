@@ -289,7 +289,8 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  stop_daemon IPC                                                       
 
-    STOP-DAEMON     = signature %d43
+    STOP-DAEMON     = signature %d43 fast
+    fast            = number-1              ; Fast exit
 
     ;  No description                                                        
 

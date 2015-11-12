@@ -107,6 +107,7 @@
             <action name = "send" message = "GET CONNECTIONS LIST" />
         </event>
         <event name = "stop daemon" next = "expect stop daemon ok">
+            <action name = "prepare stop daemon command" />
             <action name = "send" message = "STOP DAEMON" />
         </event>
         <event name = "get block by height" next = "expect get block by height ok">
@@ -610,6 +611,7 @@
     </reply>
     
     <method name = "stop daemon" return = "status">
+        <field name = "fast" type = "number" size = "1" >Fast exit</field>
         Stop daemon
         <accept reply = "STOP DAEMON OK" />
         <accept reply = "FAILURE" />

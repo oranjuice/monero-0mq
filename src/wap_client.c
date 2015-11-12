@@ -721,3 +721,13 @@ static void
 signal_have_stop_mining_ok (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_stop_daemon_command
+//
+
+static void
+prepare_stop_daemon_command (client_t *self)
+{
+}
