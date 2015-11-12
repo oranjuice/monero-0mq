@@ -731,3 +731,23 @@ static void
 prepare_stop_daemon_command (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_set_out_peers_command
+//
+
+static void
+prepare_set_out_peers_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_set_out_peers_ok
+//
+
+static void
+signal_have_set_out_peers_ok (client_t *self)
+{
+}

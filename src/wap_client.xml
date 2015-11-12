@@ -125,6 +125,10 @@
         <event name = "get tx pool" next = "expect get tx pool ok">
             <action name = "send" message = "GET TX POOL" />
         </event>
+        <event name = "set out peers" next = "expect set out peers ok">
+            <action name = "prepare set out peers command" />
+            <action name = "send" message = "SET OUT PEERS" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -284,6 +288,12 @@
         </event>
     </state>
 
+    <state name = "expect set out peers ok" inherit = "defaults">
+        <event name = "SET OUT PEERS OK" next = "connected">
+            <action name = "signal have set out peers ok" />
+        </event>
+    </state>
+    
     <state name = "expect close ok" inherit = "defaults">
         <event name = "CLOSE OK">
             <action name = "signal success" />
@@ -692,6 +702,17 @@
     <reply name = "GET TX POOL OK">
         <field name = "status" type = "number" size = "4" />
         <field name = "msg data" type = "msg" />
+    </reply>
+    
+    <method name = "set out peers" return = "status">
+        <field name = "num out peers" type = "number" size = "8" >Max number of out peers</field>
+        Set the max number of out peers
+        <accept reply = "SET OUT PEERS OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "SET OUT PEERS OK">
+        <field name = "status" type = "number" size = "4" />
     </reply>
     
 </class>

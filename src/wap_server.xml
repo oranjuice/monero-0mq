@@ -124,6 +124,10 @@
             <action name = "get tx pool" />
             <action name = "send" message = "GET TX POOL OK" />
         </event>
+        <event name = "sET-OUT-PEERS">
+            <action name = "set out peers" />
+            <action name = "send" message = "SET OUT PEERS OK" />
+        </event>
     </state>
 
     <state name = "defaults">

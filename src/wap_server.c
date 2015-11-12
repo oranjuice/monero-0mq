@@ -533,3 +533,14 @@ get_tx_pool (client_t *self)
 {
 
 }
+
+
+//  ---------------------------------------------------------------------------
+//  set_out_peers
+//
+
+static void
+set_out_peers (client_t *self)
+{
+
+}
