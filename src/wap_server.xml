@@ -40,13 +40,13 @@
         		<action name = "save bc" />
             <action name = "send" message = "SAVE BC OK" />
         </event>
-        <event name = "START">
+        <event name = "START MINING">
             <action name = "start mining process" />
-            <action name = "send" message = "START OK" />
+            <action name = "send" message = "START MINING OK" />
         </event>
-        <event name = "STOP">
+        <event name = "STOP MINING">
             <action name = "stop mining process" />
-            <action name = "send" message = "STOP OK" />
+            <action name = "send" message = "STOP MINING OK" />
         </event>
         <event name = "OUTPUT INDEXES">
             <action name = "output indexes" />

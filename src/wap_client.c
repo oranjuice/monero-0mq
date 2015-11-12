@@ -691,3 +691,33 @@ static void
 signal_have_get_tx_pool_ok (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_start_mining_command
+//
+
+static void
+prepare_start_mining_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_start_mining_ok
+//
+
+static void
+signal_have_start_mining_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_stop_mining_ok
+//
+
+static void
+signal_have_stop_mining_ok (client_t *self)
+{
+}

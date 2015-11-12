@@ -50,12 +50,12 @@
         <event name = "save bc" next = "expect save bc ok">
             <action name = "send" message = "SAVE BC" />
         </event>
-        <event name = "start" next = "expect start ok">
-            <action name = "prepare start command" />
-            <action name = "send" message = "START" />
+        <event name = "start mining" next = "expect start mining ok">
+            <action name = "prepare start mining command" />
+            <action name = "send" message = "START MINING" />
         </event>
-        <event name = "stop" next = "expect stop ok">
-            <action name = "send" message = "STOP" />
+        <event name = "stop mining" next = "expect stop mining ok">
+            <action name = "send" message = "STOP MINING" />
         </event>
         <event name = "output indexes" next = "expect output indexes ok">
             <action name = "prepare get output indexes command" />
@@ -157,15 +157,15 @@
         </event>
     </state>
 
-    <state name = "expect start ok" inherit = "defaults">
-        <event name = "START OK" next = "connected">
-            <action name = "signal have start ok" />
+    <state name = "expect start mining ok" inherit = "defaults">
+        <event name = "START MINING OK" next = "connected">
+            <action name = "signal have start mining ok" />
         </event>
     </state>
 
-    <state name = "expect stop ok" inherit = "defaults">
-        <event name = "STOP OK" next = "connected">
-            <action name = "signal have stop ok" />
+    <state name = "expect stop mining ok" inherit = "defaults">
+        <event name = "STOP MINING OK" next = "connected">
+            <action name = "signal have stop mining ok" />
         </event>
     </state>
     
@@ -461,25 +461,25 @@
         <field name = "testnet" type = "number" size = "1" >Testnet</field>
     </reply>
 
-    <method name = "start" return = "status">
-    Send start command to server.
+    <method name = "start mining" return = "status">
+    Send start mining command to server.
         <field name = "address" type = "chunk" />
         <field name = "thread count" type = "number" size = "8" />
-        <accept reply = "START OK" />
+        <accept reply = "START MINING OK" />
         <accept reply = "FAILURE" />
     </method>
 
-    <reply name = "START OK">
+    <reply name = "START MINING OK">
         <field name = "status" type = "number" size = "4" />
     </reply>
 
-    <method name = "stop" return = "status">
-    Send stop command to server.
-        <accept reply = "STOP OK" />
+    <method name = "stop mining" return = "status">
+    Send stop mining command to server.
+        <accept reply = "STOP MINING OK" />
         <accept reply = "FAILURE" />
     </method>
     
-    <reply name = "STOP OK">
+    <reply name = "STOP MINING OK">
         <field name = "status" type = "number" size = "4" />
     </reply>
     

@@ -139,14 +139,14 @@
         <field name = "status" type = "number" size = "4">Status</field>
     </message>
 
-    <message name = "START">
-        Wallet asks daemon to start mining. Daemon replies with START-OK, or
+    <message name = "START-MINING">
+        Wallet asks daemon to start mining. Daemon replies with START-MINING-OK, or
         ERROR.
         <field name = "address" type = "chunk" />
         <field name = "thread count" type = "number" size = "8" />
     </message>
 
-    <message name = "START-OK">
+    <message name = "START-MINING-OK">
         Daemon replies to a start mining request.
         <field name = "status" type = "number" size = "4" />
     </message>
@@ -251,12 +251,12 @@
         <field name = "block_template_blob" type = "chunk" >Block template blob</field>
     </message>
 
-    <message name = "STOP">
-        Wallet asks daemon to start mining. Daemon replies with STOP-OK, or
+    <message name = "STOP-MINING">
+        Wallet asks daemon to stop mining. Daemon replies with STOP-MINING-OK, or
         ERROR.
     </message>
 
-    <message name = "STOP-OK">
+    <message name = "STOP-MINING-OK">
         Daemon replies to a stop mining request.
     </message>
 

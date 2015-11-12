@@ -130,16 +130,16 @@ The following ABNF grammar defines the Wallet Access Protocol:
     SAVE-BC-OK      = signature %d16 status
     status          = number-4              ; Status
 
-    ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
-    ;  ERROR.                                                                
+    ;  Wallet asks daemon to start mining. Daemon replies with               
+    ;  START-MINING-OK, or ERROR.                                            
 
-    START           = signature %d17 address thread_count
+    START-MINING    = signature %d17 address thread_count
     address         = chunk                 ; 
     thread_count    = number-8              ; 
 
     ;  Daemon replies to a start mining request.                             
 
-    START-OK        = signature %d18 status
+    START-MINING-OK = signature %d18 status
     status          = number-4              ; 
 
     ;  getinfo IPC                                                           
@@ -251,14 +251,14 @@ The following ABNF grammar defines the Wallet Access Protocol:
     prev_hash       = chunk                 ; Previous Hash
     block_template_blob = chunk             ; Block template blob
 
-    ;  Wallet asks daemon to start mining. Daemon replies with STOP-OK, or   
-    ;  ERROR.                                                                
+    ;  Wallet asks daemon to stop mining. Daemon replies with STOP-MINING-OK,
+    ;  or ERROR.                                                             
 
-    STOP            = signature %d37
+    STOP-MINING     = signature %d37
 
     ;  Daemon replies to a stop mining request.                              
 
-    STOP-OK         = signature %d38
+    STOP-MINING-OK  = signature %d38
 
     ;  get_hard_fork_info IPC                                                
 
