@@ -681,3 +681,13 @@ static void
 signal_have_get_key_image_status_ok (client_t *self)
 {
 }
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_tx_pool_ok
+//
+
+static void
+signal_have_get_tx_pool_ok (client_t *self)
+{
+}

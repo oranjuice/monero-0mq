@@ -522,3 +522,14 @@ get_key_image_status (client_t *self)
 {
 
 }
+
+
+//  ---------------------------------------------------------------------------
+//  get_tx_pool
+//
+
+static void
+get_tx_pool (client_t *self)
+{
+
+}

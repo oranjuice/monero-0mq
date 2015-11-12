@@ -12,7 +12,7 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash / get_key_image_status
+    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash / get_key_image_status / get_tx_pool
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
     send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
@@ -38,6 +38,7 @@
     get_block_by_height = C:GET-BLOCK-BY-HEIGHT ( S:GET-BLOCK-BY-HEIGHT-OK / S:ERROR )
     get_block_by_hash = C:GET-BLOCK-BY-HASH ( S:GET-BLOCK-BY-HASH-OK / S:ERROR )
     get_key_image_status = C:GET-KEY-IMAGE-STATUS ( S:GET-KEY-IMAGE-STATUS-OK / S:ERROR )
+    get_tx_pool = C:GET-TX-POOL ( S:GET-TX-POOL-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -346,6 +347,16 @@
         Daemon returns spent status for the key images.
         <field name = "status" type = "number" size = "4">Status</field>
         <field name = "spent" type = "frame">Key image spent status</field>
+    </message>
+
+    <message name = "GET-TX-POOL">
+        Wallet requests the tx pool from the daemon.
+    </message>
+
+    <message name = "GET-TX-POOL-OK">
+        Daemon returns a set of transactions to the wallet.
+        <field name = "status" type = "number" size = "4">Status</field>
+        <field name = "tx pool data" type = "msg">Frames of transaction data</field>
     </message>
 
     <message name = "CLOSE">

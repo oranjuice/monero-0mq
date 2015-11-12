@@ -121,6 +121,9 @@
             <action name = "prepare get key image status command" />
             <action name = "send" message = "GET KEY IMAGE STATUS" />
         </event>
+        <event name = "get tx pool" next = "expect get tx pool ok">
+            <action name = "send" message = "GET TX POOL" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -271,6 +274,12 @@
     <state name = "expect get key image status ok" inherit = "defaults">
         <event name = "GET KEY IMAGE STATUS OK" next = "connected">
             <action name = "signal have get key image status ok" />
+        </event>
+    </state>
+
+    <state name = "expect get tx pool ok" inherit = "defaults">
+        <event name = "GET TX POOL OK" next = "connected">
+            <action name = "signal have get tx pool ok" />
         </event>
     </state>
 
@@ -670,6 +679,17 @@
     <reply name = "GET KEY IMAGE STATUS OK">
         <field name = "status" type = "number" size = "4" />
         <field name = "spent" type = "frame" />
+    </reply>
+    
+    <method name = "get tx pool" return = "status">
+        Request tx pool from the daemon.
+        <accept reply = "GET TX POOL OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET TX POOL OK">
+        <field name = "status" type = "number" size = "4" />
+        <field name = "tx pool data" type = "msg" />
     </reply>
     
 </class>
