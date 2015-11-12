@@ -366,7 +366,7 @@
         <field name = "status" type = "number" size = "4" />
         <field name = "start height" type = "number" size = "8" />
         <field name = "curr height" type = "number" size = "8" />
-        <field name = "block data" type = "msg" />
+        <field name = "msg data" type = "msg" />
     </reply>
     
     <method name = "send raw transaction" return = "status">
@@ -689,7 +689,7 @@
 
     <reply name = "GET TX POOL OK">
         <field name = "status" type = "number" size = "4" />
-        <field name = "tx pool data" type = "msg" />
+        <field name = "msg data" type = "msg" />
     </reply>
     
 </class>

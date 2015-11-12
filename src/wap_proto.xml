@@ -69,7 +69,7 @@
         <field name = "status" type = "number" size = "4">Status</field>
         <field name = "start height" type = "number" size = "8" />
         <field name = "curr height" type = "number" size = "8" />
-        <field name = "block data" type = "msg">Frames of block data</field>
+        <field name = "msg data" type = "msg">Frames of block data</field>
     </message>
 
     <message name = "SEND-RAW-TRANSACTION">
@@ -356,7 +356,7 @@
     <message name = "GET-TX-POOL-OK">
         Daemon returns a set of transactions to the wallet.
         <field name = "status" type = "number" size = "4">Status</field>
-        <field name = "tx pool data" type = "msg">Frames of transaction data</field>
+        <field name = "msg data" type = "msg">Frames of transaction data</field>
     </message>
 
     <message name = "CLOSE">

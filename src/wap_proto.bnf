@@ -57,11 +57,11 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  Daemon returns a set of blocks to the wallet.                         
 
-    BLOCKS-OK       = signature %d4 status start_height curr_height block_data
+    BLOCKS-OK       = signature %d4 status start_height curr_height msg_data
     status          = number-4              ; Status
     start_height    = number-8              ; 
     curr_height     = number-8              ; 
-    block_data      = msg                   ; Frames of block data
+    msg_data        = msg                   ; Frames of block data
 
     ;  Wallet sends a raw transaction to the daemon. Daemon replies with     
     ;  SEND-RAW-TRANSACTION-OK, or ERROR.                                    
@@ -360,9 +360,9 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  Daemon returns a set of transactions to the wallet.                   
 
-    GET-TX-POOL-OK  = signature %d52 status tx_pool_data
+    GET-TX-POOL-OK  = signature %d52 status msg_data
     status          = number-4              ; Status
-    tx_pool_data    = msg                   ; Frames of transaction data
+    msg_data        = msg                   ; Frames of transaction data
 
     ;  Wallet closes the connection. This is polite though not mandatory.    
     ;  Daemon will reply with CLOSE-OK or ERROR.                             
