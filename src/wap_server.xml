@@ -28,25 +28,25 @@
             <action name = "retrieve blocks" />
             <action name = "send" message = "BLOCKS OK" />
         </event>
-        <event name = "PUT">
+        <event name = "SEND RAW TRANSACTION">
             <action name = "send transaction" />
-            <action name = "send" message = "PUT OK" />
+            <action name = "send" message = "SEND RAW TRANSACTION OK" />
         </event>
-        <event name = "GET">
+        <event name = "GET TX">
             <action name = "retrieve transaction" />
-            <action name = "send" message = "GET OK" />
+            <action name = "send" message = "GET TX OK" />
         </event>
         <event name = "SAVE BC">
         		<action name = "save bc" />
             <action name = "send" message = "SAVE BC OK" />
         </event>
-        <event name = "START">
+        <event name = "START MINING">
             <action name = "start mining process" />
-            <action name = "send" message = "START OK" />
+            <action name = "send" message = "START MINING OK" />
         </event>
-        <event name = "STOP">
+        <event name = "STOP MINING">
             <action name = "stop mining process" />
-            <action name = "send" message = "STOP OK" />
+            <action name = "send" message = "STOP MINING OK" />
         </event>
         <event name = "OUTPUT INDEXES">
             <action name = "output indexes" />
@@ -95,6 +95,38 @@
         <event name = "GET BLOCK TEMPLATE">
             <action name = "get block template" />
             <action name = "send" message = "GET BLOCK TEMPLATE OK" />
+        </event>
+        <event name = "GET HARD FORK INFO">
+            <action name = "get_hard_fork_info" />
+            <action name = "send" message = "GET HARD FORK INFO OK" />
+        </event>
+        <event name = "GET CONNECTIONS LIST">
+            <action name = "get connections list" />
+            <action name = "send" message = "GET CONNECTIONS LIST OK" />
+        </event>
+        <event name = "STOP DAEMON">
+            <action name = "stop daemon" />
+            <action name = "send" message = "STOP DAEMON OK" />
+        </event>
+        <event name = "GET BLOCK BY HEIGHT">
+            <action name = "get block by height" />
+            <action name = "send" message = "GET BLOCK BY HEIGHT OK" />
+        </event>
+        <event name = "GET BLOCK BY HASH">
+            <action name = "get block by hash" />
+            <action name = "send" message = "GET BLOCK BY HASH OK" />
+        </event>
+        <event name = "GET-KEY-IMAGE-STATUS">
+            <action name = "get key image status" />
+            <action name = "send" message = "GET KEY IMAGE STATUS OK" />
+        </event>
+        <event name = "GET-TX-POOL">
+            <action name = "get tx pool" />
+            <action name = "send" message = "GET TX POOL OK" />
+        </event>
+        <event name = "sET-OUT-PEERS">
+            <action name = "set out peers" />
+            <action name = "send" message = "SET OUT PEERS OK" />
         </event>
     </state>
 

@@ -541,3 +541,213 @@ signal_have_get_block_template_ok (client_t *self)
         wap_proto_get_block_template_blob (self->message));
 }
 
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_hard_fork_info_ok
+//
+
+static void
+signal_have_get_hard_fork_info_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_send_raw_transaction_command
+//
+
+static void
+prepare_send_raw_transaction_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_send_raw_transaction_ok
+//
+
+static void
+signal_have_send_raw_transaction_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_connections_list_ok
+//
+
+static void
+signal_have_get_connections_list_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_stop_daemon_ok
+//
+
+static void
+signal_have_stop_daemon_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_block_by_height_ok
+//
+
+static void
+signal_have_get_block_by_height_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_block_by_hash_ok
+//
+
+static void
+signal_have_get_block_by_hash_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_block_by_height_command
+//
+
+static void
+prepare_get_block_by_height_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_block_by_hash_command
+//
+
+static void
+prepare_get_block_by_hash_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_tx_command
+//
+
+static void
+prepare_get_tx_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_tx_ok
+//
+
+static void
+signal_have_get_tx_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_hard_fork_info_command
+//
+
+static void
+prepare_hard_fork_info_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_get_key_image_status_command
+//
+
+static void
+prepare_get_key_image_status_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_key_image_status_ok
+//
+
+static void
+signal_have_get_key_image_status_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_get_tx_pool_ok
+//
+
+static void
+signal_have_get_tx_pool_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_start_mining_command
+//
+
+static void
+prepare_start_mining_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_start_mining_ok
+//
+
+static void
+signal_have_start_mining_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_stop_mining_ok
+//
+
+static void
+signal_have_stop_mining_ok (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_stop_daemon_command
+//
+
+static void
+prepare_stop_daemon_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  prepare_set_out_peers_command
+//
+
+static void
+prepare_set_out_peers_command (client_t *self)
+{
+}
+
+
+//  ---------------------------------------------------------------------------
+//  signal_have_set_out_peers_ok
+//
+
+static void
+signal_have_set_out_peers_ok (client_t *self)
+{
+}

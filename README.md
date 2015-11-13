@@ -86,7 +86,7 @@ It's also necessary to write the formats for these messages. For example,
         getinfo IPC
     </message>
     <message name = "GET-INFO-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "target_height" type = "number" size = "8" >Target Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -138,7 +138,7 @@ In the same file, there is a helpful method API defined. For `get_info` it has
         <accept reply = "FAILURE" />
     </method>
     <reply name = "GET INFO OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "target_height" type = "number" size = "8" >Target Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>

@@ -12,11 +12,11 @@
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template
+    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash / get_key_image_status / get_tx_pool / set_out_peers
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
-    put = C:PUT ( S:PUT-OK / S:ERROR )
-    get = C:GET ( S:GET-OK / S:ERROR )
+    send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
+    get_tx = C:GET-TX ( S:GET-TX-OK / S:ERROR )
     save_bc = C:SAVE-BC ( S:SAVE-BC-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
     stop = C:STOP ( S:STOP-OK / S:ERROR )
@@ -32,6 +32,14 @@
     stop_save_graph = C:STOP-SAVE-GRAPH ( S:STOP-SAVE-GRAPH-OK / S:ERROR )
     block_hash = C:GET-BLOCK-HASH ( S:GET-BLOCK-HASH-OK / S:ERROR )
     block_template = C:GET-BLOCK-TEMPLATE ( S:GET-BLOCK-TEMPLATE-OK / S:ERROR )
+    get_hard_fork_info = C:GET-HARD-FORK-INFO ( S:GET-HARD-FORK-INFO-OK / S:ERROR )
+    connections_list = C:GET-CONNECTIONS-LIST ( S:GET-CONNECTIONS-LIST-OK / S:ERROR )
+    stop_daemon = C:STOP-DAEMON ( S:STOP-DAEMON-OK / S:ERROR )
+    get_block_by_height = C:GET-BLOCK-BY-HEIGHT ( S:GET-BLOCK-BY-HEIGHT-OK / S:ERROR )
+    get_block_by_hash = C:GET-BLOCK-BY-HASH ( S:GET-BLOCK-BY-HASH-OK / S:ERROR )
+    get_key_image_status = C:GET-KEY-IMAGE-STATUS ( S:GET-KEY-IMAGE-STATUS-OK / S:ERROR )
+    get_tx_pool = C:GET-TX-POOL ( S:GET-TX-POOL-OK / S:ERROR )
+    set_out_peers = C:SET-OUT-PEERS ( S:SET-OUT-PEERS-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -59,21 +67,21 @@
 
     <message name = "BLOCKS-OK">
         Daemon returns a set of blocks to the wallet.
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4">Status</field>
         <field name = "start height" type = "number" size = "8" />
         <field name = "curr height" type = "number" size = "8" />
-        <field name = "block data" type = "msg">Frames of block data</field>
+        <field name = "msg data" type = "msg">Frames of block data</field>
     </message>
 
-    <message name = "PUT">
+    <message name = "SEND-RAW-TRANSACTION">
         Wallet sends a raw transaction to the daemon. Daemon replies with
-        PUT-OK, or ERROR.
+        SEND-RAW-TRANSACTION-OK, or ERROR.
         <field name = "tx as hex" type = "chunk">Transaction as hex</field>
     </message>
 
-    <message name = "PUT-OK">
+    <message name = "SEND-RAW-TRANSACTION-OK">
         Daemon confirms that it accepted the raw transaction.
-        <field name = "status" type = "number" size = "8">Transaction ID</field>
+        <field name = "status" type = "number" size = "4">Status</field>
     </message>
     
     <message name = "OUTPUT-INDEXES">
@@ -83,7 +91,7 @@
     
     <message name = "OUTPUT-INDEXES-OK">
         Daemon returns tx output indexes.
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "o indexes" type = "frame" >Output Indexes</field>
     </message>
     
@@ -95,7 +103,7 @@
     
     <message name = "RANDOM-OUTS-OK">
     		Daemon returns random outputs for amounts.
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "random outputs" type = "frame" >Outputs</field>
     </message>
     
@@ -105,19 +113,22 @@
     
     <message name = "GET-HEIGHT-OK">
     		Daemon returns height.
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
     </message>
 
-    <message name = "GET">
+    <message name = "GET-TX">
         Wallet requests transaction data from the daemon. Daemon replies
         with GET-OK, or ERROR.
         <field name = "tx id" type = "chunk">Transaction ID</field>
+        <field name = "as-json" type = "number" size = "1">As JSON</field>
     </message>
 
-    <message name = "GET-OK">
+    <message name = "GET-TX-OK">
         Daemon replies with transaction data.
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "tx data" type = "chunk">Transaction data</field>
+        <field name = "in pool" type = "number" size = "1">In pool</field>
     </message>
 
     <message name = "SAVE-BC">
@@ -126,19 +137,19 @@
 
     <message name = "SAVE-BC-OK">
         Daemon replies to a save_bc command.
-        <field name = "status" type = "number" size = "8">Status</field>
+        <field name = "status" type = "number" size = "4">Status</field>
     </message>
 
-    <message name = "START">
-        Wallet asks daemon to start mining. Daemon replies with START-OK, or
+    <message name = "START-MINING">
+        Wallet asks daemon to start mining. Daemon replies with START-MINING-OK, or
         ERROR.
         <field name = "address" type = "chunk" />
         <field name = "thread count" type = "number" size = "8" />
     </message>
 
-    <message name = "START-OK">
+    <message name = "START-MINING-OK">
         Daemon replies to a start mining request.
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </message>
     
     <message name = "GET-INFO">
@@ -146,7 +157,7 @@
     </message>
 
     <message name = "GET-INFO-OK">
-		    <field name = "status" type = "number" size = "8" >Status</field>
+		    <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "target_height" type = "number" size = "8" >Target Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -157,6 +168,7 @@
         <field name = "incoming_connections_count" type = "number" size = "8" >Incoming Connections Count</field>
         <field name = "white_peerlist_size" type = "number" size = "8" >White Peerlist Size</field>
         <field name = "grey_peerlist_size" type = "number" size = "8" >Grey Peerlist Size</field>
+        <field name = "testnet" type = "number" size = "1" >Testnet</field>
     </message>
 
 		<message name = "GET-PEER-LIST">
@@ -164,7 +176,7 @@
     </message>
     
 		<message name = "GET-PEER-LIST-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "white_list" type = "frame" >White list</field>
         <field name = "gray_list" type = "frame" >Gray list</field>
     </message>
@@ -174,7 +186,7 @@
     </message>
     
 		<message name = "GET-MINING-STATUS-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "active" type = "number" size = "1" >Active</field>
         <field name = "speed" type = "number" size = "8" >Speed</field>
         <field name = "thread_count" type = "number" size = "8" >Threads count</field>
@@ -187,7 +199,7 @@
     </message>
     
 		<message name = "SET-LOG-HASH-RATE-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
 
 		<message name = "SET-LOG-LEVEL">
@@ -196,7 +208,7 @@
     </message>
     
 		<message name = "SET-LOG-LEVEL-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
     
     <message name = "START-SAVE-GRAPH">
@@ -204,7 +216,7 @@
     </message>
     
 		<message name = "START-SAVE-GRAPH-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
     
     <message name = "STOP-SAVE-GRAPH">
@@ -212,7 +224,7 @@
     </message>
     
 		<message name = "STOP-SAVE-GRAPH-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </message>
     
     <message name = "GET-BLOCK-HASH">
@@ -221,7 +233,7 @@
     </message>
     
 		<message name = "GET-BLOCK-HASH-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "hash" type = "chunk" >Hash</field>
     </message>
     
@@ -232,7 +244,7 @@
     </message>
     
 		<message name = "GET-BLOCK-TEMPLATE-OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "reserved_offset" type = "number" size = "8" >Rservered Offset</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -240,13 +252,122 @@
         <field name = "block_template_blob" type = "chunk" >Block template blob</field>
     </message>
 
-    <message name = "STOP">
-        Wallet asks daemon to start mining. Daemon replies with STOP-OK, or
+    <message name = "STOP-MINING">
+        Wallet asks daemon to stop mining. Daemon replies with STOP-MINING-OK, or
         ERROR.
     </message>
 
-    <message name = "STOP-OK">
+    <message name = "STOP-MINING-OK">
         Daemon replies to a stop mining request.
+    </message>
+
+    <message name = "GET-HARD-FORK-INFO">
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
+        get_hard_fork_info IPC
+    </message>
+
+    <message name = "GET-HARD-FORK-INFO-OK">
+        <field name = "status" type = "number" size = "4" >Status</field>
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
+        <field name = "enabled" type = "number" size = "1" >Enabled</field>
+        <field name = "window" type = "number" size = "4" >Window</field>
+        <field name = "votes" type = "number" size = "4" >Votes</field>
+        <field name = "threshold" type = "number" size = "4" >Threshold</field>
+        <field name = "voting" type = "number" size = "1" >Voting</field>
+        <field name = "hfstate" type = "number" size = "4" >State</field>
+    </message>
+
+    <message name = "GET-CONNECTIONS LIST">
+        get_connections_list IPC
+    </message>
+    
+    <message name = "GET-CONNECTIONS-LIST-OK">
+        <field name = "status" type = "number" size = "4" >Status</field>
+        <field name = "connections" type = "frame" >Connections</field>
+    </message>
+    
+    <message name = "STOP-DAEMON">
+        <field name = "fast" type = "number" size = "1" >Fast exit</field>
+        stop_daemon IPC
+    </message>
+    
+    <message name = "STOP-DAEMON-OK">
+        <field name = "status" type = "number" size = "4" >Status</field>
+    </message>
+
+    <message name = "GET-BLOCK-BY-HEIGHT">
+        <field name = "height" type = "number" size = "8" >Height</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        get_block_by_height IPC
+    </message>
+    
+    <message name = "GET-BLOCK-BY-HEIGHT-OK">
+        <field name = "status" type = "number" size = "4" >Status</field>
+        <field name = "block" type = "chunk" >Block blob</field>
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "orphan" type = "number" size="1" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
+    </message>
+
+    <message name = "GET-BLOCK-BY-HASH">
+        <field name = "hash" type = "chunk" >Hash</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        get_block_by_hash IPC
+    </message>
+    
+    <message name = "GET-BLOCK-BY-HASH-OK">
+        <field name = "status" type = "number" size = "4" >Status</field>
+        <field name = "block" type = "chunk" >Block blob</field>
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
+    </message>
+
+    <message name = "GET-KEY-IMAGE-STATUS">
+        Request whether key images are spent
+        <field name = "key images" type = "frame" />
+    </message>
+
+    <message name = "GET-KEY-IMAGE-STATUS-OK">
+        Daemon returns spent status for the key images.
+        <field name = "status" type = "number" size = "4">Status</field>
+        <field name = "spent" type = "frame">Key image spent status</field>
+    </message>
+
+    <message name = "GET-TX-POOL">
+        Wallet requests the tx pool from the daemon.
+    </message>
+
+    <message name = "GET-TX-POOL-OK">
+        Daemon returns a set of transactions to the wallet.
+        <field name = "status" type = "number" size = "4">Status</field>
+        <field name = "msg data" type = "msg">Frames of transaction data</field>
+    </message>
+
+    <message name = "SET-OUT-PEERS">
+        Wallet sets the max number of out peers
+        <field name = "num out peers" type = "number" size = "8" />
+    </message>
+
+    <message name = "SET-OUT-PEERS-OK">
+        <field name = "status" type = "number" size = "4">Status</field>
     </message>
 
     <message name = "CLOSE">

@@ -4,11 +4,11 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     open = C:OPEN ( S:OPEN-OK / S:ERROR )
 
-    traffic = blocks / put / get / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template
+    traffic = blocks / put / get_tx / save_bc / start / stop / o_indexes / random_outs / height / info / peer_list / mining_status / log_hash_rate / log_level / start_save_graph / stop_save_graph / block_hash / block_template / get_hard_fork_info / connections_list / stop_daemon / get_block_by_height / get_block_by_hash / get_key_image_status / get_tx_pool / set_out_peers
 
     blocks = C:BLOCKS ( S:BLOCKS-OK / S:ERROR )
-    put = C:PUT ( S:PUT-OK / S:ERROR )
-    get = C:GET ( S:GET-OK / S:ERROR )
+    send_raw_transaction = C:SEND-RAW-TRANSACTION ( S:SEND-RAW-TRANSACTION-OK / S:ERROR )
+    get_tx = C:GET-TX ( S:GET-TX-OK / S:ERROR )
     save_bc = C:SAVE-BC ( S:SAVE-BC-OK / S:ERROR )
     start = C:START ( S:START-OK / S:ERROR )
     stop = C:STOP ( S:STOP-OK / S:ERROR )
@@ -24,6 +24,14 @@ The following ABNF grammar defines the Wallet Access Protocol:
     stop_save_graph = C:STOP-SAVE-GRAPH ( S:STOP-SAVE-GRAPH-OK / S:ERROR )
     block_hash = C:GET-BLOCK-HASH ( S:GET-BLOCK-HASH-OK / S:ERROR )
     block_template = C:GET-BLOCK-TEMPLATE ( S:GET-BLOCK-TEMPLATE-OK / S:ERROR )
+    get_hard_fork_info = C:GET-HARD-FORK-INFO ( S:GET-HARD-FORK-INFO-OK / S:ERROR )
+    connections_list = C:GET-CONNECTIONS-LIST ( S:GET-CONNECTIONS-LIST-OK / S:ERROR )
+    stop_daemon = C:STOP-DAEMON ( S:STOP-DAEMON-OK / S:ERROR )
+    get_block_by_height = C:GET-BLOCK-BY-HEIGHT ( S:GET-BLOCK-BY-HEIGHT-OK / S:ERROR )
+    get_block_by_hash = C:GET-BLOCK-BY-HASH ( S:GET-BLOCK-BY-HASH-OK / S:ERROR )
+    get_key_image_status = C:GET-KEY-IMAGE-STATUS ( S:GET-KEY-IMAGE-STATUS-OK / S:ERROR )
+    get_tx_pool = C:GET-TX-POOL ( S:GET-TX-POOL-OK / S:ERROR )
+    set_out_peers = C:SET-OUT-PEERS ( S:SET-OUT-PEERS-OK / S:ERROR )
 
     heartbeat = C:PING ( S:PING-OK / S:ERROR )
 
@@ -50,22 +58,22 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  Daemon returns a set of blocks to the wallet.                         
 
-    BLOCKS-OK       = signature %d4 status start_height curr_height block_data
-    status          = number-8              ; 
+    BLOCKS-OK       = signature %d4 status start_height curr_height msg_data
+    status          = number-4              ; Status
     start_height    = number-8              ; 
     curr_height     = number-8              ; 
-    block_data      = msg                   ; Frames of block data
+    msg_data        = msg                   ; Frames of block data
 
     ;  Wallet sends a raw transaction to the daemon. Daemon replies with     
-    ;  PUT-OK, or ERROR.                                                     
+    ;  SEND-RAW-TRANSACTION-OK, or ERROR.                                    
 
-    PUT             = signature %d5 tx_as_hex
+    SEND-RAW-TRANSACTION = signature %d5 tx_as_hex
     tx_as_hex       = chunk                 ; Transaction as hex
 
     ;  Daemon confirms that it accepted the raw transaction.                 
 
-    PUT-OK          = signature %d6 status
-    status          = number-8              ; Transaction ID
+    SEND-RAW-TRANSACTION-OK = signature %d6 status
+    status          = number-4              ; Status
 
     ;  Ask for tx output indexes.                                            
 
@@ -75,7 +83,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon returns tx output indexes.                                     
 
     OUTPUT-INDEXES-OK = signature %d8 status o_indexes
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     o_indexes       = frame                 ; Output Indexes
 
     ;  Get random outputs for amounts.                                       
@@ -87,7 +95,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon returns random outputs for amounts.                            
 
     RANDOM-OUTS-OK  = signature %d10 status random_outputs
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     random_outputs  = frame                 ; Outputs
 
     ;  Get height.                                                           
@@ -97,19 +105,22 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon returns height.                                                
 
     GET-HEIGHT-OK   = signature %d12 status height
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     height          = number-8              ; Height
 
     ;  Wallet requests transaction data from the daemon. Daemon replies with 
     ;  GET-OK, or ERROR.                                                     
 
-    GET             = signature %d13 tx_id
+    GET-TX          = signature %d13 tx_id as_json
     tx_id           = chunk                 ; Transaction ID
+    as_json         = number-1              ; As JSON
 
     ;  Daemon replies with transaction data.                                 
 
-    GET-OK          = signature %d14 tx_data
+    GET-TX-OK       = signature %d14 status tx_data in_pool
+    status          = number-4              ; Status
     tx_data         = chunk                 ; Transaction data
+    in_pool         = number-1              ; In pool
 
     ;  save_bc command. Details tbd.                                         
 
@@ -118,19 +129,19 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  Daemon replies to a save_bc command.                                  
 
     SAVE-BC-OK      = signature %d16 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
-    ;  Wallet asks daemon to start mining. Daemon replies with START-OK, or  
-    ;  ERROR.                                                                
+    ;  Wallet asks daemon to start mining. Daemon replies with               
+    ;  START-MINING-OK, or ERROR.                                            
 
-    START           = signature %d17 address thread_count
+    START-MINING    = signature %d17 address thread_count
     address         = chunk                 ; 
     thread_count    = number-8              ; 
 
     ;  Daemon replies to a start mining request.                             
 
-    START-OK        = signature %d18 status
-    status          = number-8              ; 
+    START-MINING-OK = signature %d18 status
+    status          = number-4              ; 
 
     ;  getinfo IPC                                                           
 
@@ -138,8 +149,8 @@ The following ABNF grammar defines the Wallet Access Protocol:
 
     ;  No description                                                        
 
-    GET-INFO-OK     = signature %d20 status height target_height difficulty tx_count tx_pool_size alt_blocks_count outgoing_connections_count incoming_connections_count white_peerlist_size grey_peerlist_size
-    status          = number-8              ; Status
+    GET-INFO-OK     = signature %d20 status height target_height difficulty tx_count tx_pool_size alt_blocks_count outgoing_connections_count incoming_connections_count white_peerlist_size grey_peerlist_size testnet
+    status          = number-4              ; Status
     height          = number-8              ; Height
     target_height   = number-8              ; Target Height
     difficulty      = number-8              ; Difficulty
@@ -150,6 +161,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     incoming_connections_count = number-8   ; Incoming Connections Count
     white_peerlist_size = number-8          ; White Peerlist Size
     grey_peerlist_size = number-8           ; Grey Peerlist Size
+    testnet         = number-1              ; Testnet
 
     ;  get_peer_list IPC                                                     
 
@@ -158,7 +170,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-PEER-LIST-OK = signature %d22 status white_list gray_list
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     white_list      = frame                 ; White list
     gray_list       = frame                 ; Gray list
 
@@ -169,7 +181,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-MINING-STATUS-OK = signature %d24 status active speed thread_count address
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     active          = number-1              ; Active
     speed           = number-8              ; Speed
     thread_count    = number-8              ; Threads count
@@ -183,7 +195,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     SET-LOG-HASH-RATE-OK = signature %d26 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  set_log_level IPC                                                     
 
@@ -193,7 +205,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     SET-LOG-LEVEL-OK = signature %d28 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  start_save_graph IPC                                                  
 
@@ -202,7 +214,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     START-SAVE-GRAPH-OK = signature %d30 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  stop_save_graph IPC                                                   
 
@@ -211,7 +223,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     STOP-SAVE-GRAPH-OK = signature %d32 status
-    status          = number-8              ; Status
+    status          = number-4              ; Status
 
     ;  get_block_hash IPC                                                    
 
@@ -221,7 +233,7 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-BLOCK-HASH-OK = signature %d34 status hash
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     hash            = chunk                 ; Hash
 
     ;  get_block_template IPC                                                
@@ -233,42 +245,157 @@ The following ABNF grammar defines the Wallet Access Protocol:
     ;  No description                                                        
 
     GET-BLOCK-TEMPLATE-OK = signature %d36 status reserved_offset height difficulty prev_hash block_template_blob
-    status          = number-8              ; Status
+    status          = number-4              ; Status
     reserved_offset = number-8              ; Rservered Offset
     height          = number-8              ; Height
     difficulty      = number-8              ; Difficulty
     prev_hash       = chunk                 ; Previous Hash
     block_template_blob = chunk             ; Block template blob
 
-    ;  Wallet asks daemon to start mining. Daemon replies with STOP-OK, or   
-    ;  ERROR.                                                                
+    ;  Wallet asks daemon to stop mining. Daemon replies with STOP-MINING-OK,
+    ;  or ERROR.                                                             
 
-    STOP            = signature %d37
+    STOP-MINING     = signature %d37
 
     ;  Daemon replies to a stop mining request.                              
 
-    STOP-OK         = signature %d38
+    STOP-MINING-OK  = signature %d38
+
+    ;  get_hard_fork_info IPC                                                
+
+    GET-HARD-FORK-INFO = signature %d39 hfversion
+    hfversion       = number-1              ; Version
+
+    ;  No description                                                        
+
+    GET-HARD-FORK-INFO-OK = signature %d40 status hfversion enabled window votes threshold voting hfstate
+    status          = number-4              ; Status
+    hfversion       = number-1              ; Version
+    enabled         = number-1              ; Enabled
+    window          = number-4              ; Window
+    votes           = number-4              ; Votes
+    threshold       = number-4              ; Threshold
+    voting          = number-1              ; Voting
+    hfstate         = number-4              ; State
+
+    ;  get_connections_list IPC                                              
+
+    GET-CONNECTIONS-LIST = signature %d41
+
+    ;  No description                                                        
+
+    GET-CONNECTIONS-LIST-OK = signature %d42 status connections
+    status          = number-4              ; Status
+    connections     = frame                 ; Connections
+
+    ;  stop_daemon IPC                                                       
+
+    STOP-DAEMON     = signature %d43 fast
+    fast            = number-1              ; Fast exit
+
+    ;  No description                                                        
+
+    STOP-DAEMON-OK  = signature %d44 status
+    status          = number-4              ; Status
+
+    ;  get_block_by_height IPC                                               
+
+    GET-BLOCK-BY-HEIGHT = signature %d45 height header_only as_json
+    height          = number-8              ; Height
+    header_only     = number-1              ; Header-only
+    as_json         = number-1              ; As JSON
+
+    ;  No description                                                        
+
+    GET-BLOCK-BY-HEIGHT-OK = signature %d46 status block major_version minor_version timestamp prev_hash nonce orphan height depth hash difficulty reward
+    status          = number-4              ; Status
+    block           = chunk                 ; Block blob
+    major_version   = number-1              ; 
+    minor_version   = number-1              ; 
+    timestamp       = number-8              ; 
+    prev_hash       = chunk                 ; 
+    nonce           = number-4              ; 
+    orphan          = number-1              ; 
+    height          = number-8              ; 
+    depth           = number-8              ; 
+    hash            = chunk                 ; 
+    difficulty      = number-8              ; 
+    reward          = number-8              ; 
+
+    ;  get_block_by_hash IPC                                                 
+
+    GET-BLOCK-BY-HASH = signature %d47 hash header_only as_json
+    hash            = chunk                 ; Hash
+    header_only     = number-1              ; Header-only
+    as_json         = number-1              ; As JSON
+
+    ;  No description                                                        
+
+    GET-BLOCK-BY-HASH-OK = signature %d48 status block major_version minor_version timestamp prev_hash nonce height depth hash difficulty reward
+    status          = number-4              ; Status
+    block           = chunk                 ; Block blob
+    major_version   = number-1              ; 
+    minor_version   = number-1              ; 
+    timestamp       = number-8              ; 
+    prev_hash       = chunk                 ; 
+    nonce           = number-4              ; 
+    height          = number-8              ; 
+    depth           = number-8              ; 
+    hash            = chunk                 ; 
+    difficulty      = number-8              ; 
+    reward          = number-8              ; 
+
+    ;  Request whether key images are spent                                  
+
+    GET-KEY-IMAGE-STATUS = signature %d49 key_images
+    key_images      = frame                 ; 
+
+    ;  Daemon returns spent status for the key images.                       
+
+    GET-KEY-IMAGE-STATUS-OK = signature %d50 status spent
+    status          = number-4              ; Status
+    spent           = frame                 ; Key image spent status
+
+    ;  Wallet requests the tx pool from the daemon.                          
+
+    GET-TX-POOL     = signature %d51
+
+    ;  Daemon returns a set of transactions to the wallet.                   
+
+    GET-TX-POOL-OK  = signature %d52 status msg_data
+    status          = number-4              ; Status
+    msg_data        = msg                   ; Frames of transaction data
+
+    ;  Wallet sets the max number of out peers                               
+
+    SET-OUT-PEERS   = signature %d53 num_out_peers
+    num_out_peers   = number-8              ; 
+
+    ;  No description                                                        
+
+    SET-OUT-PEERS-OK = signature %d54 status
+    status          = number-4              ; Status
 
     ;  Wallet closes the connection. This is polite though not mandatory.    
     ;  Daemon will reply with CLOSE-OK or ERROR.                             
 
-    CLOSE           = signature %d39
+    CLOSE           = signature %d55
 
     ;  Daemon replies to a wallet connection close request.                  
 
-    CLOSE-OK        = signature %d40
+    CLOSE-OK        = signature %d56
 
     ;  Wallet heartbeats an idle connection.                                 
 
-    PING            = signature %d41
+    PING            = signature %d57
 
     ;  Daemon replies to a wallet ping request.                              
 
-    PING-OK         = signature %d42
+    PING-OK         = signature %d58
 
     ;  Daemon replies with failure status. Status codes tbd.                 
 
-    ERROR           = signature %d43 status reason
+    ERROR           = signature %d59 status reason
     status          = number-2              ; Error status
     reason          = string                ; Printable explanation
 

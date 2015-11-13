@@ -445,3 +445,102 @@ get_block_template (client_t *self)
     wap_proto_set_block_template_blob(self->message, &blob);
 }
 
+
+
+//  ---------------------------------------------------------------------------
+//  get_hard_fork_info
+//
+
+static void
+get_hard_fork_info (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_connections
+//
+
+static void
+get_connections (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_connections_list
+//
+
+static void
+get_connections_list (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  stop_daemon
+//
+
+static void
+stop_daemon (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_block_by_height
+//
+
+static void
+get_block_by_height (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_block_by_hash
+//
+
+static void
+get_block_by_hash (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_key_image_status
+//
+
+static void
+get_key_image_status (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  get_tx_pool
+//
+
+static void
+get_tx_pool (client_t *self)
+{
+
+}
+
+
+//  ---------------------------------------------------------------------------
+//  set_out_peers
+//
+
+static void
+set_out_peers (client_t *self)
+{
+
+}

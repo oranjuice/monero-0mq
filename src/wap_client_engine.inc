@@ -25,11 +25,11 @@ typedef enum {
     expect_open_ok_state = 2,
     connected_state = 3,
     expect_blocks_ok_state = 4,
-    expect_get_ok_state = 5,
-    expect_put_ok_state = 6,
+    expect_get_tx_ok_state = 5,
+    expect_send_raw_transaction_ok_state = 6,
     expect_save_bc_ok_state = 7,
-    expect_start_ok_state = 8,
-    expect_stop_ok_state = 9,
+    expect_start_mining_ok_state = 8,
+    expect_stop_mining_ok_state = 9,
     expect_output_indexes_ok_state = 10,
     expect_random_outs_ok_state = 11,
     expect_get_height_ok_state = 12,
@@ -42,10 +42,18 @@ typedef enum {
     expect_stop_save_graph_ok_state = 19,
     expect_get_block_hash_ok_state = 20,
     expect_get_block_template_ok_state = 21,
-    expect_close_ok_state = 22,
-    defaults_state = 23,
-    have_error_state = 24,
-    reexpect_open_ok_state = 25
+    expect_get_hard_fork_info_ok_state = 22,
+    expect_get_connections_list_ok_state = 23,
+    expect_stop_daemon_ok_state = 24,
+    expect_get_block_by_height_ok_state = 25,
+    expect_get_block_by_hash_ok_state = 26,
+    expect_get_key_image_status_ok_state = 27,
+    expect_get_tx_pool_ok_state = 28,
+    expect_set_out_peers_ok_state = 29,
+    expect_close_ok_state = 30,
+    defaults_state = 31,
+    have_error_state = 32,
+    reexpect_open_ok_state = 33
 } state_t;
 
 typedef enum {
@@ -55,11 +63,11 @@ typedef enum {
     open_ok_event = 3,
     expired_event = 4,
     blocks_event = 5,
-    get_event = 6,
-    put_event = 7,
+    get_tx_event = 6,
+    send_raw_transaction_event = 7,
     save_bc_event = 8,
-    start_event = 9,
-    stop_event = 10,
+    start_mining_event = 9,
+    stop_mining_event = 10,
     output_indexes_event = 11,
     random_outs_event = 12,
     get_height_event = 13,
@@ -72,46 +80,62 @@ typedef enum {
     stop_save_graph_event = 20,
     get_block_hash_event = 21,
     get_block_template_event = 22,
-    destructor_event = 23,
-    blocks_ok_event = 24,
-    get_ok_event = 25,
-    put_ok_event = 26,
-    save_bc_ok_event = 27,
-    start_ok_event = 28,
-    stop_ok_event = 29,
-    output_indexes_ok_event = 30,
-    random_outs_ok_event = 31,
-    get_height_ok_event = 32,
-    get_info_ok_event = 33,
-    get_peer_list_ok_event = 34,
-    get_mining_status_ok_event = 35,
-    set_log_hash_rate_ok_event = 36,
-    set_log_level_ok_event = 37,
-    start_save_graph_ok_event = 38,
-    stop_save_graph_ok_event = 39,
-    get_block_hash_ok_event = 40,
-    get_block_template_ok_event = 41,
-    close_ok_event = 42,
-    ping_ok_event = 43,
-    error_event = 44,
-    exception_event = 45,
-    command_invalid_event = 46,
-    other_event = 47
+    get_hard_fork_info_event = 23,
+    get_connections_list_event = 24,
+    stop_daemon_event = 25,
+    get_block_by_height_event = 26,
+    get_block_by_hash_event = 27,
+    get_key_image_status_event = 28,
+    get_tx_pool_event = 29,
+    set_out_peers_event = 30,
+    destructor_event = 31,
+    blocks_ok_event = 32,
+    get_tx_ok_event = 33,
+    send_raw_transaction_ok_event = 34,
+    save_bc_ok_event = 35,
+    start_mining_ok_event = 36,
+    stop_mining_ok_event = 37,
+    output_indexes_ok_event = 38,
+    random_outs_ok_event = 39,
+    get_height_ok_event = 40,
+    get_info_ok_event = 41,
+    get_peer_list_ok_event = 42,
+    get_mining_status_ok_event = 43,
+    set_log_hash_rate_ok_event = 44,
+    set_log_level_ok_event = 45,
+    start_save_graph_ok_event = 46,
+    stop_save_graph_ok_event = 47,
+    get_block_hash_ok_event = 48,
+    get_block_template_ok_event = 49,
+    get_hard_fork_info_ok_event = 50,
+    get_connections_list_ok_event = 51,
+    stop_daemon_ok_event = 52,
+    get_block_by_height_ok_event = 53,
+    get_block_by_hash_ok_event = 54,
+    get_key_image_status_ok_event = 55,
+    get_tx_pool_ok_event = 56,
+    set_out_peers_ok_event = 57,
+    close_ok_event = 58,
+    ping_ok_event = 59,
+    error_event = 60,
+    exception_event = 61,
+    command_invalid_event = 62,
+    other_event = 63
 } event_t;
 
 //  Names for state machine logging and error reporting
-static char *
+static const char *
 s_state_name [] = {
     "(NONE)",
     "start",
     "expect open ok",
     "connected",
     "expect blocks ok",
-    "expect get ok",
-    "expect put ok",
+    "expect get tx ok",
+    "expect send raw transaction ok",
     "expect save bc ok",
-    "expect start ok",
-    "expect stop ok",
+    "expect start mining ok",
+    "expect stop mining ok",
     "expect output indexes ok",
     "expect random outs ok",
     "expect get height ok",
@@ -124,13 +148,21 @@ s_state_name [] = {
     "expect stop save graph ok",
     "expect get block hash ok",
     "expect get block template ok",
+    "expect get hard fork info ok",
+    "expect get connections list ok",
+    "expect stop daemon ok",
+    "expect get block by height ok",
+    "expect get block by hash ok",
+    "expect get key image status ok",
+    "expect get tx pool ok",
+    "expect set out peers ok",
     "expect close ok",
     "defaults",
     "have error",
     "reexpect open ok"
 };
 
-static char *
+static const char *
 s_event_name [] = {
     "(NONE)",
     "connect",
@@ -138,11 +170,11 @@ s_event_name [] = {
     "OPEN_OK",
     "expired",
     "BLOCKS",
-    "GET",
-    "PUT",
+    "GET_TX",
+    "SEND_RAW_TRANSACTION",
     "SAVE_BC",
-    "START",
-    "STOP",
+    "START_MINING",
+    "STOP_MINING",
     "OUTPUT_INDEXES",
     "RANDOM_OUTS",
     "GET_HEIGHT",
@@ -155,13 +187,21 @@ s_event_name [] = {
     "STOP_SAVE_GRAPH",
     "GET_BLOCK_HASH",
     "GET_BLOCK_TEMPLATE",
+    "GET_HARD_FORK_INFO",
+    "GET_CONNECTIONS_LIST",
+    "STOP_DAEMON",
+    "GET_BLOCK_BY_HEIGHT",
+    "GET_BLOCK_BY_HASH",
+    "GET_KEY_IMAGE_STATUS",
+    "GET_TX_POOL",
+    "SET_OUT_PEERS",
     "destructor",
     "BLOCKS_OK",
-    "GET_OK",
-    "PUT_OK",
+    "GET_TX_OK",
+    "SEND_RAW_TRANSACTION_OK",
     "SAVE_BC_OK",
-    "START_OK",
-    "STOP_OK",
+    "START_MINING_OK",
+    "STOP_MINING_OK",
     "OUTPUT_INDEXES_OK",
     "RANDOM_OUTS_OK",
     "GET_HEIGHT_OK",
@@ -174,6 +214,14 @@ s_event_name [] = {
     "STOP_SAVE_GRAPH_OK",
     "GET_BLOCK_HASH_OK",
     "GET_BLOCK_TEMPLATE_OK",
+    "GET_HARD_FORK_INFO_OK",
+    "GET_CONNECTIONS_LIST_OK",
+    "STOP_DAEMON_OK",
+    "GET_BLOCK_BY_HEIGHT_OK",
+    "GET_BLOCK_BY_HASH_OK",
+    "GET_KEY_IMAGE_STATUS_OK",
+    "GET_TX_POOL_OK",
+    "SET_OUT_PEERS_OK",
     "CLOSE_OK",
     "PING_OK",
     "ERROR",
@@ -197,6 +245,7 @@ struct _client_args_t {
     uint64_t start_height;
     zchunk_t *tx_as_hex;
     zchunk_t *tx_id;
+    uint8_t as_json;
     uint64_t outs_count;
     zframe_t *amounts;
     zchunk_t *address;
@@ -205,6 +254,12 @@ struct _client_args_t {
     uint8_t level;
     uint64_t height;
     uint64_t reserve_size;
+    uint8_t hfversion;
+    uint8_t fast;
+    uint8_t header_only;
+    zchunk_t *hash;
+    zframe_t *key_images;
+    uint64_t num_out_peers;
 };
 
 typedef struct {
@@ -218,14 +273,17 @@ typedef struct {
     bool connected;             //  True if client is connected
     bool terminated;            //  True if client is shutdown
     bool fsm_stopped;           //  "terminate" action called
-    size_t timeout;             //  inactivity timeout, msecs
+    size_t expiry;              //  Expiry timer, msecs
+    size_t heartbeat;           //  Heartbeat timer, msecs
     state_t state;              //  Current state
     event_t event;              //  Current event
     event_t next_event;         //  The next event
     event_t exception;          //  Exception event, if any
-    int expiry_timer;           //  zloop timer for timeouts
+    int expiry_timer;           //  zloop timer for expiry
     int wakeup_timer;           //  zloop timer for alarms
+    int heartbeat_timer;        //  zloop timer for heartbeat
     event_t wakeup_event;       //  Wake up with this event
+    char log_prefix [41];       //  Log prefix string
 } s_client_t;
 
 static int
@@ -239,7 +297,7 @@ static void
 static int
     s_client_handle_wakeup (zloop_t *loop, int timer_id, void *argument);
 static int
-    s_client_handle_timeout (zloop_t *loop, int timer_id, void *argument);
+    s_client_handle_expiry (zloop_t *loop, int timer_id, void *argument);
 static void
     s_satisfy_pedantic_compilers (void);
 static void
@@ -259,11 +317,11 @@ static void
 static void
     prepare_blocks_command (client_t *self);
 static void
-    prepare_get_command (client_t *self);
+    prepare_get_tx_command (client_t *self);
 static void
-    prepare_put_command (client_t *self);
+    prepare_send_raw_transaction_command (client_t *self);
 static void
-    prepare_start_command (client_t *self);
+    prepare_start_mining_command (client_t *self);
 static void
     prepare_get_output_indexes_command (client_t *self);
 static void
@@ -277,19 +335,31 @@ static void
 static void
     prepare_get_block_template_command (client_t *self);
 static void
+    prepare_hard_fork_info_command (client_t *self);
+static void
+    prepare_stop_daemon_command (client_t *self);
+static void
+    prepare_get_block_by_height_command (client_t *self);
+static void
+    prepare_get_block_by_hash_command (client_t *self);
+static void
+    prepare_get_key_image_status_command (client_t *self);
+static void
+    prepare_set_out_peers_command (client_t *self);
+static void
     check_if_connection_is_dead (client_t *self);
 static void
     signal_have_blocks_ok (client_t *self);
 static void
-    signal_have_get_ok (client_t *self);
+    signal_have_get_tx_ok (client_t *self);
 static void
-    signal_have_put_ok (client_t *self);
+    signal_have_send_raw_transaction_ok (client_t *self);
 static void
     signal_have_save_bc_ok (client_t *self);
 static void
-    signal_have_start_ok (client_t *self);
+    signal_have_start_mining_ok (client_t *self);
 static void
-    signal_have_stop_ok (client_t *self);
+    signal_have_stop_mining_ok (client_t *self);
 static void
     signal_have_output_indexes_ok (client_t *self);
 static void
@@ -315,6 +385,22 @@ static void
 static void
     signal_have_get_block_template_ok (client_t *self);
 static void
+    signal_have_get_hard_fork_info_ok (client_t *self);
+static void
+    signal_have_get_connections_list_ok (client_t *self);
+static void
+    signal_have_stop_daemon_ok (client_t *self);
+static void
+    signal_have_get_block_by_height_ok (client_t *self);
+static void
+    signal_have_get_block_by_hash_ok (client_t *self);
+static void
+    signal_have_get_key_image_status_ok (client_t *self);
+static void
+    signal_have_get_tx_pool_ok (client_t *self);
+static void
+    signal_have_set_out_peers_ok (client_t *self);
+static void
     signal_failure (client_t *self);
 static void
     check_status_code (client_t *self);
@@ -335,6 +421,10 @@ s_client_new (zsock_t *cmdpipe, zsock_t *msgpipe)
         assert ((s_client_t *) &self->client == self);
         self->cmdpipe = cmdpipe;
         self->msgpipe = msgpipe;
+        self->state = start_state;
+        self->event = NULL_event;
+        snprintf (self->log_prefix, sizeof (self->log_prefix) - 1,
+            "%6d:%-33s", randof (1000000), "wap_client");
         self->dealer = zsock_new (ZMQ_DEALER);
         if (self->dealer)
             self->message = wap_proto_new ();
@@ -342,8 +432,6 @@ s_client_new (zsock_t *cmdpipe, zsock_t *msgpipe)
             self->loop = zloop_new ();
         if (self->loop) {
             //  Give application chance to initialize and set next event
-            self->state = start_state;
-            self->event = NULL_event;
             self->client.cmdpipe = self->cmdpipe;
             self->client.msgpipe = self->msgpipe;
             self->client.dealer = self->dealer;
@@ -374,6 +462,8 @@ s_client_destroy (s_client_t **self_p)
         zchunk_destroy (&self->args.tx_id);
         zframe_destroy (&self->args.amounts);
         zchunk_destroy (&self->args.address);
+        zchunk_destroy (&self->args.hash);
+        zframe_destroy (&self->args.key_images);
         client_terminate (&self->client);
         wap_proto_destroy (&self->message);
         zsock_destroy (&self->msgpipe);
@@ -430,25 +520,42 @@ engine_set_wakeup_event (client_t *client, size_t delay, event_t event)
     }
 }
 
-//  Set heartbeat timeout. By default, the timeout is zero, meaning
-//  infinite. Setting a non-zero timeout causes the state machine to
-//  receive an "expired" event if is no incoming traffic for that many
-//  milliseconds. This cycles over and over until/unless the code sets
-//  a zero timeout. The state machine must handle the "expired" event.
+//  Set a heartbeat timer. The interval is in msecs and must be
+//  non-zero. The state machine must handle the "heartbeat" event.
+//  The heartbeat happens every interval no matter what traffic the
+//  client is sending or receiving.
 
 static void
-engine_set_timeout (client_t *client, size_t timeout)
+engine_set_heartbeat (client_t *client, size_t heartbeat)
 {
     if (client) {
         s_client_t *self = (s_client_t *) client;
-        self->timeout = timeout;
+        self->heartbeat = heartbeat;
+    }
+}
+
+
+//  Set expiry timer. Setting a non-zero expiry causes the state machine
+//  to receive an "expired" event if is no incoming traffic for that many
+//  milliseconds. This cycles over and over until/unless the code sets a
+//  zero expiry. The state machine must handle the "expired" event.
+
+//  Macro to support deprecated name: remove after 2016-07-31
+#define engine_set_timeout engine_set_expiry
+
+static void
+engine_set_expiry (client_t *client, size_t expiry)
+{
+    if (client) {
+        s_client_t *self = (s_client_t *) client;
+        self->expiry = expiry;
         if (self->expiry_timer) {
             zloop_timer_end (self->loop, self->expiry_timer);
             self->expiry_timer = 0;
         }
-        if (self->timeout)
+        if (self->expiry)
             self->expiry_timer = zloop_timer (
-                self->loop, self->timeout, 1, s_client_handle_timeout, self);
+                self->loop, self->expiry, 1, s_client_handle_expiry, self);
     }
 }
 
@@ -490,7 +597,8 @@ s_satisfy_pedantic_compilers (void)
 {
     engine_set_next_event (NULL, NULL_event);
     engine_set_exception (NULL, NULL_event);
-    engine_set_timeout (NULL, 0);
+    engine_set_heartbeat (NULL, 0);
+    engine_set_expiry (NULL, 0);
     engine_set_wakeup_event (NULL, 0, NULL_event);
     engine_handle_socket (NULL, 0, NULL);
     engine_set_connected (NULL, 0);
@@ -515,11 +623,11 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
         case WAP_PROTO_BLOCKS_OK:
             return blocks_ok_event;
             break;
-        case WAP_PROTO_PUT:
-            return put_event;
+        case WAP_PROTO_SEND_RAW_TRANSACTION:
+            return send_raw_transaction_event;
             break;
-        case WAP_PROTO_PUT_OK:
-            return put_ok_event;
+        case WAP_PROTO_SEND_RAW_TRANSACTION_OK:
+            return send_raw_transaction_ok_event;
             break;
         case WAP_PROTO_OUTPUT_INDEXES:
             return output_indexes_event;
@@ -539,11 +647,11 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
         case WAP_PROTO_GET_HEIGHT_OK:
             return get_height_ok_event;
             break;
-        case WAP_PROTO_GET:
-            return get_event;
+        case WAP_PROTO_GET_TX:
+            return get_tx_event;
             break;
-        case WAP_PROTO_GET_OK:
-            return get_ok_event;
+        case WAP_PROTO_GET_TX_OK:
+            return get_tx_ok_event;
             break;
         case WAP_PROTO_SAVE_BC:
             return save_bc_event;
@@ -551,11 +659,11 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
         case WAP_PROTO_SAVE_BC_OK:
             return save_bc_ok_event;
             break;
-        case WAP_PROTO_START:
-            return start_event;
+        case WAP_PROTO_START_MINING:
+            return start_mining_event;
             break;
-        case WAP_PROTO_START_OK:
-            return start_ok_event;
+        case WAP_PROTO_START_MINING_OK:
+            return start_mining_ok_event;
             break;
         case WAP_PROTO_GET_INFO:
             return get_info_event;
@@ -611,11 +719,59 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
         case WAP_PROTO_GET_BLOCK_TEMPLATE_OK:
             return get_block_template_ok_event;
             break;
-        case WAP_PROTO_STOP:
-            return stop_event;
+        case WAP_PROTO_STOP_MINING:
+            return stop_mining_event;
             break;
-        case WAP_PROTO_STOP_OK:
-            return stop_ok_event;
+        case WAP_PROTO_STOP_MINING_OK:
+            return stop_mining_ok_event;
+            break;
+        case WAP_PROTO_GET_HARD_FORK_INFO:
+            return get_hard_fork_info_event;
+            break;
+        case WAP_PROTO_GET_HARD_FORK_INFO_OK:
+            return get_hard_fork_info_ok_event;
+            break;
+        case WAP_PROTO_GET_CONNECTIONS_LIST:
+            return get_connections_list_event;
+            break;
+        case WAP_PROTO_GET_CONNECTIONS_LIST_OK:
+            return get_connections_list_ok_event;
+            break;
+        case WAP_PROTO_STOP_DAEMON:
+            return stop_daemon_event;
+            break;
+        case WAP_PROTO_STOP_DAEMON_OK:
+            return stop_daemon_ok_event;
+            break;
+        case WAP_PROTO_GET_BLOCK_BY_HEIGHT:
+            return get_block_by_height_event;
+            break;
+        case WAP_PROTO_GET_BLOCK_BY_HEIGHT_OK:
+            return get_block_by_height_ok_event;
+            break;
+        case WAP_PROTO_GET_BLOCK_BY_HASH:
+            return get_block_by_hash_event;
+            break;
+        case WAP_PROTO_GET_BLOCK_BY_HASH_OK:
+            return get_block_by_hash_ok_event;
+            break;
+        case WAP_PROTO_GET_KEY_IMAGE_STATUS:
+            return get_key_image_status_event;
+            break;
+        case WAP_PROTO_GET_KEY_IMAGE_STATUS_OK:
+            return get_key_image_status_ok_event;
+            break;
+        case WAP_PROTO_GET_TX_POOL:
+            return get_tx_pool_event;
+            break;
+        case WAP_PROTO_GET_TX_POOL_OK:
+            return get_tx_pool_ok_event;
+            break;
+        case WAP_PROTO_SET_OUT_PEERS:
+            return set_out_peers_event;
+            break;
+        case WAP_PROTO_SET_OUT_PEERS_OK:
+            return set_out_peers_ok_event;
             break;
         case WAP_PROTO_CLOSE_OK:
             return close_ok_event;
@@ -627,7 +783,8 @@ s_protocol_event (s_client_t *self, wap_proto_t *message)
             return error_event;
             break;
         default:
-            zsys_error ("wap_client: unknown command %s, halting", wap_proto_command (message));
+            zsys_error ("%s: unknown command %s, halting",
+                        self->log_prefix, wap_proto_command (message));
             self->terminated = true;
             return NULL_event;
     }
@@ -653,8 +810,10 @@ s_client_execute (s_client_t *self, event_t event)
         self->next_event = NULL_event;
         self->exception = NULL_event;
         if (wap_client_verbose) {
-            zsys_debug ("wap_client: %s:", s_state_name [self->state]);
-            zsys_debug ("wap_client:        %s", s_event_name [self->event]);
+            zsys_debug ("%s: %s:",
+                self->log_prefix, s_state_name [self->state]);
+            zsys_debug ("%s:     %s",
+                self->log_prefix, s_event_name [self->event]);
         }
         switch (self->state) {
             case start_state:
@@ -662,25 +821,26 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  connect to server endpoint
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ connect to server endpoint");
+                            zsys_debug ("%s:         $ connect to server endpoint", self->log_prefix);
                         connect_to_server_endpoint (&self->client);
                     }
                     if (!self->exception) {
                         //  set client identity
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ set client identity");
+                            zsys_debug ("%s:         $ set client identity", self->log_prefix);
                         set_client_identity (&self->client);
                     }
                     if (!self->exception) {
                         //  use connect timeout
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ use connect timeout");
+                            zsys_debug ("%s:         $ use connect timeout", self->log_prefix);
                         use_connect_timeout (&self->client);
                     }
                     if (!self->exception) {
                         //  send OPEN
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send OPEN");
+                            zsys_debug ("%s:         $ send OPEN",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_OPEN);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -692,20 +852,22 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal bad endpoint
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal bad endpoint");
+                            zsys_debug ("%s:         $ signal bad endpoint", self->log_prefix);
                         signal_bad_endpoint (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ terminate");
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
                         self->fsm_stopped = true;
                     }
                 }
                 else {
                     //  Handle unexpected internal events
-                    zsys_warning ("wap_client: unhandled event %s in %s",
-                        s_event_name [self->event], s_state_name [self->state]);
+                    zsys_warning ("%s: unhandled event %s in %s",
+                        self->log_prefix,
+                        s_event_name [self->event],
+                        s_state_name [self->state]);
                     assert (false);
                 }
                 break;
@@ -715,13 +877,13 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal success
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal success");
+                            zsys_debug ("%s:         $ signal success", self->log_prefix);
                         signal_success (&self->client);
                     }
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                     if (!self->exception)
@@ -732,13 +894,13 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal server not present
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal server not present");
+                            zsys_debug ("%s:         $ signal server not present", self->log_prefix);
                         signal_server_not_present (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ terminate");
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
                         self->fsm_stopped = true;
                     }
                 }
@@ -747,7 +909,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -756,7 +918,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -764,15 +926,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -781,13 +937,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  prepare blocks command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare blocks command");
+                            zsys_debug ("%s:         $ prepare blocks command", self->log_prefix);
                         prepare_blocks_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send BLOCKS
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send BLOCKS");
+                            zsys_debug ("%s:         $ send BLOCKS",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_BLOCKS);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -795,47 +952,50 @@ s_client_execute (s_client_t *self, event_t event)
                         self->state = expect_blocks_ok_state;
                 }
                 else
-                if (self->event == get_event) {
+                if (self->event == get_tx_event) {
                     if (!self->exception) {
-                        //  prepare get command
+                        //  prepare get tx command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare get command");
-                        prepare_get_command (&self->client);
+                            zsys_debug ("%s:         $ prepare get tx command", self->log_prefix);
+                        prepare_get_tx_command (&self->client);
                     }
                     if (!self->exception) {
-                        //  send GET
+                        //  send GET_TX
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send GET");
-                        wap_proto_set_id (self->message, WAP_PROTO_GET);
+                            zsys_debug ("%s:         $ send GET_TX",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_TX);
                         wap_proto_send (self->message, self->dealer);
                     }
                     if (!self->exception)
-                        self->state = expect_get_ok_state;
+                        self->state = expect_get_tx_ok_state;
                 }
                 else
-                if (self->event == put_event) {
+                if (self->event == send_raw_transaction_event) {
                     if (!self->exception) {
-                        //  prepare put command
+                        //  prepare send raw transaction command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare put command");
-                        prepare_put_command (&self->client);
+                            zsys_debug ("%s:         $ prepare send raw transaction command", self->log_prefix);
+                        prepare_send_raw_transaction_command (&self->client);
                     }
                     if (!self->exception) {
-                        //  send PUT
+                        //  send SEND_RAW_TRANSACTION
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send PUT");
-                        wap_proto_set_id (self->message, WAP_PROTO_PUT);
+                            zsys_debug ("%s:         $ send SEND_RAW_TRANSACTION",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_SEND_RAW_TRANSACTION);
                         wap_proto_send (self->message, self->dealer);
                     }
                     if (!self->exception)
-                        self->state = expect_put_ok_state;
+                        self->state = expect_send_raw_transaction_ok_state;
                 }
                 else
                 if (self->event == save_bc_event) {
                     if (!self->exception) {
                         //  send SAVE_BC
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send SAVE_BC");
+                            zsys_debug ("%s:         $ send SAVE_BC",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_SAVE_BC);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -843,47 +1003,50 @@ s_client_execute (s_client_t *self, event_t event)
                         self->state = expect_save_bc_ok_state;
                 }
                 else
-                if (self->event == start_event) {
+                if (self->event == start_mining_event) {
                     if (!self->exception) {
-                        //  prepare start command
+                        //  prepare start mining command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare start command");
-                        prepare_start_command (&self->client);
+                            zsys_debug ("%s:         $ prepare start mining command", self->log_prefix);
+                        prepare_start_mining_command (&self->client);
                     }
                     if (!self->exception) {
-                        //  send START
+                        //  send START_MINING
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send START");
-                        wap_proto_set_id (self->message, WAP_PROTO_START);
+                            zsys_debug ("%s:         $ send START_MINING",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_START_MINING);
                         wap_proto_send (self->message, self->dealer);
                     }
                     if (!self->exception)
-                        self->state = expect_start_ok_state;
+                        self->state = expect_start_mining_ok_state;
                 }
                 else
-                if (self->event == stop_event) {
+                if (self->event == stop_mining_event) {
                     if (!self->exception) {
-                        //  send STOP
+                        //  send STOP_MINING
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send STOP");
-                        wap_proto_set_id (self->message, WAP_PROTO_STOP);
+                            zsys_debug ("%s:         $ send STOP_MINING",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_STOP_MINING);
                         wap_proto_send (self->message, self->dealer);
                     }
                     if (!self->exception)
-                        self->state = expect_stop_ok_state;
+                        self->state = expect_stop_mining_ok_state;
                 }
                 else
                 if (self->event == output_indexes_event) {
                     if (!self->exception) {
                         //  prepare get output indexes command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare get output indexes command");
+                            zsys_debug ("%s:         $ prepare get output indexes command", self->log_prefix);
                         prepare_get_output_indexes_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send OUTPUT_INDEXES
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send OUTPUT_INDEXES");
+                            zsys_debug ("%s:         $ send OUTPUT_INDEXES",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_OUTPUT_INDEXES);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -895,13 +1058,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  prepare get random outs command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare get random outs command");
+                            zsys_debug ("%s:         $ prepare get random outs command", self->log_prefix);
                         prepare_get_random_outs_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send RANDOM_OUTS
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send RANDOM_OUTS");
+                            zsys_debug ("%s:         $ send RANDOM_OUTS",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_RANDOM_OUTS);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -913,7 +1077,8 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  send GET_HEIGHT
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send GET_HEIGHT");
+                            zsys_debug ("%s:         $ send GET_HEIGHT",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_GET_HEIGHT);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -925,7 +1090,8 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  send GET_INFO
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send GET_INFO");
+                            zsys_debug ("%s:         $ send GET_INFO",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_GET_INFO);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -937,7 +1103,8 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  send GET_PEER_LIST
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send GET_PEER_LIST");
+                            zsys_debug ("%s:         $ send GET_PEER_LIST",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_GET_PEER_LIST);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -949,7 +1116,8 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  send GET_MINING_STATUS
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send GET_MINING_STATUS");
+                            zsys_debug ("%s:         $ send GET_MINING_STATUS",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_GET_MINING_STATUS);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -961,13 +1129,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  prepare set log hash rate command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare set log hash rate command");
+                            zsys_debug ("%s:         $ prepare set log hash rate command", self->log_prefix);
                         prepare_set_log_hash_rate_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send SET_LOG_HASH_RATE
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send SET_LOG_HASH_RATE");
+                            zsys_debug ("%s:         $ send SET_LOG_HASH_RATE",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_SET_LOG_HASH_RATE);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -979,13 +1148,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  prepare set log level command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare set log level command");
+                            zsys_debug ("%s:         $ prepare set log level command", self->log_prefix);
                         prepare_set_log_level_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send SET_LOG_LEVEL
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send SET_LOG_LEVEL");
+                            zsys_debug ("%s:         $ send SET_LOG_LEVEL",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_SET_LOG_LEVEL);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -997,7 +1167,8 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  send START_SAVE_GRAPH
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send START_SAVE_GRAPH");
+                            zsys_debug ("%s:         $ send START_SAVE_GRAPH",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_START_SAVE_GRAPH);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -1009,7 +1180,8 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  send STOP_SAVE_GRAPH
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send STOP_SAVE_GRAPH");
+                            zsys_debug ("%s:         $ send STOP_SAVE_GRAPH",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_STOP_SAVE_GRAPH);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -1021,13 +1193,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  prepare get block hash command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare get block hash command");
+                            zsys_debug ("%s:         $ prepare get block hash command", self->log_prefix);
                         prepare_get_block_hash_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send GET_BLOCK_HASH
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send GET_BLOCK_HASH");
+                            zsys_debug ("%s:         $ send GET_BLOCK_HASH",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_GET_BLOCK_HASH);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -1039,13 +1212,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  prepare get block template command
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ prepare get block template command");
+                            zsys_debug ("%s:         $ prepare get block template command", self->log_prefix);
                         prepare_get_block_template_command (&self->client);
                     }
                     if (!self->exception) {
                         //  send GET_BLOCK_TEMPLATE
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send GET_BLOCK_TEMPLATE");
+                            zsys_debug ("%s:         $ send GET_BLOCK_TEMPLATE",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_GET_BLOCK_TEMPLATE);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -1053,11 +1227,152 @@ s_client_execute (s_client_t *self, event_t event)
                         self->state = expect_get_block_template_ok_state;
                 }
                 else
+                if (self->event == get_hard_fork_info_event) {
+                    if (!self->exception) {
+                        //  prepare hard fork info command
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ prepare hard fork info command", self->log_prefix);
+                        prepare_hard_fork_info_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send GET_HARD_FORK_INFO
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send GET_HARD_FORK_INFO",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_HARD_FORK_INFO);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_hard_fork_info_ok_state;
+                }
+                else
+                if (self->event == get_connections_list_event) {
+                    if (!self->exception) {
+                        //  send GET_CONNECTIONS_LIST
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send GET_CONNECTIONS_LIST",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_CONNECTIONS_LIST);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_connections_list_ok_state;
+                }
+                else
+                if (self->event == stop_daemon_event) {
+                    if (!self->exception) {
+                        //  prepare stop daemon command
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ prepare stop daemon command", self->log_prefix);
+                        prepare_stop_daemon_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send STOP_DAEMON
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send STOP_DAEMON",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_STOP_DAEMON);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_stop_daemon_ok_state;
+                }
+                else
+                if (self->event == get_block_by_height_event) {
+                    if (!self->exception) {
+                        //  prepare get block by height command
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ prepare get block by height command", self->log_prefix);
+                        prepare_get_block_by_height_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send GET_BLOCK_BY_HEIGHT
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send GET_BLOCK_BY_HEIGHT",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_BLOCK_BY_HEIGHT);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_block_by_height_ok_state;
+                }
+                else
+                if (self->event == get_block_by_hash_event) {
+                    if (!self->exception) {
+                        //  prepare get block by hash command
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ prepare get block by hash command", self->log_prefix);
+                        prepare_get_block_by_hash_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send GET_BLOCK_BY_HASH
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send GET_BLOCK_BY_HASH",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_BLOCK_BY_HASH);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_block_by_hash_ok_state;
+                }
+                else
+                if (self->event == get_key_image_status_event) {
+                    if (!self->exception) {
+                        //  prepare get key image status command
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ prepare get key image status command", self->log_prefix);
+                        prepare_get_key_image_status_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send GET_KEY_IMAGE_STATUS
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send GET_KEY_IMAGE_STATUS",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_KEY_IMAGE_STATUS);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_key_image_status_ok_state;
+                }
+                else
+                if (self->event == get_tx_pool_event) {
+                    if (!self->exception) {
+                        //  send GET_TX_POOL
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send GET_TX_POOL",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_GET_TX_POOL);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_get_tx_pool_ok_state;
+                }
+                else
+                if (self->event == set_out_peers_event) {
+                    if (!self->exception) {
+                        //  prepare set out peers command
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ prepare set out peers command", self->log_prefix);
+                        prepare_set_out_peers_command (&self->client);
+                    }
+                    if (!self->exception) {
+                        //  send SET_OUT_PEERS
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ send SET_OUT_PEERS",
+                                self->log_prefix);
+                        wap_proto_set_id (self->message, WAP_PROTO_SET_OUT_PEERS);
+                        wap_proto_send (self->message, self->dealer);
+                    }
+                    if (!self->exception)
+                        self->state = expect_set_out_peers_ok_state;
+                }
+                else
                 if (self->event == destructor_event) {
                     if (!self->exception) {
                         //  send CLOSE
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send CLOSE");
+                            zsys_debug ("%s:         $ send CLOSE",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_CLOSE);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -1069,13 +1384,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check if connection is dead
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check if connection is dead");
+                            zsys_debug ("%s:         $ check if connection is dead", self->log_prefix);
                         check_if_connection_is_dead (&self->client);
                     }
                     if (!self->exception) {
                         //  send PING
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send PING");
+                            zsys_debug ("%s:         $ send PING",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_PING);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -1085,7 +1401,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1094,7 +1410,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1102,15 +1418,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1119,7 +1429,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have blocks ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have blocks ok");
+                            zsys_debug ("%s:         $ signal have blocks ok", self->log_prefix);
                         signal_have_blocks_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1130,7 +1440,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1139,7 +1449,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1147,25 +1457,19 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
-            case expect_get_ok_state:
-                if (self->event == get_ok_event) {
+            case expect_get_tx_ok_state:
+                if (self->event == get_tx_ok_event) {
                     if (!self->exception) {
-                        //  signal have get ok
+                        //  signal have get tx ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have get ok");
-                        signal_have_get_ok (&self->client);
+                            zsys_debug ("%s:         $ signal have get tx ok", self->log_prefix);
+                        signal_have_get_tx_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -1175,7 +1479,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1184,7 +1488,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1192,25 +1496,19 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
-            case expect_put_ok_state:
-                if (self->event == put_ok_event) {
+            case expect_send_raw_transaction_ok_state:
+                if (self->event == send_raw_transaction_ok_event) {
                     if (!self->exception) {
-                        //  signal have put ok
+                        //  signal have send raw transaction ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have put ok");
-                        signal_have_put_ok (&self->client);
+                            zsys_debug ("%s:         $ signal have send raw transaction ok", self->log_prefix);
+                        signal_have_send_raw_transaction_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -1220,7 +1518,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1229,7 +1527,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1237,15 +1535,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1254,7 +1546,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have save bc ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have save bc ok");
+                            zsys_debug ("%s:         $ signal have save bc ok", self->log_prefix);
                         signal_have_save_bc_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1265,7 +1557,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1274,7 +1566,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1282,25 +1574,19 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
-            case expect_start_ok_state:
-                if (self->event == start_ok_event) {
+            case expect_start_mining_ok_state:
+                if (self->event == start_mining_ok_event) {
                     if (!self->exception) {
-                        //  signal have start ok
+                        //  signal have start mining ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have start ok");
-                        signal_have_start_ok (&self->client);
+                            zsys_debug ("%s:         $ signal have start mining ok", self->log_prefix);
+                        signal_have_start_mining_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -1310,7 +1596,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1319,7 +1605,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1327,25 +1613,19 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
-            case expect_stop_ok_state:
-                if (self->event == stop_ok_event) {
+            case expect_stop_mining_ok_state:
+                if (self->event == stop_mining_ok_event) {
                     if (!self->exception) {
-                        //  signal have stop ok
+                        //  signal have stop mining ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have stop ok");
-                        signal_have_stop_ok (&self->client);
+                            zsys_debug ("%s:         $ signal have stop mining ok", self->log_prefix);
+                        signal_have_stop_mining_ok (&self->client);
                     }
                     if (!self->exception)
                         self->state = connected_state;
@@ -1355,7 +1635,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1364,7 +1644,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1372,15 +1652,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1389,7 +1663,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have output indexes ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have output indexes ok");
+                            zsys_debug ("%s:         $ signal have output indexes ok", self->log_prefix);
                         signal_have_output_indexes_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1400,7 +1674,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1409,7 +1683,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1417,15 +1691,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1434,7 +1702,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have random outs ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have random outs ok");
+                            zsys_debug ("%s:         $ signal have random outs ok", self->log_prefix);
                         signal_have_random_outs_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1445,7 +1713,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1454,7 +1722,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1462,15 +1730,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1479,7 +1741,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have get height ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have get height ok");
+                            zsys_debug ("%s:         $ signal have get height ok", self->log_prefix);
                         signal_have_get_height_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1490,7 +1752,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1499,7 +1761,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1507,15 +1769,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1524,7 +1780,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have get info ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have get info ok");
+                            zsys_debug ("%s:         $ signal have get info ok", self->log_prefix);
                         signal_have_get_info_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1535,7 +1791,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1544,7 +1800,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1552,15 +1808,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1569,7 +1819,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have get peer list ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have get peer list ok");
+                            zsys_debug ("%s:         $ signal have get peer list ok", self->log_prefix);
                         signal_have_get_peer_list_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1580,7 +1830,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1589,7 +1839,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1597,15 +1847,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1614,7 +1858,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have get mining status ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have get mining status ok");
+                            zsys_debug ("%s:         $ signal have get mining status ok", self->log_prefix);
                         signal_have_get_mining_status_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1625,7 +1869,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1634,7 +1878,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1642,15 +1886,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1659,7 +1897,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have set log hash rate ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have set log hash rate ok");
+                            zsys_debug ("%s:         $ signal have set log hash rate ok", self->log_prefix);
                         signal_have_set_log_hash_rate_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1670,7 +1908,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1679,7 +1917,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1687,15 +1925,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1704,7 +1936,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have set log level ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have set log level ok");
+                            zsys_debug ("%s:         $ signal have set log level ok", self->log_prefix);
                         signal_have_set_log_level_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1715,7 +1947,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1724,7 +1956,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1732,15 +1964,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1749,7 +1975,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have start save graph ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have start save graph ok");
+                            zsys_debug ("%s:         $ signal have start save graph ok", self->log_prefix);
                         signal_have_start_save_graph_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1760,7 +1986,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1769,7 +1995,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1777,15 +2003,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1794,7 +2014,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have stop save graph ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have stop save graph ok");
+                            zsys_debug ("%s:         $ signal have stop save graph ok", self->log_prefix);
                         signal_have_stop_save_graph_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1805,7 +2025,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1814,7 +2034,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1822,15 +2042,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1839,7 +2053,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have get block hash ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have get block hash ok");
+                            zsys_debug ("%s:         $ signal have get block hash ok", self->log_prefix);
                         signal_have_get_block_hash_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1850,7 +2064,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1859,7 +2073,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1867,15 +2081,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1884,7 +2092,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal have get block template ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal have get block template ok");
+                            zsys_debug ("%s:         $ signal have get block template ok", self->log_prefix);
                         signal_have_get_block_template_ok (&self->client);
                     }
                     if (!self->exception)
@@ -1895,7 +2103,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1904,7 +2112,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1912,15 +2120,321 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
+                }
+                break;
+
+            case expect_get_hard_fork_info_ok_state:
+                if (self->event == get_hard_fork_info_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get hard fork info ok
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
+                            zsys_debug ("%s:         $ signal have get hard fork info ok", self->log_prefix);
+                        signal_have_get_hard_fork_info_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case expect_get_connections_list_ok_state:
+                if (self->event == get_connections_list_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get connections list ok
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ signal have get connections list ok", self->log_prefix);
+                        signal_have_get_connections_list_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case expect_stop_daemon_ok_state:
+                if (self->event == stop_daemon_ok_event) {
+                    if (!self->exception) {
+                        //  signal have stop daemon ok
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ signal have stop daemon ok", self->log_prefix);
+                        signal_have_stop_daemon_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case expect_get_block_by_height_ok_state:
+                if (self->event == get_block_by_height_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get block by height ok
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ signal have get block by height ok", self->log_prefix);
+                        signal_have_get_block_by_height_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case expect_get_block_by_hash_ok_state:
+                if (self->event == get_block_by_hash_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get block by hash ok
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ signal have get block by hash ok", self->log_prefix);
+                        signal_have_get_block_by_hash_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case expect_get_key_image_status_ok_state:
+                if (self->event == get_key_image_status_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get key image status ok
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ signal have get key image status ok", self->log_prefix);
+                        signal_have_get_key_image_status_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case expect_get_tx_pool_ok_state:
+                if (self->event == get_tx_pool_ok_event) {
+                    if (!self->exception) {
+                        //  signal have get tx pool ok
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ signal have get tx pool ok", self->log_prefix);
+                        signal_have_get_tx_pool_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
+                }
+                break;
+
+            case expect_set_out_peers_ok_state:
+                if (self->event == set_out_peers_ok_event) {
+                    if (!self->exception) {
+                        //  signal have set out peers ok
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ signal have set out peers ok", self->log_prefix);
+                        signal_have_set_out_peers_ok (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = connected_state;
+                }
+                else
+                if (self->event == ping_ok_event) {
+                    if (!self->exception) {
+                        //  client is connected
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
+                        client_is_connected (&self->client);
+                    }
+                }
+                else
+                if (self->event == error_event) {
+                    if (!self->exception) {
+                        //  check status code
+                        if (wap_client_verbose)
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
+                        check_status_code (&self->client);
+                    }
+                    if (!self->exception)
+                        self->state = have_error_state;
+                }
+                else
+                if (self->event == exception_event) {
+                }
+                else {
+                    //  Handle unexpected protocol events
                 }
                 break;
 
@@ -1929,13 +2443,13 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal success
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal success");
+                            zsys_debug ("%s:         $ signal success", self->log_prefix);
                         signal_success (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ terminate");
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
                         self->fsm_stopped = true;
                     }
                 }
@@ -1944,13 +2458,13 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal failure
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal failure");
+                            zsys_debug ("%s:         $ signal failure", self->log_prefix);
                         signal_failure (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ terminate");
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
                         self->fsm_stopped = true;
                     }
                 }
@@ -1959,7 +2473,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -1968,7 +2482,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -1976,15 +2490,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -1993,7 +2501,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -2002,7 +2510,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -2010,15 +2518,9 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
 
@@ -2027,13 +2529,14 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  use connect timeout
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ use connect timeout");
+                            zsys_debug ("%s:         $ use connect timeout", self->log_prefix);
                         use_connect_timeout (&self->client);
                     }
                     if (!self->exception) {
                         //  send OPEN
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ send OPEN");
+                            zsys_debug ("%s:         $ send OPEN",
+                                self->log_prefix);
                         wap_proto_set_id (self->message, WAP_PROTO_OPEN);
                         wap_proto_send (self->message, self->dealer);
                     }
@@ -2045,20 +2548,22 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  signal unhandled error
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ signal unhandled error");
+                            zsys_debug ("%s:         $ signal unhandled error", self->log_prefix);
                         signal_unhandled_error (&self->client);
                     }
                     if (!self->exception) {
                         //  terminate
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ terminate");
+                            zsys_debug ("%s:         $ terminate", self->log_prefix);
                         self->fsm_stopped = true;
                     }
                 }
                 else {
                     //  Handle unexpected internal events
-                    zsys_warning ("wap_client: unhandled event %s in %s",
-                        s_event_name [self->event], s_state_name [self->state]);
+                    zsys_warning ("%s: unhandled event %s in %s",
+                        self->log_prefix,
+                        s_event_name [self->event],
+                        s_state_name [self->state]);
                     assert (false);
                 }
                 break;
@@ -2068,7 +2573,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                     if (!self->exception)
@@ -2079,7 +2584,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  client is connected
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ client is connected");
+                            zsys_debug ("%s:         $ client is connected", self->log_prefix);
                         client_is_connected (&self->client);
                     }
                 }
@@ -2088,7 +2593,7 @@ s_client_execute (s_client_t *self, event_t event)
                     if (!self->exception) {
                         //  check status code
                         if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ check status code");
+                            zsys_debug ("%s:         $ check status code", self->log_prefix);
                         check_status_code (&self->client);
                     }
                     if (!self->exception)
@@ -2096,43 +2601,39 @@ s_client_execute (s_client_t *self, event_t event)
                 }
                 else
                 if (self->event == exception_event) {
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ exception");
                 }
                 else {
                     //  Handle unexpected protocol events
-                        //  No action - just logging
-                        if (wap_client_verbose)
-                            zsys_debug ("wap_client:            $ *");
                 }
                 break;
         }
         //  If we had an exception event, interrupt normal programming
         if (self->exception) {
             if (wap_client_verbose)
-                zsys_debug ("wap_client:            ! %s", s_event_name [self->exception]);
+                zsys_debug ("%s:         ! %s",
+                    self->log_prefix, s_event_name [self->exception]);
             self->next_event = self->exception;
         }
         else
         if (wap_client_verbose)
-            zsys_debug ("wap_client:            > %s", s_state_name [self->state]);
+            zsys_debug ("%s:         > %s",
+                    self->log_prefix, s_state_name [self->state]);
     }
 }
 
-//  zloop callback when client inactivity timer expires
+//  zloop callback when client expiry timeout expires
 
 static int
-s_client_handle_timeout (zloop_t *loop, int timer_id, void *argument)
+s_client_handle_expiry (zloop_t *loop, int timer_id, void *argument)
 {
     s_client_t *self = (s_client_t *) argument;
     s_client_execute (self, expired_event);
     if (self->terminated)
         return -1;
 
-    if (self->timeout > 0)
+    if (self->expiry > 0)
         self->expiry_timer = zloop_timer (
-            loop, self->timeout, 1, s_client_handle_timeout, self);
+            loop, self->expiry, 1, s_client_handle_expiry, self);
     return 0;
 }
 
@@ -2157,7 +2658,7 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
     if (!method)
         return -1;                  //  Interrupted; exit zloop
     if (wap_client_verbose)
-        zsys_debug ("wap_client:        API command=%s", method);
+        zsys_debug ("%s:     API command=%s", self->log_prefix, method);
 
     if (streq (method, "$TERM"))
         self->terminated = true;    //  Shutdown the engine
@@ -2182,16 +2683,16 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         s_client_execute (self, blocks_event);
     }
     else
-    if (streq (method, "PUT")) {
+    if (streq (method, "SEND RAW TRANSACTION")) {
         zchunk_destroy (&self->args.tx_as_hex);
         zsock_recv (self->cmdpipe, "p", &self->args.tx_as_hex);
-        s_client_execute (self, put_event);
+        s_client_execute (self, send_raw_transaction_event);
     }
     else
-    if (streq (method, "GET")) {
+    if (streq (method, "GET TX")) {
         zchunk_destroy (&self->args.tx_id);
-        zsock_recv (self->cmdpipe, "p", &self->args.tx_id);
-        s_client_execute (self, get_event);
+        zsock_recv (self->cmdpipe, "p1", &self->args.tx_id, &self->args.as_json);
+        s_client_execute (self, get_tx_event);
     }
     else
     if (streq (method, "SAVE BC")) {
@@ -2218,14 +2719,14 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         s_client_execute (self, get_info_event);
     }
     else
-    if (streq (method, "START")) {
+    if (streq (method, "START MINING")) {
         zchunk_destroy (&self->args.address);
         zsock_recv (self->cmdpipe, "p8", &self->args.address, &self->args.thread_count);
-        s_client_execute (self, start_event);
+        s_client_execute (self, start_mining_event);
     }
     else
-    if (streq (method, "STOP")) {
-        s_client_execute (self, stop_event);
+    if (streq (method, "STOP MINING")) {
+        s_client_execute (self, stop_mining_event);
     }
     else
     if (streq (method, "GET PEER LIST")) {
@@ -2264,9 +2765,50 @@ s_client_handle_cmdpipe (zloop_t *loop, zsock_t *reader, void *argument)
         zsock_recv (self->cmdpipe, "8p", &self->args.reserve_size, &self->args.address);
         s_client_execute (self, get_block_template_event);
     }
+    else
+    if (streq (method, "GET HARD FORK INFO")) {
+        zsock_recv (self->cmdpipe, "1", &self->args.hfversion);
+        s_client_execute (self, get_hard_fork_info_event);
+    }
+    else
+    if (streq (method, "GET CONNECTIONS LIST")) {
+        s_client_execute (self, get_connections_list_event);
+    }
+    else
+    if (streq (method, "STOP DAEMON")) {
+        zsock_recv (self->cmdpipe, "1", &self->args.fast);
+        s_client_execute (self, stop_daemon_event);
+    }
+    else
+    if (streq (method, "GET BLOCK BY HEIGHT")) {
+        zsock_recv (self->cmdpipe, "811", &self->args.height, &self->args.header_only, &self->args.as_json);
+        s_client_execute (self, get_block_by_height_event);
+    }
+    else
+    if (streq (method, "GET BLOCK BY HASH")) {
+        zchunk_destroy (&self->args.hash);
+        zsock_recv (self->cmdpipe, "p11", &self->args.hash, &self->args.header_only, &self->args.as_json);
+        s_client_execute (self, get_block_by_hash_event);
+    }
+    else
+    if (streq (method, "GET KEY IMAGE STATUS")) {
+        zframe_destroy (&self->args.key_images);
+        zsock_recv (self->cmdpipe, "p", &self->args.key_images);
+        s_client_execute (self, get_key_image_status_event);
+    }
+    else
+    if (streq (method, "GET TX POOL")) {
+        s_client_execute (self, get_tx_pool_event);
+    }
+    else
+    if (streq (method, "SET OUT PEERS")) {
+        zsock_recv (self->cmdpipe, "8", &self->args.num_out_peers);
+        s_client_execute (self, set_out_peers_event);
+    }
     //  Cleanup pipe if any argument frames are still waiting to be eaten
     if (zsock_rcvmore (self->cmdpipe)) {
-        zsys_error ("wap_client: trailing API command frames (%s)", method);
+        zsys_error ("%s: trailing API command frames (%s)",
+            self->log_prefix, method);
         zmsg_t *more = zmsg_recv (self->cmdpipe);
         zmsg_print (more);
         zmsg_destroy (&more);
@@ -2290,7 +2832,7 @@ s_client_handle_msgpipe (zloop_t *loop, zsock_t *reader, void *argument)
         if (!method)
             return -1;              //  Interrupted; exit zloop
         if (wap_client_verbose)
-            zsys_debug ("wap_client:        API message=%s", method);
+            zsys_debug ("%s:     API message=%s", self->log_prefix, method);
 
         //  Front-end shuts down msgpipe before cmdpipe, this little
         //  handshake just ensures all traffic on the msgpipe has been
@@ -2300,7 +2842,7 @@ s_client_handle_msgpipe (zloop_t *loop, zsock_t *reader, void *argument)
             zsock_signal (self->cmdpipe, 0);
         //  Cleanup pipe if any argument frames are still waiting to be eaten
         if (zsock_rcvmore (self->msgpipe)) {
-            zsys_error ("wap_client: trailing API message frames (%s)", method);
+            zsys_error ("%s: trailing API message frames (%s)", self->log_prefix, method);
             zmsg_t *more = zmsg_recv (self->msgpipe);
             zmsg_print (more);
             zmsg_destroy (&more);
@@ -2329,10 +2871,10 @@ s_client_handle_protocol (zloop_t *loop, zsock_t *reader, void *argument)
             zloop_timer_end (self->loop, self->expiry_timer);
             self->expiry_timer = 0;
         }
-        //  Reset expiry timer if timeout is not zero
-        if (self->timeout)
+        //  Reset expiry timer if expiry timeout not zero
+        if (self->expiry)
             self->expiry_timer = zloop_timer (
-                self->loop, self->timeout, 1, s_client_handle_timeout, self);
+                self->loop, self->expiry, 1, s_client_handle_expiry, self);
         s_client_execute (self, s_protocol_event (self, self->message));
         if (self->terminated)
             return -1;
@@ -2380,8 +2922,9 @@ struct _wap_client_t {
     char *reason;               //  Returned by actor reply
     uint64_t start_height;      //  Returned by actor reply
     uint64_t curr_height;       //  Returned by actor reply
-    zmsg_t *block_data;         //  Returned by actor reply
+    zmsg_t *msg_data;           //  Returned by actor reply
     zchunk_t *tx_data;          //  Returned by actor reply
+    uint8_t in_pool;            //  Returned by actor reply
     zframe_t *o_indexes;        //  Returned by actor reply
     zframe_t *random_outputs;   //  Returned by actor reply
     uint64_t height;            //  Returned by actor reply
@@ -2394,6 +2937,7 @@ struct _wap_client_t {
     uint64_t incoming_connections_count;  //  Returned by actor reply
     uint64_t white_peerlist_size;  //  Returned by actor reply
     uint64_t grey_peerlist_size;  //  Returned by actor reply
+    uint8_t testnet;            //  Returned by actor reply
     zframe_t *white_list;       //  Returned by actor reply
     zframe_t *gray_list;        //  Returned by actor reply
     uint8_t active;             //  Returned by actor reply
@@ -2404,6 +2948,23 @@ struct _wap_client_t {
     uint64_t reserved_offset;   //  Returned by actor reply
     zchunk_t *prev_hash;        //  Returned by actor reply
     zchunk_t *block_template_blob;  //  Returned by actor reply
+    uint8_t hfversion;          //  Returned by actor reply
+    uint8_t enabled;            //  Returned by actor reply
+    uint32_t window;            //  Returned by actor reply
+    uint32_t votes;             //  Returned by actor reply
+    uint32_t threshold;         //  Returned by actor reply
+    uint8_t voting;             //  Returned by actor reply
+    uint32_t hfstate;           //  Returned by actor reply
+    zframe_t *connections;      //  Returned by actor reply
+    zchunk_t *block;            //  Returned by actor reply
+    uint8_t major_version;      //  Returned by actor reply
+    uint8_t minor_version;      //  Returned by actor reply
+    uint64_t timestamp;         //  Returned by actor reply
+    uint32_t nonce;             //  Returned by actor reply
+    uint8_t orphan;             //  Returned by actor reply
+    uint64_t depth;             //  Returned by actor reply
+    uint64_t reward;            //  Returned by actor reply
+    zframe_t *spent;            //  Returned by actor reply
 };
 
 
@@ -2452,7 +3013,7 @@ wap_client_destroy (wap_client_t **self_p)
         zactor_destroy (&self->actor);
         zsock_destroy (&self->msgpipe);
         zstr_free (&self->reason);
-        zmsg_destroy (&self->block_data);
+        zmsg_destroy (&self->msg_data);
         zchunk_destroy (&self->tx_data);
         zframe_destroy (&self->o_indexes);
         zframe_destroy (&self->random_outputs);
@@ -2462,6 +3023,9 @@ wap_client_destroy (wap_client_t **self_p)
         zchunk_destroy (&self->hash);
         zchunk_destroy (&self->prev_hash);
         zchunk_destroy (&self->block_template_blob);
+        zframe_destroy (&self->connections);
+        zchunk_destroy (&self->block);
+        zframe_destroy (&self->spent);
         free (self);
         *self_p = NULL;
     }
@@ -2541,85 +3105,126 @@ s_accept_reply (wap_client_t *self, ...)
                 }
                 else
                 if (streq (reply, "BLOCKS OK")) {
-                    zmsg_destroy (&self->block_data);
-                    zsock_recv (self->actor, "888p", &self->status, &self->start_height, &self->curr_height, &self->block_data);
+                    zmsg_destroy (&self->msg_data);
+                    zsock_recv (self->actor, "488p", &self->status, &self->start_height, &self->curr_height, &self->msg_data);
                 }
                 else
-                if (streq (reply, "PUT OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                if (streq (reply, "SEND RAW TRANSACTION OK")) {
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
-                if (streq (reply, "GET OK")) {
+                if (streq (reply, "GET TX OK")) {
                     zchunk_destroy (&self->tx_data);
-                    zsock_recv (self->actor, "ip", &self->status, &self->tx_data);
+                    zsock_recv (self->actor, "4p1", &self->status, &self->tx_data, &self->in_pool);
                 }
                 else
                 if (streq (reply, "SAVE BC OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
                 if (streq (reply, "OUTPUT INDEXES OK")) {
                     zframe_destroy (&self->o_indexes);
-                    zsock_recv (self->actor, "8p", &self->status, &self->o_indexes);
+                    zsock_recv (self->actor, "4p", &self->status, &self->o_indexes);
                 }
                 else
                 if (streq (reply, "RANDOM OUTS OK")) {
                     zframe_destroy (&self->random_outputs);
-                    zsock_recv (self->actor, "8p", &self->status, &self->random_outputs);
+                    zsock_recv (self->actor, "4p", &self->status, &self->random_outputs);
                 }
                 else
                 if (streq (reply, "GET HEIGHT OK")) {
-                    zsock_recv (self->actor, "88", &self->status, &self->height);
+                    zsock_recv (self->actor, "48", &self->status, &self->height);
                 }
                 else
                 if (streq (reply, "GET INFO OK")) {
-                    zsock_recv (self->actor, "88888888888", &self->status, &self->height, &self->target_height, &self->difficulty, &self->tx_count, &self->tx_pool_size, &self->alt_blocks_count, &self->outgoing_connections_count, &self->incoming_connections_count, &self->white_peerlist_size, &self->grey_peerlist_size);
+                    zsock_recv (self->actor, "488888888881", &self->status, &self->height, &self->target_height, &self->difficulty, &self->tx_count, &self->tx_pool_size, &self->alt_blocks_count, &self->outgoing_connections_count, &self->incoming_connections_count, &self->white_peerlist_size, &self->grey_peerlist_size, &self->testnet);
                 }
                 else
-                if (streq (reply, "START OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                if (streq (reply, "START MINING OK")) {
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
-                if (streq (reply, "STOP OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                if (streq (reply, "STOP MINING OK")) {
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
                 if (streq (reply, "GET PEER LIST OK")) {
                     zframe_destroy (&self->white_list);
                     zframe_destroy (&self->gray_list);
-                    zsock_recv (self->actor, "8pp", &self->status, &self->white_list, &self->gray_list);
+                    zsock_recv (self->actor, "4pp", &self->status, &self->white_list, &self->gray_list);
                 }
                 else
                 if (streq (reply, "GET MINING STATUS OK")) {
                     zchunk_destroy (&self->address);
-                    zsock_recv (self->actor, "8188p", &self->status, &self->active, &self->speed, &self->thread_count, &self->address);
+                    zsock_recv (self->actor, "4188p", &self->status, &self->active, &self->speed, &self->thread_count, &self->address);
                 }
                 else
                 if (streq (reply, "SET LOG HASH RATE OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
                 if (streq (reply, "SET LOG LEVEL OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
                 if (streq (reply, "START SAVE GRAPH OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
                 if (streq (reply, "STOP SAVE GRAPH OK")) {
-                    zsock_recv (self->actor, "8", &self->status);
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 else
                 if (streq (reply, "GET BLOCK HASH OK")) {
                     zchunk_destroy (&self->hash);
-                    zsock_recv (self->actor, "8p", &self->status, &self->hash);
+                    zsock_recv (self->actor, "4p", &self->status, &self->hash);
                 }
                 else
                 if (streq (reply, "GET BLOCK TEMPLATE OK")) {
                     zchunk_destroy (&self->prev_hash);
                     zchunk_destroy (&self->block_template_blob);
-                    zsock_recv (self->actor, "8888pp", &self->status, &self->reserved_offset, &self->height, &self->difficulty, &self->prev_hash, &self->block_template_blob);
+                    zsock_recv (self->actor, "4888pp", &self->status, &self->reserved_offset, &self->height, &self->difficulty, &self->prev_hash, &self->block_template_blob);
+                }
+                else
+                if (streq (reply, "GET HARD FORK INFO OK")) {
+                    zsock_recv (self->actor, "41144414", &self->status, &self->hfversion, &self->enabled, &self->window, &self->votes, &self->threshold, &self->voting, &self->hfstate);
+                }
+                else
+                if (streq (reply, "GET CONNECTIONS LIST OK")) {
+                    zframe_destroy (&self->connections);
+                    zsock_recv (self->actor, "4p", &self->status, &self->connections);
+                }
+                else
+                if (streq (reply, "STOP DAEMON OK")) {
+                    zsock_recv (self->actor, "4", &self->status);
+                }
+                else
+                if (streq (reply, "GET BLOCK BY HEIGHT OK")) {
+                    zchunk_destroy (&self->block);
+                    zchunk_destroy (&self->prev_hash);
+                    zchunk_destroy (&self->hash);
+                    zsock_recv (self->actor, "4p118p4188p88", &self->status, &self->block, &self->major_version, &self->minor_version, &self->timestamp, &self->prev_hash, &self->nonce, &self->orphan, &self->height, &self->depth, &self->hash, &self->difficulty, &self->reward);
+                }
+                else
+                if (streq (reply, "GET BLOCK BY HASH OK")) {
+                    zchunk_destroy (&self->block);
+                    zchunk_destroy (&self->prev_hash);
+                    zchunk_destroy (&self->hash);
+                    zsock_recv (self->actor, "4p118p4188p88", &self->status, &self->block, &self->major_version, &self->minor_version, &self->timestamp, &self->prev_hash, &self->nonce, &self->orphan, &self->height, &self->depth, &self->hash, &self->difficulty, &self->reward);
+                }
+                else
+                if (streq (reply, "GET KEY IMAGE STATUS OK")) {
+                    zframe_destroy (&self->spent);
+                    zsock_recv (self->actor, "4p", &self->status, &self->spent);
+                }
+                else
+                if (streq (reply, "GET TX POOL OK")) {
+                    zmsg_destroy (&self->msg_data);
+                    zsock_recv (self->actor, "4p", &self->status, &self->msg_data);
+                }
+                else
+                if (streq (reply, "SET OUT PEERS OK")) {
+                    zsock_recv (self->actor, "4", &self->status);
                 }
                 break;
             }
@@ -2694,30 +3299,30 @@ wap_client_blocks (wap_client_t *self, zlist_t **block_ids_p, uint64_t start_hei
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_put (wap_client_t *self, zchunk_t **tx_as_hex_p)
+wap_client_send_raw_transaction (wap_client_t *self, zchunk_t **tx_as_hex_p)
 {
     assert (self);
 
-    zsock_send (self->actor, "sp", "PUT", *tx_as_hex_p);
+    zsock_send (self->actor, "sp", "SEND RAW TRANSACTION", *tx_as_hex_p);
     *tx_as_hex_p = NULL;        //  Take ownership of tx_as_hex
-    if (s_accept_reply (self, "PUT OK", "FAILURE", NULL))
+    if (s_accept_reply (self, "SEND RAW TRANSACTION OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
 
 
 //  ---------------------------------------------------------------------------
-//  Request a set of blocks from the server.                                        
+//  Request a set of transactions from the server.                                  
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_get (wap_client_t *self, zchunk_t **tx_id_p)
+wap_client_get_tx (wap_client_t *self, zchunk_t **tx_id_p, uint8_t as_json)
 {
     assert (self);
 
-    zsock_send (self->actor, "sp", "GET", *tx_id_p);
+    zsock_send (self->actor, "sp1", "GET TX", *tx_id_p, as_json);
     *tx_id_p = NULL;            //  Take ownership of tx_id
-    if (s_accept_reply (self, "GET OK", "FAILURE", NULL))
+    if (s_accept_reply (self, "GET TX OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
@@ -2806,33 +3411,33 @@ wap_client_get_info (wap_client_t *self)
 
 
 //  ---------------------------------------------------------------------------
-//  Send start command to server.                                                   
+//  Send start mining command to server.                                            
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_start (wap_client_t *self, zchunk_t **address_p, uint64_t thread_count)
+wap_client_start_mining (wap_client_t *self, zchunk_t **address_p, uint64_t thread_count)
 {
     assert (self);
 
-    zsock_send (self->actor, "sp8", "START", *address_p, thread_count);
+    zsock_send (self->actor, "sp8", "START MINING", *address_p, thread_count);
     *address_p = NULL;          //  Take ownership of address
-    if (s_accept_reply (self, "START OK", "FAILURE", NULL))
+    if (s_accept_reply (self, "START MINING OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
 
 
 //  ---------------------------------------------------------------------------
-//  Send stop command to server.                                                    
+//  Send stop mining command to server.                                             
 //  Returns >= 0 if successful, -1 if interrupted.
 
 int 
-wap_client_stop (wap_client_t *self)
+wap_client_stop_mining (wap_client_t *self)
 {
     assert (self);
 
-    zsock_send (self->actor, "s", "STOP");
-    if (s_accept_reply (self, "STOP OK", "FAILURE", NULL))
+    zsock_send (self->actor, "s", "STOP MINING");
+    if (s_accept_reply (self, "STOP MINING OK", "FAILURE", NULL))
         return -1;              //  Interrupted or timed-out
     return self->status;
 }
@@ -2968,6 +3573,136 @@ wap_client_get_block_template (wap_client_t *self, uint64_t reserve_size, zchunk
 
 
 //  ---------------------------------------------------------------------------
+//  Ask for hard fork info.                                                         
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_hard_fork_info (wap_client_t *self, uint8_t hfversion)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s1", "GET HARD FORK INFO", hfversion);
+    if (s_accept_reply (self, "GET HARD FORK INFO OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Get connections                                                                 
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_connections_list (wap_client_t *self)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s", "GET CONNECTIONS LIST");
+    if (s_accept_reply (self, "GET CONNECTIONS LIST OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Stop daemon                                                                     
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_stop_daemon (wap_client_t *self, uint8_t fast)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s1", "STOP DAEMON", fast);
+    if (s_accept_reply (self, "STOP DAEMON OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Get block by height                                                             
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_block_by_height (wap_client_t *self, uint64_t height, uint8_t header_only, uint8_t as_json)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s811", "GET BLOCK BY HEIGHT", height, header_only, as_json);
+    if (s_accept_reply (self, "GET BLOCK BY HEIGHT OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Get block by hash                                                               
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_block_by_hash (wap_client_t *self, zchunk_t **hash_p, uint8_t header_only, uint8_t as_json)
+{
+    assert (self);
+
+    zsock_send (self->actor, "sp11", "GET BLOCK BY HASH", *hash_p, header_only, as_json);
+    *hash_p = NULL;             //  Take ownership of hash
+    if (s_accept_reply (self, "GET BLOCK BY HASH OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Request key image status from the daemon.                                       
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_key_image_status (wap_client_t *self, zframe_t **key_images_p)
+{
+    assert (self);
+
+    zsock_send (self->actor, "sp", "GET KEY IMAGE STATUS", *key_images_p);
+    *key_images_p = NULL;       //  Take ownership of key_images
+    if (s_accept_reply (self, "GET KEY IMAGE STATUS OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Request tx pool from the daemon.                                                
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_get_tx_pool (wap_client_t *self)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s", "GET TX POOL");
+    if (s_accept_reply (self, "GET TX POOL OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Set the max number of out peers                                                 
+//  Returns >= 0 if successful, -1 if interrupted.
+
+int 
+wap_client_set_out_peers (wap_client_t *self, uint64_t num_out_peers)
+{
+    assert (self);
+
+    zsock_send (self->actor, "s8", "SET OUT PEERS", num_out_peers);
+    if (s_accept_reply (self, "SET OUT PEERS OK", "FAILURE", NULL))
+        return -1;              //  Interrupted or timed-out
+    return self->status;
+}
+
+
+//  ---------------------------------------------------------------------------
 //  Return last received status
 
 int 
@@ -3012,13 +3747,13 @@ wap_client_curr_height (wap_client_t *self)
 
 
 //  ---------------------------------------------------------------------------
-//  Return last received block_data
+//  Return last received msg_data
 
 zmsg_t *
-wap_client_block_data (wap_client_t *self)
+wap_client_msg_data (wap_client_t *self)
 {
     assert (self);
-    return self->block_data;
+    return self->msg_data;
 }
 
 
@@ -3030,6 +3765,17 @@ wap_client_tx_data (wap_client_t *self)
 {
     assert (self);
     return self->tx_data;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received in_pool
+
+uint8_t 
+wap_client_in_pool (wap_client_t *self)
+{
+    assert (self);
+    return self->in_pool;
 }
 
 
@@ -3166,6 +3912,17 @@ wap_client_grey_peerlist_size (wap_client_t *self)
 
 
 //  ---------------------------------------------------------------------------
+//  Return last received testnet
+
+uint8_t 
+wap_client_testnet (wap_client_t *self)
+{
+    assert (self);
+    return self->testnet;
+}
+
+
+//  ---------------------------------------------------------------------------
 //  Return last received white_list
 
 zframe_t *
@@ -3272,4 +4029,191 @@ wap_client_block_template_blob (wap_client_t *self)
 {
     assert (self);
     return self->block_template_blob;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received hfversion
+
+uint8_t 
+wap_client_hfversion (wap_client_t *self)
+{
+    assert (self);
+    return self->hfversion;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received enabled
+
+uint8_t 
+wap_client_enabled (wap_client_t *self)
+{
+    assert (self);
+    return self->enabled;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received window
+
+uint32_t 
+wap_client_window (wap_client_t *self)
+{
+    assert (self);
+    return self->window;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received votes
+
+uint32_t 
+wap_client_votes (wap_client_t *self)
+{
+    assert (self);
+    return self->votes;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received threshold
+
+uint32_t 
+wap_client_threshold (wap_client_t *self)
+{
+    assert (self);
+    return self->threshold;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received voting
+
+uint8_t 
+wap_client_voting (wap_client_t *self)
+{
+    assert (self);
+    return self->voting;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received hfstate
+
+uint32_t 
+wap_client_hfstate (wap_client_t *self)
+{
+    assert (self);
+    return self->hfstate;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received connections
+
+zframe_t *
+wap_client_connections (wap_client_t *self)
+{
+    assert (self);
+    return self->connections;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received block
+
+zchunk_t *
+wap_client_block (wap_client_t *self)
+{
+    assert (self);
+    return self->block;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received major_version
+
+uint8_t 
+wap_client_major_version (wap_client_t *self)
+{
+    assert (self);
+    return self->major_version;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received minor_version
+
+uint8_t 
+wap_client_minor_version (wap_client_t *self)
+{
+    assert (self);
+    return self->minor_version;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received timestamp
+
+uint64_t 
+wap_client_timestamp (wap_client_t *self)
+{
+    assert (self);
+    return self->timestamp;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received nonce
+
+uint32_t 
+wap_client_nonce (wap_client_t *self)
+{
+    assert (self);
+    return self->nonce;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received orphan
+
+uint8_t 
+wap_client_orphan (wap_client_t *self)
+{
+    assert (self);
+    return self->orphan;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received depth
+
+uint64_t 
+wap_client_depth (wap_client_t *self)
+{
+    assert (self);
+    return self->depth;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received reward
+
+uint64_t 
+wap_client_reward (wap_client_t *self)
+{
+    assert (self);
+    return self->reward;
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Return last received spent
+
+zframe_t *
+wap_client_spent (wap_client_t *self)
+{
+    assert (self);
+    return self->spent;
 }

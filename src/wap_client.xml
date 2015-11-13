@@ -39,23 +39,23 @@
             <action name = "prepare blocks command" />
             <action name = "send" message = "BLOCKS" />
         </event>
-        <event name = "get" next = "expect get ok">
-            <action name = "prepare get command" />
-            <action name = "send" message = "GET" />
+        <event name = "get tx" next = "expect get tx ok">
+            <action name = "prepare get tx command" />
+            <action name = "send" message = "GET-TX" />
         </event>
-        <event name = "put" next = "expect put ok">
-            <action name = "prepare put command" />
-            <action name = "send" message = "PUT" />
+        <event name = "send raw transaction" next = "expect send raw transaction ok">
+            <action name = "prepare send raw transaction command" />
+            <action name = "send" message = "SEND RAW TRANSACTION" />
         </event>
         <event name = "save bc" next = "expect save bc ok">
             <action name = "send" message = "SAVE BC" />
         </event>
-        <event name = "start" next = "expect start ok">
-            <action name = "prepare start command" />
-            <action name = "send" message = "START" />
+        <event name = "start mining" next = "expect start mining ok">
+            <action name = "prepare start mining command" />
+            <action name = "send" message = "START MINING" />
         </event>
-        <event name = "stop" next = "expect stop ok">
-            <action name = "send" message = "STOP" />
+        <event name = "stop mining" next = "expect stop mining ok">
+            <action name = "send" message = "STOP MINING" />
         </event>
         <event name = "output indexes" next = "expect output indexes ok">
             <action name = "prepare get output indexes command" />
@@ -99,6 +99,36 @@
         		<action name = "prepare get block template command" />
             <action name = "send" message = "GET BLOCK TEMPLATE" />
         </event>
+        <event name = "get hard fork info" next = "expect get hard fork info ok">
+            <action name = "prepare hard fork info command" />
+            <action name = "send" message = "GET HARD FORK INFO" />
+        </event>
+        <event name = "get connections list" next = "expect get connections list ok">
+            <action name = "send" message = "GET CONNECTIONS LIST" />
+        </event>
+        <event name = "stop daemon" next = "expect stop daemon ok">
+            <action name = "prepare stop daemon command" />
+            <action name = "send" message = "STOP DAEMON" />
+        </event>
+        <event name = "get block by height" next = "expect get block by height ok">
+            <action name = "prepare get block by height command" />
+            <action name = "send" message = "GET BLOCK BY HEIGHT" />
+        </event>
+        <event name = "get block by hash" next = "expect get block by hash ok">
+            <action name = "prepare get block by hash command" />
+            <action name = "send" message = "GET BLOCK BY HASH" />
+        </event>
+        <event name = "get key image status" next = "expect get key image status ok">
+            <action name = "prepare get key image status command" />
+            <action name = "send" message = "GET KEY IMAGE STATUS" />
+        </event>
+        <event name = "get tx pool" next = "expect get tx pool ok">
+            <action name = "send" message = "GET TX POOL" />
+        </event>
+        <event name = "set out peers" next = "expect set out peers ok">
+            <action name = "prepare set out peers command" />
+            <action name = "send" message = "SET OUT PEERS" />
+        </event>
         <event name = "destructor" next = "expect close ok">
             <action name = "send" message = "CLOSE" />
         </event>
@@ -114,15 +144,15 @@
         </event>
     </state>
 
-    <state name = "expect get ok" inherit = "defaults">
-        <event name = "GET OK" next = "connected">
-            <action name = "signal have get ok" />
+    <state name = "expect get tx ok" inherit = "defaults">
+        <event name = "GET TX OK" next = "connected">
+            <action name = "signal have get tx ok" />
         </event>
     </state>
 
-    <state name = "expect put ok" inherit = "defaults">
-        <event name = "PUT OK" next = "connected">
-            <action name = "signal have put ok" />
+    <state name = "expect send raw transaction ok" inherit = "defaults">
+        <event name = "SEND RAW TRANSACTION OK" next = "connected">
+            <action name = "signal have send raw transaction ok" />
         </event>
     </state>
 
@@ -132,15 +162,15 @@
         </event>
     </state>
 
-    <state name = "expect start ok" inherit = "defaults">
-        <event name = "START OK" next = "connected">
-            <action name = "signal have start ok" />
+    <state name = "expect start mining ok" inherit = "defaults">
+        <event name = "START MINING OK" next = "connected">
+            <action name = "signal have start mining ok" />
         </event>
     </state>
 
-    <state name = "expect stop ok" inherit = "defaults">
-        <event name = "STOP OK" next = "connected">
-            <action name = "signal have stop ok" />
+    <state name = "expect stop mining ok" inherit = "defaults">
+        <event name = "STOP MINING OK" next = "connected">
+            <action name = "signal have stop mining ok" />
         </event>
     </state>
     
@@ -213,6 +243,54 @@
 		<state name = "expect get block template ok" inherit = "defaults">
         <event name = "GET BLOCK TEMPLATE OK" next = "connected">
             <action name = "signal have get block template ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get hard fork info ok" inherit = "defaults">
+        <event name = "GET HARD FORK INFO OK" next = "connected">
+            <action name = "signal have get hard fork info ok" />
+        </event>
+    </state>
+
+    <state name = "expect get connections list ok" inherit = "defaults">
+        <event name = "GET CONNECTIONS LIST OK" next = "connected">
+            <action name = "signal have get connections list ok" />
+        </event>
+    </state>
+    
+    <state name = "expect stop daemon ok" inherit = "defaults">
+        <event name = "STOP DAEMON OK" next = "connected">
+            <action name = "signal have stop daemon ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get block by height ok" inherit = "defaults">
+        <event name = "GET BLOCK BY HEIGHT OK" next = "connected">
+            <action name = "signal have get block by height ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get block by hash ok" inherit = "defaults">
+        <event name = "GET BLOCK BY HASH OK" next = "connected">
+            <action name = "signal have get block by hash ok" />
+        </event>
+    </state>
+    
+    <state name = "expect get key image status ok" inherit = "defaults">
+        <event name = "GET KEY IMAGE STATUS OK" next = "connected">
+            <action name = "signal have get key image status ok" />
+        </event>
+    </state>
+
+    <state name = "expect get tx pool ok" inherit = "defaults">
+        <event name = "GET TX POOL OK" next = "connected">
+            <action name = "signal have get tx pool ok" />
+        </event>
+    </state>
+
+    <state name = "expect set out peers ok" inherit = "defaults">
+        <event name = "SET OUT PEERS OK" next = "connected">
+            <action name = "signal have set out peers ok" />
         </event>
     </state>
     
@@ -296,33 +374,35 @@
     </method>
 
     <reply name = "BLOCKS OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "start height" type = "number" size = "8" />
         <field name = "curr height" type = "number" size = "8" />
-        <field name = "block data" type = "msg" />
+        <field name = "msg data" type = "msg" />
     </reply>
     
-    <method name = "put" return = "status">
+    <method name = "send raw transaction" return = "status">
     Send a raw transaction to the daemon.
         <field name = "tx as hex" type = "chunk" />
-        <accept reply = "PUT OK" />
+        <accept reply = "SEND RAW TRANSACTION OK" />
         <accept reply = "FAILURE" />
     </method>
 
-    <reply name = "PUT OK">
-        <field name = "status" type = "number" size = "8" />
+    <reply name = "SEND RAW TRANSACTION OK">
+        <field name = "status" type = "number" size = "4" />
     </reply>
 
-    <method name = "get" return = "status">
-    Request a set of blocks from the server.
+    <method name = "get tx" return = "status">
+    Request a set of transactions from the server.
         <field name = "tx id" type = "chunk" />
-        <accept reply = "GET OK" />
+        <field name = "as-json" type = "number" size = "1" />
+        <accept reply = "GET TX OK" />
         <accept reply = "FAILURE" />
     </method>
 
-    <reply name = "GET OK">
-        <field name = "status" type = "integer" />
+    <reply name = "GET TX OK">
+        <field name = "status" type = "number" size = "4" />
         <field name = "tx data" type = "chunk" />
+        <field name = "in pool" type = "number" size = "1" />
     </reply>
 
     <method name = "save bc" return = "status">
@@ -332,7 +412,7 @@
     </method>
 
     <reply name = "SAVE BC OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
     </reply>
 
 		<method name = "output indexes" return = "status">
@@ -343,7 +423,7 @@
     </method>
 
     <reply name = "OUTPUT INDEXES OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "o indexes" type = "frame" >Output Indexes</field>
     </reply>
     
@@ -356,7 +436,7 @@
     </method>
 
     <reply name = "RANDOM OUTS OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "random outputs" type = "frame" >Outputs</field>
     </reply>
     
@@ -367,7 +447,7 @@
     </method>
 
     <reply name = "GET HEIGHT OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
     </reply>
     
@@ -378,7 +458,7 @@
     </method>
 
     <reply name = "GET INFO OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "target_height" type = "number" size = "8" >Target Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
@@ -389,28 +469,29 @@
         <field name = "incoming_connections_count" type = "number" size = "8" >Incoming Connections Count</field>
         <field name = "white_peerlist_size" type = "number" size = "8" >White Peerlist Size</field>
         <field name = "grey_peerlist_size" type = "number" size = "8" >Grey Peerlist Size</field>
+        <field name = "testnet" type = "number" size = "1" >Testnet</field>
     </reply>
 
-    <method name = "start" return = "status">
-    Send start command to server.
+    <method name = "start mining" return = "status">
+    Send start mining command to server.
         <field name = "address" type = "chunk" />
         <field name = "thread count" type = "number" size = "8" />
-        <accept reply = "START OK" />
+        <accept reply = "START MINING OK" />
         <accept reply = "FAILURE" />
     </method>
 
-    <reply name = "START OK">
-        <field name = "status" type = "number" size = "8" />
+    <reply name = "START MINING OK">
+        <field name = "status" type = "number" size = "4" />
     </reply>
 
-    <method name = "stop" return = "status">
-    Send stop command to server.
-        <accept reply = "STOP OK" />
+    <method name = "stop mining" return = "status">
+    Send stop mining command to server.
+        <accept reply = "STOP MINING OK" />
         <accept reply = "FAILURE" />
     </method>
     
-    <reply name = "STOP OK">
-        <field name = "status" type = "number" size = "8" />
+    <reply name = "STOP MINING OK">
+        <field name = "status" type = "number" size = "4" />
     </reply>
     
     <method name = "get peer list" return = "status">
@@ -420,7 +501,7 @@
     </method>
     
     <reply name = "GET PEER LIST OK">
-        <field name = "status" type = "number" size = "8" />
+        <field name = "status" type = "number" size = "4" />
         <field name = "white_list" type = "frame" >White list</field>
         <field name = "gray_list" type = "frame" >Gray list</field>
     </reply>
@@ -432,7 +513,7 @@
     </method>
     
     <reply name = "GET MINING STATUS OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "active" type = "number" size = "1" >Active</field>
         <field name = "speed" type = "number" size = "8" >Speed</field>
         <field name = "thread_count" type = "number" size = "8" >Threads count</field>
@@ -447,7 +528,7 @@
     </method>
     
     <reply name = "SET LOG HASH RATE OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "set log level" return = "status">
@@ -458,7 +539,7 @@
     </method>
     
     <reply name = "SET LOG LEVEL OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "start save graph" return = "status">
@@ -468,7 +549,7 @@
     </method>
     
     <reply name = "START SAVE GRAPH OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "stop save graph" return = "status">
@@ -478,7 +559,7 @@
     </method>
     
     <reply name = "STOP SAVE GRAPH OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
     </reply>
     
     <method name = "get block hash" return = "status">
@@ -489,7 +570,7 @@
     </method>
     
     <reply name = "GET BLOCK HASH OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "hash" type = "chunk" >Hash</field>
     </reply>
     
@@ -502,12 +583,137 @@
     </method>
     
     <reply name = "GET BLOCK TEMPLATE OK">
-        <field name = "status" type = "number" size = "8" >Status</field>
+        <field name = "status" type = "number" size = "4" >Status</field>
         <field name = "reserved_offset" type = "number" size = "8" >Rservered Offset</field>
         <field name = "height" type = "number" size = "8" >Height</field>
         <field name = "difficulty" type = "number" size = "8" >Difficulty</field>
         <field name = "prev_hash" type = "chunk" >Previous Hash</field>
         <field name = "block_template_blob" type = "chunk" >Block template blob</field>
     </reply>
+
+    <method name = "get hard fork info" return = "status">
+        Ask for hard fork info.
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
+        <accept reply = "GET HARD FORK INFO OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET HARD FORK INFO OK">
+        <field name = "status" type = "number" size = "4" >Status</field>
+        <field name = "hfversion" type = "number" size = "1" >Version</field>
+        <field name = "enabled" type = "number" size = "1" >Enabled</field>
+        <field name = "window" type = "number" size = "4" >Window</field>
+        <field name = "votes" type = "number" size = "4" >Votes</field>
+        <field name = "threshold" type = "number" size = "4" >Threshold</field>
+        <field name = "voting" type = "number" size = "1" >Voting</field>
+        <field name = "hfstate" type = "number" size = "4" >State</field>
+    </reply>
+
+    <method name = "get connections list" return = "status">
+    	Get connections
+        <accept reply = "GET CONNECTIONS LIST OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET CONNECTIONS LIST OK">
+        <field name = "status" type = "number" size = "4" />
+        <field name = "connections" type = "frame" >Connections</field>
+    </reply>
+    
+    <method name = "stop daemon" return = "status">
+        <field name = "fast" type = "number" size = "1" >Fast exit</field>
+        Stop daemon
+        <accept reply = "STOP DAEMON OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "STOP DAEMON OK">
+        <field name = "status" type = "number" size = "4" />
+    </reply>
+    
+    <method name = "get block by height" return = "status">
+        Get block by height
+        <field name = "height" type = "number" size = "8" >Height</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        <accept reply = "GET BLOCK BY HEIGHT OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET BLOCK BY HEIGHT OK">
+        <field name = "status" type = "number" size = "4" />
+        <field name = "block" type = "chunk" />
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "orphan" type = "number" size="1" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
+    </reply>
+    
+    <method name = "get block by hash" return = "status">
+        Get block by hash
+        <field name = "hash" type = "chunk" >Hash</field>
+        <field name = "header-only" type = "number" size = "1" >Header-only</field>
+        <field name = "as-json" type = "number" size = "1" >As JSON</field>
+        <accept reply = "GET BLOCK BY HASH OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "GET BLOCK BY HASH OK">
+        <field name = "status" type = "number" size = "4" />
+        <field name = "block" type = "chunk" />
+        <field name = "major_version" type = "number" size="1" />
+        <field name = "minor_version" type = "number" size="1" />
+        <field name = "timestamp" type = "number" size="8" />
+        <field name = "prev_hash" type = "chunk" />
+        <field name = "nonce" type = "number" size="4" />
+        <field name = "orphan" type = "number" size="1" />
+        <field name = "height" type = "number" size="8" />
+        <field name = "depth" type = "number" size="8" />
+        <field name = "hash" type = "chunk" />
+        <field name = "difficulty" type = "number" size="8" />
+        <field name = "reward" type = "number" size="8" />
+    </reply>
+    
+    <method name = "get key image status" return = "status">
+        Request key image status from the daemon.
+        <field name = "key images" type = "frame" />
+        <accept reply = "GET KEY IMAGE STATUS OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET KEY IMAGE STATUS OK">
+        <field name = "status" type = "number" size = "4" />
+        <field name = "spent" type = "frame" />
+    </reply>
+    
+    <method name = "get tx pool" return = "status">
+        Request tx pool from the daemon.
+        <accept reply = "GET TX POOL OK" />
+        <accept reply = "FAILURE" />
+    </method>
+
+    <reply name = "GET TX POOL OK">
+        <field name = "status" type = "number" size = "4" />
+        <field name = "msg data" type = "msg" />
+    </reply>
+    
+    <method name = "set out peers" return = "status">
+        <field name = "num out peers" type = "number" size = "8" >Max number of out peers</field>
+        Set the max number of out peers
+        <accept reply = "SET OUT PEERS OK" />
+        <accept reply = "FAILURE" />
+    </method>
+    
+    <reply name = "SET OUT PEERS OK">
+        <field name = "status" type = "number" size = "4" />
+    </reply>
+    
 </class>
 
